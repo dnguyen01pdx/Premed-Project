@@ -1,0 +1,86 @@
+[
+  {
+    "key": "why_this_school",
+    "label": "Why this school",
+    "description": "Asks what draws you to this specific program, curriculum, or city.",
+    "sortOrder": 10
+  },
+  {
+    "key": "diversity",
+    "label": "Diversity & perspective",
+    "description": "Asks what you bring to the community, or about engaging with people unlike you.",
+    "sortOrder": 20
+  },
+  {
+    "key": "adversity",
+    "label": "Adversity & challenge",
+    "description": "Asks about a setback, failure, difficult feedback, or a belief that got tested.",
+    "sortOrder": 30
+  },
+  {
+    "key": "gap_year",
+    "label": "Gap year & updates",
+    "description": "Asks what you have been doing since graduating or since submitting AMCAS.",
+    "sortOrder": 40
+  },
+  {
+    "key": "ethical_dilemma",
+    "label": "Ethical dilemma",
+    "description": "Asks how you handled a situation with competing values or incomplete information.",
+    "sortOrder": 50
+  },
+  {
+    "key": "leadership",
+    "label": "Leadership & advocacy",
+    "description": "Asks about leading a team, advocating for someone, or driving change.",
+    "sortOrder": 60
+  },
+  {
+    "key": "future_goals",
+    "label": "Future goals",
+    "description": "Asks where you see your career going and why you need an MD to get there.",
+    "sortOrder": 70
+  },
+  {
+    "key": "community_service",
+    "label": "Community & service",
+    "description": "Asks about volunteer work, underserved populations, or contribution to a community.",
+    "sortOrder": 80
+  },
+  {
+    "key": "clinical_experience",
+    "label": "Clinical experience",
+    "description": "Asks specifically about patient-facing or healthcare work.",
+    "sortOrder": 90
+  },
+  {
+    "key": "research",
+    "label": "Research",
+    "description": "Asks you to describe a research project, your role, and what it taught you.",
+    "sortOrder": 100
+  },
+  {
+    "key": "personal_background",
+    "label": "Personal background",
+    "description": "Asks about upbringing, family, curiosity, or who you are outside medicine.",
+    "sortOrder": 110
+  },
+  {
+    "key": "reapplicant",
+    "label": "Reapplicant",
+    "description": "Asks what has changed since your last application.",
+    "sortOrder": 120
+  },
+  {
+    "key": "open_ended",
+    "label": "Open-ended",
+    "description": "The catch-all: anything else the committee should know.",
+    "sortOrder": 130
+  },
+  {
+    "key": "administrative",
+    "label": "Administrative",
+    "description": "Not really an essay: scheduling, disclosures, transcript explanations.",
+    "sortOrder": 140
+  }
+]

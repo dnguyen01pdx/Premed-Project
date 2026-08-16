@@ -1,0 +1,494 @@
+{
+  "_readme": "Seed data for the secondary prompt database. Every prompt in this file is UNCONFIRMED: the text was compiled from a third-party aggregator, not read off each school's own application. Before launch, verify prompts against the school's own materials and set confirmed=true (see README). Prompts whose text ends in an ellipsis were truncated at the source and need the full wording filled in.",
+  "schools": [
+    {
+      "slug": "harvard-medical-school",
+      "name": "Harvard Medical School",
+      "shortName": "Harvard",
+      "city": "Boston",
+      "state": "MA",
+      "degree": "MD",
+      "websiteUrl": "https://meded.hms.harvard.edu/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/harvard-medical-school",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "If you have already graduated, briefly summarize your activities since graduation.", "type": "gap_year", "limit": 4000, "unit": "characters", "optional": false },
+        { "text": "If there is an important aspect of your experience not addressed elsewhere in the application that may illuminate how you could contribute to the medical school...", "type": "open_ended", "limit": null, "unit": "none", "optional": true, "notes": "Text truncated at the source; verify the full wording." }
+      ]
+    },
+    {
+      "slug": "johns-hopkins-university-school-of-medicine",
+      "name": "Johns Hopkins University School of Medicine",
+      "shortName": "Johns Hopkins",
+      "city": "Baltimore",
+      "state": "MD",
+      "degree": "MD",
+      "websiteUrl": "https://www.hopkinsmedicine.org/som/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/johns-hopkins-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Briefly describe a specific challenge you faced and how you overcame it. What was your approach, what did you learn from the process, and how do you see those skills translating to a career in medicine?", "type": "adversity", "limit": 250, "unit": "words", "optional": false },
+        { "text": "Describe an interaction that required you to understand or engage with a perspective different from your own. How did you respond and what was the outcome?", "type": "diversity", "limit": 250, "unit": "words", "optional": false },
+        { "text": "Please review the Johns Hopkins Medicine Website. Is there an area of medicine or a particular medical specialty at Johns Hopkins that interests you and why?", "type": "why_this_school", "limit": 250, "unit": "words", "optional": false },
+        { "text": "Every future physician has a story. What's yours? Share the experience, insight, or connection that first made you see yourself in medicine, and how it continues to shape your path.", "type": "personal_background", "limit": 300, "unit": "words", "optional": false },
+        { "text": "Reflect on your alignment with the Johns Hopkins mission, culture, and community, with particular attention to academic, research, and extracurricular opportunities and to engagement with Baltimore patients and families.", "type": "why_this_school", "limit": 300, "unit": "words", "optional": false, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Would you like to share any additional information with the Admissions Committee about yourself that cannot be found elsewhere in your application? This space can also address any extenuating circumstances...", "type": "open_ended", "limit": 300, "unit": "words", "optional": true, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Please describe what you have been doing since graduation and your plans for the upcoming year.", "type": "gap_year", "limit": 300, "unit": "words", "optional": true }
+      ]
+    },
+    {
+      "slug": "warren-alpert-medical-school-brown-university",
+      "name": "The Warren Alpert Medical School of Brown University",
+      "shortName": "Brown",
+      "city": "Providence",
+      "state": "RI",
+      "degree": "MD",
+      "websiteUrl": "https://medical.brown.edu/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/the-warren-alpert-medical-school-of-brown-university",
+      "cycleYear": "2025-2026",
+      "prompts": [
+        { "text": "Do you have significant limitations on your interview availability for the admissions cycle?", "type": "administrative", "limit": 500, "unit": "characters", "optional": true, "notes": "Interviews are held Thursdays and Fridays from mid-September through February." },
+        { "text": "Summarize your activities during the academic year. Describe how your activities are preparing you for a medical career.", "type": "gap_year", "limit": 2000, "unit": "characters", "optional": false },
+        { "text": "How will your unique attributes, life experiences, and interests add to The Warren Alpert Medical School community?", "type": "diversity", "limit": 2000, "unit": "characters", "optional": false },
+        { "text": "Reflect on a non-academic situation when you had to change course, and how you did so.", "type": "adversity", "limit": 3000, "unit": "characters", "optional": false }
+      ]
+    },
+    {
+      "slug": "stanford-university-school-of-medicine",
+      "name": "Stanford University School of Medicine",
+      "shortName": "Stanford",
+      "city": "Stanford",
+      "state": "CA",
+      "degree": "MD",
+      "websiteUrl": "https://med.stanford.edu/md-admissions.html",
+      "source": "https://www.medcoach.io/secondary-prompts/stanford-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "What do you see as the most likely practice scenario for your future medical career?...", "type": "future_goals", "limit": 1000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "How will you take advantage of the Stanford Medicine Discovery Curriculum...", "type": "why_this_school", "limit": 1000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Describe in a short paragraph your educational and family background.", "type": "personal_background", "limit": 600, "unit": "characters", "optional": false },
+        { "text": "How have your life experiences shaped your perspective on medicine...", "type": "personal_background", "limit": 2000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Please describe a significant contribution you've made to a community...", "type": "community_service", "limit": 1000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "What do you see as your greatest area for growth, and how will you address it?", "type": "adversity", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Please describe a time you felt unfairly treated or judged...", "type": "adversity", "limit": 1000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Please include anything else that will help us understand you better...", "type": "open_ended", "limit": 1000, "unit": "characters", "optional": true, "notes": "Text truncated at the source; verify the full wording." }
+      ]
+    },
+    {
+      "slug": "duke-university-school-of-medicine",
+      "name": "Duke University School of Medicine",
+      "shortName": "Duke",
+      "city": "Durham",
+      "state": "NC",
+      "degree": "MD",
+      "websiteUrl": "https://medschool.duke.edu/education/health-professions-education-programs/doctor-medicine-program",
+      "source": "https://www.medcoach.io/secondary-prompts/duke-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Share with us your story.", "type": "personal_background", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Trust and rapport are essential in your day-to-day interactions with people. How do you build a relationship with a person who may be very different from you?", "type": "diversity", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Describe a situation in which you chose to advocate for someone or for a cause different than yours. Define your view of advocacy. What risks, if any, might be associated with your choice to be an advocate?", "type": "leadership", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Describe a time when you received feedback following a setback. What did you do to implement change?", "type": "adversity", "limit": 400, "unit": "words", "optional": false },
+        { "text": "What do you value most as a leader and as a contributor? What attributes do you possess as a leader and as a team member and how do you apply them on a daily basis?", "type": "leadership", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Critical thinking involves a number of characteristics. Describe any research experience or similar experience in which you utilized critical thinking. How will critical thinking be important in your future career?", "type": "research", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Drawing from your clinical experiences, how have you fostered a connection with people?", "type": "clinical_experience", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Which personal quality or skill of yours have you found to be the most beneficial in building relationships within your community?", "type": "community_service", "limit": 400, "unit": "words", "optional": false },
+        { "text": "Please let us know any additional information that you would like us to consider while reviewing your application.", "type": "open_ended", "limit": 400, "unit": "words", "optional": true }
+      ]
+    },
+    {
+      "slug": "yale-school-of-medicine",
+      "name": "Yale School of Medicine",
+      "shortName": "Yale",
+      "city": "New Haven",
+      "state": "CT",
+      "degree": "MD",
+      "websiteUrl": "https://medicine.yale.edu/md-program/admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/yale-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Have there been any updates regarding your activities / achievements / distinctions since completing your AMCAS application...", "type": "gap_year", "limit": null, "unit": "none", "optional": true, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Yale School of Medicine is committed to improving the health of all people. How have your experiences prepared you to care for all individuals regardless of background, education, or viewpoint?", "type": "diversity", "limit": 500, "unit": "words", "optional": false },
+        { "text": "While there is great emphasis on the physician-patient relationship, Yale School of Medicine also emphasizes the importance of training future physicians to care for communities and populations...", "type": "community_service", "limit": 500, "unit": "words", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Research is essential to patient care, and all students at Yale School of Medicine complete a research thesis. Tell us how your research interests, skills and experiences would contribute...", "type": "research", "limit": 500, "unit": "words", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "If you are not enrolled in college or graduate school classes for the duration of the current academic year, please tell us how you are spending your time...", "type": "gap_year", "limit": null, "unit": "none", "optional": true, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "It should be used to bring to the attention of the Admissions Committee any important information relevant to your qualifications not discussed in other sections of your Yale Secondary Application.", "type": "open_ended", "limit": 500, "unit": "words", "optional": true }
+      ]
+    },
+    {
+      "slug": "university-of-michigan-medical-school",
+      "name": "University of Michigan Medical School",
+      "shortName": "Michigan",
+      "city": "Ann Arbor",
+      "state": "MI",
+      "degree": "MD",
+      "websiteUrl": "https://medicine.umich.edu/medschool/education/md-program/md-admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/university-of-michigan-medical-school",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "How do you hope to impact medicine and improve patient care in the future? Why do you need a medical degree to fulfill these goals?", "type": "future_goals", "limit": 1500, "unit": "characters", "optional": false },
+        { "text": "Please describe the impact of your identity and experiences on your growth and development, and how it may impact your career as a physician.", "type": "diversity", "limit": 1500, "unit": "characters", "optional": false },
+        { "text": "The University of Michigan Medical School strives to be a place of empowerment, advocacy and change in health care. What experiences have you had in empowerment and advocacy for others that would help to advance this mission?", "type": "leadership", "limit": 1500, "unit": "characters", "optional": false },
+        { "text": "Outside of medicine, and beyond what we can read in your application, tell us what you are curious about or what you have chosen to explore.", "type": "personal_background", "limit": 1500, "unit": "characters", "optional": false }
+      ]
+    },
+    {
+      "slug": "columbia-vagelos-college-of-physicians-and-surgeons",
+      "name": "Columbia University Vagelos College of Physicians and Surgeons",
+      "shortName": "Columbia",
+      "city": "New York",
+      "state": "NY",
+      "degree": "MD",
+      "websiteUrl": "https://www.vagelos.columbia.edu/education/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/columbia-university-vagelos-college-of-physicians-and-surgeons",
+      "cycleYear": "2025-2026",
+      "prompts": [
+        { "text": "Did you work for compensation during college (either during the school year or summers)? If so, what did you do? How many hours a week did you work?", "type": "personal_background", "limit": 300, "unit": "words", "optional": false },
+        { "text": "If you have graduated from college, please briefly summarize what you have done in the interim.", "type": "gap_year", "limit": 300, "unit": "words", "optional": false },
+        { "text": "Please describe your most meaningful leadership positions.", "type": "leadership", "limit": 300, "unit": "words", "optional": false },
+        { "text": "Columbia Vagelos College of Physicians and Surgeons values diversity in all its forms. How will your experiences contribute to this important focus of our institution and inform your future role as a physician?", "type": "diversity", "limit": 300, "unit": "words", "optional": false },
+        { "text": "Is there anything else you would like us to know?", "type": "open_ended", "limit": 400, "unit": "words", "optional": false },
+        { "text": "What academic honors have you received (e.g., prizes, scholarships, fellowships, honor societies)?", "type": "personal_background", "limit": 1000, "unit": "words", "optional": false, "notes": "MD-PhD (MSTP) applicants only." },
+        { "text": "What are your major research interests?", "type": "research", "limit": 20, "unit": "words", "optional": false, "notes": "MD-PhD (MSTP) applicants only." },
+        { "text": "What are your PhD Goals at Columbia University Vagelos College of Physicians and Surgeons?", "type": "research", "limit": 1000, "unit": "words", "optional": false, "notes": "MD-PhD (MSTP) applicants only." },
+        { "text": "Is there any other information you would like to include to the admissions committee?", "type": "open_ended", "limit": 1000, "unit": "words", "optional": false, "notes": "MD-PhD (MSTP) applicants only." }
+      ]
+    },
+    {
+      "slug": "icahn-school-of-medicine-at-mount-sinai",
+      "name": "Icahn School of Medicine at Mount Sinai",
+      "shortName": "Mount Sinai",
+      "city": "New York",
+      "state": "NY",
+      "degree": "MD",
+      "websiteUrl": "https://icahn.mssm.edu/education/medical/md-admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/icahn-school-of-medicine-at-mount-sinai",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "If you are currently not a full-time student, please briefly describe the activities you are participating in this academic year.", "type": "gap_year", "limit": 100, "unit": "words", "optional": false },
+        { "text": "If you are committed to a particular community or if there is an important aspect of your background not addressed elsewhere in the application, we invite you to do so here. Briefly explain how such factors have influenced your motivation for a career in medicine.", "type": "diversity", "limit": 150, "unit": "words", "optional": false },
+        { "text": "What is the toughest feedback you ever received? How did you handle it, and what did you learn from it?", "type": "adversity", "limit": 250, "unit": "words", "optional": false },
+        { "text": "Describe a situation that you have thought to be unfair or unjust, whether towards yourself or others. How did you address the situation, if at all?", "type": "ethical_dilemma", "limit": 250, "unit": "words", "optional": false }
+      ]
+    },
+    {
+      "slug": "ucla-david-geffen-school-of-medicine",
+      "name": "David Geffen School of Medicine at UCLA",
+      "shortName": "UCLA",
+      "city": "Los Angeles",
+      "state": "CA",
+      "degree": "MD",
+      "websiteUrl": "https://medschool.ucla.edu/education/md-admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/university-of-california-los-angeles-david-geffen-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "At the David Geffen School of Medicine at UCLA, students are provided with curriculum and experiences enabling them to become an \"Outstanding Physician, AND...\", dedicating themselves to important societal missions. What missions do you want to embrace? What have you done toward your missions?", "type": "future_goals", "limit": 800, "unit": "characters", "optional": false },
+        { "text": "Describe your most unique leadership, entrepreneurial, or creative activity, and explain its impact on your progress toward becoming an \"Outstanding Physician, AND...\"", "type": "leadership", "limit": 800, "unit": "characters", "optional": false, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Describe your most important volunteer work and why it was meaningful, and indicate how it relates to your career goals as an \"Outstanding Physician, AND...\"", "type": "community_service", "limit": 800, "unit": "characters", "optional": false, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Describe your most scholarly project (thesis, research or field of study in basic or clinical science or in the humanities) and provide the total number of hours, dates and advisor.", "type": "research", "limit": 800, "unit": "characters", "optional": false },
+        { "text": "Describe how the COVID-19 pandemic has impacted your pathway to medical school. Include any academic, personal, financial or professional barriers, as well as other relevant information.", "type": "adversity", "limit": 800, "unit": "characters", "optional": false },
+        { "text": "If applicable, describe your activities during the time between college graduation and medical school matriculation.", "type": "gap_year", "limit": 800, "unit": "characters", "optional": true, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "If applicable, describe experiences of marginalization and health or educational disparities.", "type": "diversity", "limit": 800, "unit": "characters", "optional": true, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Are you re-applying to DGSOM? If you answered \"Yes,\" describe what has changed since you last applied to DGSOM. Please be specific.", "type": "reapplicant", "limit": 800, "unit": "characters", "optional": true }
+      ]
+    },
+    {
+      "slug": "washington-university-school-of-medicine-st-louis",
+      "name": "Washington University in St. Louis School of Medicine",
+      "shortName": "WashU",
+      "city": "St. Louis",
+      "state": "MO",
+      "degree": "MD",
+      "websiteUrl": "https://medicine.washu.edu/education/md-program/",
+      "source": "https://www.medcoach.io/secondary-prompts/washington-university-in-st-louis-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Have you already completed your undergraduate education, have you had your college or graduate education interrupted, or do you plan not to be a full-time student during your application year? If yes, describe in chronological order your activities during the time(s) when you were not enrolled as a full-time student.", "type": "gap_year", "limit": 2000, "unit": "characters", "optional": true },
+        { "text": "Describe a time or situation where you have been unsuccessful or failed.", "type": "adversity", "limit": 3000, "unit": "characters", "optional": false },
+        { "text": "Is there anything else you would like to share with the Committee on Admissions?", "type": "open_ended", "limit": 3000, "unit": "characters", "optional": false },
+        { "text": "Have you, a family member, or a research mentor had any personal experience or relationship with WashU Medicine? If yes: Please explain.", "type": "why_this_school", "limit": 4000, "unit": "characters", "optional": true }
+      ]
+    },
+    {
+      "slug": "university-of-pittsburgh-school-of-medicine",
+      "name": "University of Pittsburgh School of Medicine",
+      "shortName": "Pitt",
+      "city": "Pittsburgh",
+      "state": "PA",
+      "degree": "MD",
+      "websiteUrl": "https://www.medschool.pitt.edu/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/university-of-pittsburgh-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "How do you see yourself fitting into our curriculum, given your personality traits and learning style? What aspects do you expect will come naturally to you, and what challenges do you anticipate?", "type": "why_this_school", "limit": 250, "unit": "words", "optional": false },
+        { "text": "Tell us about a challenging situation in which a belief or assumption you made was challenged by new evidence or experience. How did you respond in the moment, and what did you do afterward?", "type": "adversity", "limit": 250, "unit": "words", "optional": false },
+        { "text": "Respect for others and the ability to empathize with people from different backgrounds are integral to the successful practice of medicine. Describe a situation you observed that illustrates the impact of respect and empathy. What did you learn from this experience, and how has it influenced the type of physician you aspire to become?", "type": "diversity", "limit": 250, "unit": "words", "optional": false },
+        { "text": "If you wish, use this space to tell the UPSOM Admissions Committee anything else about yourself.", "type": "open_ended", "limit": 250, "unit": "words", "optional": true }
+      ]
+    },
+    {
+      "slug": "northwestern-feinberg-school-of-medicine",
+      "name": "Northwestern University Feinberg School of Medicine",
+      "shortName": "Northwestern",
+      "city": "Chicago",
+      "state": "IL",
+      "degree": "MD",
+      "websiteUrl": "https://www.feinberg.northwestern.edu/md-education/admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/northwestern-university-the-feinberg-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Feinberg's mission is to train future leaders who will serve their patients, communities and society. Explain which aspects of Feinberg will support your future goals in medicine and how FSM, located in Chicago, will help you achieve these professional aspirations.", "type": "why_this_school", "limit": 200, "unit": "words", "optional": false },
+        { "text": "Describe a favorite book, movie, album, or other work of art you would like to share with your future classmates and why.", "type": "personal_background", "limit": 200, "unit": "words", "optional": false },
+        { "text": "If you have one year or more between college graduation and medical school matriculation, describe both your completed activities and anticipated plans, including the extent of your involvement.", "type": "gap_year", "limit": 200, "unit": "words", "optional": true },
+        { "text": "If you are reapplying to medical school, please address steps taken to enhance your application.", "type": "reapplicant", "limit": 200, "unit": "words", "optional": true },
+        { "text": "The Feinberg School of Medicine values the totality of our students' experiences. As everyone has their own narrative, please describe how your experiences have shaped your interests, preparation for medicine, or perspective on patient care, and how they may contribute to your development with the Northwestern community.", "type": "diversity", "limit": 200, "unit": "words", "optional": false }
+      ]
+    },
+    {
+      "slug": "vanderbilt-university-school-of-medicine",
+      "name": "Vanderbilt University School of Medicine",
+      "shortName": "Vanderbilt",
+      "city": "Nashville",
+      "state": "TN",
+      "degree": "MD",
+      "websiteUrl": "https://medschool.vanderbilt.edu/md-admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/vanderbilt-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Please reflect on the upbringing, background, and experiences in your life that have shaped who you are as a person and will help define the person you want to be in the future. In other words, what makes you who you are?", "type": "personal_background", "limit": 800, "unit": "words", "optional": false },
+        { "text": "Tell us about a time when you interacted with someone who is different than you. What did you learn? Would you do anything differently and if so, what?", "type": "diversity", "limit": 600, "unit": "words", "optional": false },
+        { "text": "It is important to understand that everyone needs help at various times in their lives. Reflecting on the last five years, describe a time you asked for help and what you gained from that experience that has influenced your approach to asking for help.", "type": "adversity", "limit": 600, "unit": "words", "optional": false },
+        { "text": "Please briefly summarize your activities since graduating from college. If you are still enrolled in undergraduate studies, please comment on any new projects, roles or initiatives undertaken since submitting your AMCAS application.", "type": "gap_year", "limit": 200, "unit": "words", "optional": true }
+      ]
+    },
+    {
+      "slug": "emory-university-school-of-medicine",
+      "name": "Emory University School of Medicine",
+      "shortName": "Emory",
+      "city": "Atlanta",
+      "state": "GA",
+      "degree": "MD",
+      "websiteUrl": "https://med.emory.edu/education/programs/md/admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/emory-university-school-of-medicine",
+      "cycleYear": "2025-2026",
+      "prompts": [
+        { "text": "List your entire curriculum plan for the academic year. If you are not in school, please briefly describe your plans for the coming year.", "type": "gap_year", "limit": 200, "unit": "words", "optional": false },
+        { "text": "Briefly describe your health-related experiences. Be sure to include important experiences that are in your AMCAS application, as well as any recent experiences.", "type": "clinical_experience", "limit": 200, "unit": "words", "optional": false },
+        { "text": "Briefly describe your interest in Emory and the Emory degree program you have selected.", "type": "why_this_school", "limit": 200, "unit": "words", "optional": false },
+        { "text": "Emory School of Medicine is committed to recruiting and educating medical students who will help deliver quality health care and will promote the health of our patients. In our community, this includes learning about and addressing the health care needs of our most under-served populations. Please describe any of your activities that have been in service to under-served communities.", "type": "community_service", "limit": 200, "unit": "words", "optional": false },
+        { "text": "If you have any updates or new information to report since you have submitted your AMCAS primary application, please briefly describe below.", "type": "gap_year", "limit": 200, "unit": "words", "optional": false }
+      ]
+    },
+    {
+      "slug": "case-western-reserve-university-school-of-medicine",
+      "name": "Case Western Reserve University School of Medicine",
+      "shortName": "Case Western",
+      "city": "Cleveland",
+      "state": "OH",
+      "degree": "MD",
+      "websiteUrl": "https://case.edu/medicine/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/case-western-reserve-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "The Admissions Committee is interested in gaining more insight into you as a person. Describe a significant personal challenge and its impact...", "type": "personal_background", "limit": 2000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Please tell us about ONE research project to which you made a significant contribution. Describe your role, the hypothesis, methods, results, and what it means for your career...", "type": "research", "limit": 3500, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Describe an experience (or experiences) that changed how you understand the relationship between health and life conditions...", "type": "diversity", "limit": 1500, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "What does your ideal career entail fifteen years after medical school graduation?", "type": "future_goals", "limit": 1000, "unit": "characters", "optional": false }
+      ]
+    },
+    {
+      "slug": "boston-university-chobanian-avedisian-school-of-medicine",
+      "name": "Boston University Aram V. Chobanian & Edward Avedisian School of Medicine",
+      "shortName": "Boston University",
+      "city": "Boston",
+      "state": "MA",
+      "degree": "MD",
+      "websiteUrl": "https://www.bumc.bu.edu/busm/admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/boston-university-sch-of-med",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Do you hope to attend medical school immediately after earning your undergraduate degree? If no, describe how you've spent your time leading up to applying to medical school.", "type": "gap_year", "limit": 300, "unit": "words", "optional": false },
+        { "text": "Provide a timeline or narrative highlighting any notable aspects of your educational journey that you believe are especially relevant or significant to us better understanding who you are.", "type": "personal_background", "limit": 300, "unit": "words", "optional": true },
+        { "text": "Why BU Chobanian & Avedisian SOM? Boston Medical Center is the largest safety net hospital in New England, serving primarily people who are publicly insured, people of color, immigrants, and low-income people in the Greater Boston Area.", "type": "why_this_school", "limit": 300, "unit": "words", "optional": false },
+        { "text": "Use this space to provide any additional information you feel will provide us with a comprehensive understanding of your strengths as a candidate for a career in medicine.", "type": "open_ended", "limit": 300, "unit": "words", "optional": true },
+        { "text": "Use this space to highlight aspects of your application that have changed since your last application.", "type": "reapplicant", "limit": 300, "unit": "words", "optional": true }
+      ]
+    },
+    {
+      "slug": "weill-cornell-medicine",
+      "name": "Weill Cornell Medicine",
+      "shortName": "Weill Cornell",
+      "city": "New York",
+      "state": "NY",
+      "degree": "MD",
+      "websiteUrl": "https://medicine.weill.cornell.edu/education/md-program",
+      "source": "https://www.medcoach.io/secondary-prompts/weill-cornell-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Please write a brief statement giving your reasons for applying to Weill Cornell Medical College.", "type": "why_this_school", "limit": 1525, "unit": "characters", "optional": false },
+        { "text": "Describe a setback or failure that required you to reassess your approach. How did you respond?", "type": "adversity", "limit": 1525, "unit": "characters", "optional": false },
+        { "text": "Please share something you became curious about and chose to explore further. What motivated your interest, and what did you learn through the process? (This does not have to be related to medicine).", "type": "personal_background", "limit": 1525, "unit": "characters", "optional": false },
+        { "text": "Describe a time when your perspective was challenged by someone with a different viewpoint. How did you engage with that difference, and what did you take away from the experience?", "type": "diversity", "limit": 1525, "unit": "characters", "optional": false },
+        { "text": "If you are NOT attending college full time during the upcoming academic year, what are your plans?", "type": "gap_year", "limit": 1525, "unit": "characters", "optional": true }
+      ]
+    },
+    {
+      "slug": "perelman-school-of-medicine-university-of-pennsylvania",
+      "name": "Perelman School of Medicine at the University of Pennsylvania",
+      "shortName": "Penn",
+      "city": "Philadelphia",
+      "state": "PA",
+      "degree": "MD",
+      "websiteUrl": "https://www.med.upenn.edu/admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/perelman-school-of-medicine-at-the-university-of-pennsylvania",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Have you taken or are you planning to take time off between college graduation and medical school matriculation? If yes, please describe your activities during this time.", "type": "gap_year", "limit": 700, "unit": "characters", "optional": false },
+        { "text": "Have you participated in any global activities outside of the U.S. prior to submitting your AMCAS application?", "type": "personal_background", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "How would your life experiences contribute to the Perelman and Penn community, and how do they inform your decision to pursue a medical education?", "type": "diversity", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "We all periodically have to make decisions under challenging circumstances. Physicians and physician-scientists sometimes need to proceed and act with limited information. Please describe a time when you faced a situation that was ambiguous, confusing, or uncertain, and how you navigated the matter despite lacking all of the necessary information.", "type": "ethical_dilemma", "limit": 3000, "unit": "characters", "optional": false },
+        { "text": "Have you or your family experienced economic hardships, regardless of current income status?", "type": "personal_background", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Please share your reasons for applying to the Perelman School of Medicine.", "type": "why_this_school", "limit": 1000, "unit": "characters", "optional": false }
+      ]
+    },
+    {
+      "slug": "university-of-chicago-pritzker-school-of-medicine",
+      "name": "University of Chicago Pritzker School of Medicine",
+      "shortName": "Pritzker",
+      "city": "Chicago",
+      "state": "IL",
+      "degree": "MD",
+      "websiteUrl": "https://pritzker.uchicago.edu/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/university-of-chicago-division-of-the-biological-sciences-the-pritzker-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Students at the Pritzker School of Medicine complete the majority of their clinical training at UChicago Medicine (UCM)... Discuss the personal and professional experiences that prepare you for work in this community-focused clinical environment.", "type": "community_service", "limit": 450, "unit": "words", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "All MD students participate in our longitudinal Scholarship & Discovery research program... Describe your research interests and how the school's opportunities align with your career goals.", "type": "research", "limit": 450, "unit": "words", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Medical education requires humility and resilience as students learn to become physicians... Discuss a challenging situation, the coping skills you used, and who you consulted for support.", "type": "adversity", "limit": 450, "unit": "words", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Please feel free to use this space to convey any additional information...", "type": "open_ended", "limit": 300, "unit": "words", "optional": true, "notes": "Limit is a suggestion at the source; verify the stated limit." },
+        { "text": "If your school has a premedical committee or premedical advisor... explain if you declined institutional letter support.", "type": "administrative", "limit": 200, "unit": "words", "optional": true, "notes": "Limit is a suggestion at the source; verify the stated limit." }
+      ]
+    },
+    {
+      "slug": "nyu-grossman-school-of-medicine",
+      "name": "NYU Grossman School of Medicine",
+      "shortName": "NYU Grossman",
+      "city": "New York",
+      "state": "NY",
+      "degree": "MD",
+      "websiteUrl": "https://med.nyu.edu/education/md-degree/md-admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/new-york-university-grossman-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "If applicable, please comment on significant fluctuations in your academic record.", "type": "administrative", "limit": null, "unit": "none", "optional": true },
+        { "text": "If you have taken any time off from your studies - before, during, or after college - please describe what you did during that time and your reasons for doing so.", "type": "gap_year", "limit": null, "unit": "none", "optional": true },
+        { "text": "Tell us about a long-term goal you pursued over several years. What obstacles did you encounter, and what sustained your motivation when progress was slow?", "type": "adversity", "limit": 2500, "unit": "characters", "optional": false },
+        { "text": "Medical training demands continuous improvement. Share an example of feedback you received that was difficult to hear. How did you act on it, and what changed as a result?", "type": "adversity", "limit": 2500, "unit": "characters", "optional": false },
+        { "text": "How do you define respect? Describe a challenging situation involving differences and how you handled it.", "type": "diversity", "limit": 2500, "unit": "characters", "optional": true, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Describe an ethical dilemma or a situation in which your values were compromised, and how you navigated it.", "type": "ethical_dilemma", "limit": 2500, "unit": "characters", "optional": true, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Describe the non-academic personal accomplishment you are most proud of.", "type": "personal_background", "limit": 2500, "unit": "characters", "optional": true, "notes": "Paraphrased at the source; verify the exact wording." }
+      ]
+    },
+    {
+      "slug": "ucsf-school-of-medicine",
+      "name": "University of California, San Francisco School of Medicine",
+      "shortName": "UCSF",
+      "city": "San Francisco",
+      "state": "CA",
+      "degree": "MD",
+      "websiteUrl": "https://meded.ucsf.edu/md-admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/university-of-california-san-francisco-school-of-medicine",
+      "cycleYear": "2025-2026",
+      "prompts": [
+        { "text": "Applicants are interviewed by invitation only. Interviews are scheduled from October to mid-February...", "type": "administrative", "limit": 300, "unit": "characters", "optional": true, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "If you wish to update or expand upon your activities, you may provide additional information below.", "type": "gap_year", "limit": 500, "unit": "words", "optional": true },
+        { "text": "If you are a 2024 or earlier college graduate, please use the space below to tell us what you have done since completing your undergraduate degree.", "type": "gap_year", "limit": 350, "unit": "words", "optional": true },
+        { "text": "PRIDE values serve as a guiding light for institutional life and activities. Briefly describe how you will contribute to and support our PRIDE values consistent with your goals or life experience.", "type": "why_this_school", "limit": 500, "unit": "words", "optional": false },
+        { "text": "Disclosure of felony offenses, misdemeanor offenses, and institutional actions prior to matriculation.", "type": "administrative", "limit": null, "unit": "none", "optional": false }
+      ]
+    },
+    {
+      "slug": "baylor-college-of-medicine",
+      "name": "Baylor College of Medicine",
+      "shortName": "Baylor",
+      "city": "Houston",
+      "state": "TX",
+      "degree": "MD",
+      "websiteUrl": "https://www.bcm.edu/education/school-of-medicine/md-program/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/baylor-college-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "In addition to training as a competent physician, please select up to two additional areas of interest that you may want to pursue during your medical studies (clinical research; healthcare disparities and medically underserved communities; academic medicine; community health; simulation in medical education; health systems science; telehealth; advocacy). What knowledge, skills and attitudes have prepared you for this career path?", "type": "future_goals", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Are you planning to matriculate into medical school immediately after completing your undergraduate education? If not, please explain what activities and/or careers you have pursued in the time between your college education and your application.", "type": "gap_year", "limit": null, "unit": "none", "optional": false },
+        { "text": "Indicate any special experiences, unusual factors or other information you feel would be helpful in evaluating you, including, but not limited to, education, employment, extracurricular activities, prevailing over adversity. You may expand upon but not repeat TMDSAS or AMCAS application information. This section is mandatory.", "type": "open_ended", "limit": 2000, "unit": "characters", "optional": false }
+      ]
+    },
+    {
+      "slug": "ohio-state-university-college-of-medicine",
+      "name": "The Ohio State University College of Medicine",
+      "shortName": "Ohio State",
+      "city": "Columbus",
+      "state": "OH",
+      "degree": "MD",
+      "websiteUrl": "https://medicine.osu.edu/education/md/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/ohio-state-university-college-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Describe experiences that best demonstrate your potential to contribute meaningfully to two of these areas: research, education, and patient care.", "type": "future_goals", "limit": 250, "unit": "words", "optional": false, "notes": "Paraphrased at the source; verify the exact wording." },
+        { "text": "Describe an experience that shaped your understanding of health inequities in the United States.", "type": "diversity", "limit": 250, "unit": "words", "optional": false }
+      ]
+    },
+    {
+      "slug": "university-of-rochester-school-of-medicine-and-dentistry",
+      "name": "University of Rochester School of Medicine and Dentistry",
+      "shortName": "Rochester",
+      "city": "Rochester",
+      "state": "NY",
+      "degree": "MD",
+      "websiteUrl": "https://www.urmc.rochester.edu/education/md/admissions.aspx",
+      "source": "https://www.medcoach.io/secondary-prompts/university-of-rochester-school-of-medicine-and-dentistry",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "If you previously applied to medical school, briefly describe any experiences you have been part of since your previous application.", "type": "reapplicant", "limit": 200, "unit": "words", "optional": false },
+        { "text": "Community involvement is a pillar of medical education at the University of Rochester. Describe a community you identify with, how you are involved in it, and how you will be involved in communities we serve at the University of Rochester School of Medicine.", "type": "community_service", "limit": 200, "unit": "words", "optional": false }
+      ]
+    },
+    {
+      "slug": "tufts-university-school-of-medicine",
+      "name": "Tufts University School of Medicine",
+      "shortName": "Tufts",
+      "city": "Boston",
+      "state": "MA",
+      "degree": "MD",
+      "websiteUrl": "https://medicine.tufts.edu/admissions",
+      "source": "https://www.medcoach.io/secondary-prompts/tufts-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "Do you wish to share a specific reason why you have chosen to apply to Tufts University School of Medicine?", "type": "why_this_school", "limit": 1000, "unit": "characters", "optional": true },
+        { "text": "Please briefly describe your plans for the coming year. Will you be a student, working, conducting research, volunteering, or other activities?", "type": "gap_year", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Please tell us about your journey to medical school and how your background and experiences will positively impact your future as a medical student and physician...", "type": "diversity", "limit": 1000, "unit": "characters", "optional": false, "notes": "Text truncated at the source; verify the full wording." },
+        { "text": "Which of your experiences with clinical medicine or healthcare has best prepared you for a future career as a physician, and why?", "type": "clinical_experience", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Have you done substantial work or service that has contributed to societal good, or addressed social determinants of health, health equity, or social justice?", "type": "community_service", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Explain any transcript withdrawals, leaves of absence, or academic challenges.", "type": "administrative", "limit": 1000, "unit": "characters", "optional": false, "notes": "Conditional. Grouped from several separate conditional questions at the source; verify how the school splits them." },
+        { "text": "Disclose any criminal history as required.", "type": "administrative", "limit": 1000, "unit": "characters", "optional": false, "notes": "Conditional; verify the exact wording." },
+        { "text": "Do you wish to include any additional comments (beyond those already provided in your application)?", "type": "open_ended", "limit": 1000, "unit": "characters", "optional": true }
+      ]
+    },
+    {
+      "slug": "georgetown-university-school-of-medicine",
+      "name": "Georgetown University School of Medicine",
+      "shortName": "Georgetown",
+      "city": "Washington",
+      "state": "DC",
+      "degree": "MD",
+      "websiteUrl": "https://som.georgetown.edu/admissions/",
+      "source": "https://www.medcoach.io/secondary-prompts/georgetown-university-school-of-medicine",
+      "cycleYear": "2026-2027",
+      "prompts": [
+        { "text": "The Georgetown University School of Medicine (GUSOM) strives to ensure that its students become respectful physicians, with cultural humility, who embrace all dimensions of caring for the whole person. With our Jesuit values of Cura Personalis, being Men and Women for Others, and Unity in Community, we are steadfast in our commitment to provide care for all. Please describe how your perspectives, values, and individual life experiences will contribute to these GUSOM priorities.", "type": "diversity", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Is there any further information that you would like the Committee on Admissions to be aware of when reviewing your file that you were not able to notate in another section of this or the AMCAS Application?", "type": "open_ended", "limit": 1000, "unit": "characters", "optional": false },
+        { "text": "Why have you chosen to apply to the Georgetown University School of Medicine and how do you think your education at Georgetown will prepare you to become a physician for the future?", "type": "why_this_school", "limit": 3000, "unit": "characters", "optional": false }
+      ]
+    }
+  ]
+}
