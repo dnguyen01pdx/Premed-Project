@@ -13,9 +13,16 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # Secondary Prompt Library — project rules
 
 ## Scope discipline
-This repo implements build steps 1-3 only: prompt database, public prompt
-browser, no auth. Do not build ahead. Auth, the feedback engine, Stripe, the
-experience log, and the trackers come later, in the order given in README.md.
+This repo implements build steps 1-3, plus one deliberate exception.
+
+The exception: the secondary status tracker (`/my-schools`) was pulled forward
+from step 8 by an explicit product call. It is client-only — everything lives
+in the user's `localStorage`, nothing is sent to a server — so it cost no auth
+work and pulled nothing else forward. When accounts land in step 4, migrate
+this data server-side rather than rebuilding it.
+
+Still not built, and still not to be built ahead: auth, the feedback engine,
+Stripe, the experience log, the LOR tracker.
 
 ## Non-negotiables
 1. Never generate essay text for a user. No rewritten paragraphs, no suggested
@@ -39,4 +46,14 @@ experience log, and the trackers come later, in the order given in README.md.
 - Database reads go in `src/lib/queries.ts`, never inline in a page.
 - Filter state lives in the URL, not component state.
 - `CURRENT_CYCLE` lives in `src/lib/config.ts`.
+- Tracker state lives only in the browser. Never add a network call that sends
+  a user's school list anywhere; the privacy claim on `/my-schools` depends on
+  that staying true.
+
+## Design
+- Colors are defined once in `src/app/globals.css` and mirrored in
+  `scripts/check-contrast.ts`. Change both, then run `npm run check:contrast`.
+  Every text pairing must clear WCAG AA (4.5:1).
+- Status is never communicated by color alone; the label always says it too.
+- Every page has exactly one `h1` and a working skip link.
 <!-- END:project-rules -->

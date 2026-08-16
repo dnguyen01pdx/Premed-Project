@@ -82,14 +82,14 @@ export function PromptFilters({
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Search prompt text or school name"
           aria-label="Search prompts"
-          className="w-full rounded-md border border-line bg-surface px-3 py-2 text-sm placeholder:text-muted"
+          className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
         />
 
         <select
           value={params.get("school") ?? ""}
           onChange={(e) => setParam("school", e.target.value || null)}
           aria-label="Filter by school"
-          className="rounded-md border border-line bg-surface px-3 py-2 text-sm sm:w-64"
+          className="rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm sm:w-64"
         >
           <option value="">All schools</option>
           {schools.map((s) => (
@@ -103,7 +103,7 @@ export function PromptFilters({
           value={params.get("state") ?? ""}
           onChange={(e) => setParam("state", e.target.value || null)}
           aria-label="Filter by state"
-          className="rounded-md border border-line bg-surface px-3 py-2 text-sm sm:w-32"
+          className="rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm sm:w-32"
         >
           <option value="">All states</option>
           {states.map((s) => (
@@ -129,8 +129,8 @@ export function PromptFilters({
                 aria-pressed={active}
                 className={
                   active
-                    ? "rounded-full border border-accent bg-accent px-3 py-1 text-xs font-medium text-white"
-                    : "rounded-full border border-line bg-surface px-3 py-1 text-xs text-muted hover:border-accent hover:text-accent"
+                    ? "rounded-full border border-accent bg-accent px-3.5 py-1.5 text-xs font-medium text-on-accent"
+                    : "rounded-full border border-line-strong bg-surface px-3.5 py-1.5 text-xs hover:border-accent hover:bg-accent-soft hover:text-accent"
                 }
               >
                 {t.label}
@@ -148,7 +148,7 @@ export function PromptFilters({
             min={1}
             defaultValue={params.get("maxWords") ?? ""}
             onBlur={(e) => setParam("maxWords", e.target.value || null)}
-            className="w-24 rounded-md border border-line bg-surface px-2 py-1"
+            className="w-24 rounded-lg border border-line-strong bg-surface px-2 py-1"
           />
         </label>
 
@@ -159,7 +159,7 @@ export function PromptFilters({
             min={1}
             defaultValue={params.get("maxChars") ?? ""}
             onBlur={(e) => setParam("maxChars", e.target.value || null)}
-            className="w-24 rounded-md border border-line bg-surface px-2 py-1"
+            className="w-24 rounded-lg border border-line-strong bg-surface px-2 py-1"
           />
         </label>
 

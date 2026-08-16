@@ -10,7 +10,7 @@ export default function PolicyPage() {
   return (
     <article className="max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
+        <h1 className="text-3xl font-semibold tracking-tight">
           How our feedback works
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-muted">

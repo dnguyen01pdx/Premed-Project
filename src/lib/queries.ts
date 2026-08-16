@@ -186,3 +186,67 @@ export async function getStats() {
     .from(prompts);
   return row ?? { schools: 0, prompts: 0 };
 }
+
+export type OverlapGroup = {
+  typeKey: string;
+  typeLabel: string;
+  description: string | null;
+  prompts: PromptRow[];
+  schoolCount: number;
+};
+
+/**
+ * Groups current-cycle prompts by type so an applicant can see, in one place,
+ * every school asking essentially the same question and how long each wants
+ * the answer. This is the "write it once, adapt it" view.
+ *
+ * Administrative items are excluded: nobody reuses an answer to "list your
+ * course numbers".
+ */
+export async function getOverlapGroups(): Promise<OverlapGroup[]> {
+  const rows = await db
+    .select(BASE_SELECT)
+    .from(prompts)
+    .innerJoin(schools, eq(prompts.schoolId, schools.id))
+    .innerJoin(promptTypes, eq(prompts.promptTypeId, promptTypes.id))
+    .where(
+      and(
+        eq(prompts.cycleYear, CURRENT_CYCLE),
+        sql`${promptTypes.key} <> 'administrative'`,
+      ),
+    )
+    .orderBy(asc(promptTypes.sortOrder), asc(schools.name));
+
+  const types = await listPromptTypes();
+  const meta = new Map(types.map((t) => [t.key, t]));
+
+  const grouped = new Map<string, PromptRow[]>();
+  for (const r of rows) {
+    if (!r.typeKey) continue;
+    const list = grouped.get(r.typeKey) ?? [];
+    list.push(r);
+    grouped.set(r.typeKey, list);
+  }
+
+  return [...grouped.entries()]
+    .map(([typeKey, list]) => ({
+      typeKey,
+      typeLabel: meta.get(typeKey)?.label ?? typeKey,
+      description: meta.get(typeKey)?.description ?? null,
+      prompts: list,
+      schoolCount: new Set(list.map((p) => p.schoolSlug)).size,
+    }))
+    .sort((a, b) => b.schoolCount - a.schoolCount);
+}
+
+/** Minimal school list for the client-side tracker. */
+export async function listSchoolsForTracker() {
+  const rows = await listSchools();
+  return rows.map((s) => ({
+    slug: s.slug,
+    name: s.name,
+    shortName: s.shortName,
+    state: s.state,
+    promptCount: s.promptCount,
+  }));
+}

@@ -69,7 +69,7 @@ export default async function SchoolPage({
         >
           &larr; All schools
         </Link>
-        <h1 className="mt-3 text-2xl font-semibold tracking-tight">
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight">
           {school.name}
         </h1>
         <p className="mt-2 text-sm text-muted">
@@ -90,9 +90,35 @@ export default async function SchoolPage({
       </div>
 
       {byCycle.length === 0 && (
-        <p className="rounded-lg border border-line bg-surface p-6 text-sm text-muted">
-          No prompts on file for this school yet.
-        </p>
+        <section className="rounded-xl border border-line bg-surface p-6 sm:p-8">
+          <h2 className="text-lg font-semibold tracking-tight">
+            No prompts on file yet
+          </h2>
+          <p className="mt-2 max-w-2xl leading-relaxed text-muted">
+            {school.name} is listed because it is an accredited MD program, but
+            its secondary prompts have not been collected yet. Many schools do
+            not publish their prompts at all until they send you a secondary.
+          </p>
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+            If you received a secondary from this school, sending the prompts
+            along is the single most useful thing you could do for the next
+            applicant.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Link
+              href="/prompts"
+              className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+            >
+              Browse schools we do have
+            </Link>
+            <Link
+              href="/my-schools"
+              className="rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent"
+            >
+              Track this school anyway
+            </Link>
+          </div>
+        </section>
       )}
 
       {byCycle.map(([cycle, list]) => (

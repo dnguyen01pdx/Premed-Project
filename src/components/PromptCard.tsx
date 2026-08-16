@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Badge, OutlineBadge } from "./Badge";
 import type { PromptRow } from "@/lib/queries";
 import { CURRENT_CYCLE } from "@/lib/config";
 
@@ -22,7 +23,7 @@ export function PromptCard({
   const isCurrentCycle = prompt.cycleYear === CURRENT_CYCLE;
 
   return (
-    <article className="rounded-lg border border-line bg-surface p-5">
+    <article className="rounded-xl border border-line bg-surface p-5">
       <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
         {showSchool && (
           <Link
@@ -33,38 +34,26 @@ export function PromptCard({
           </Link>
         )}
 
-        {prompt.typeLabel && (
-          <span className="rounded-full bg-accent-soft px-2 py-0.5 font-medium text-accent">
-            {prompt.typeLabel}
-          </span>
-        )}
+        {prompt.typeLabel && <Badge tone="accent">{prompt.typeLabel}</Badge>}
 
-        <span className="rounded-full border border-line px-2 py-0.5 text-muted">
-          {limitLabel(prompt)}
-        </span>
+        <OutlineBadge>{limitLabel(prompt)}</OutlineBadge>
 
-        {prompt.optional && (
-          <span className="rounded-full border border-line px-2 py-0.5 text-muted">
-            Optional
-          </span>
-        )}
+        {prompt.optional && <OutlineBadge>Optional</OutlineBadge>}
       </div>
 
       <p className="text-[15px] leading-relaxed">{prompt.text}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-3 text-xs text-muted">
         {isCurrentCycle && prompt.confirmed ? (
-          <span className="rounded bg-ok-soft px-2 py-0.5 font-medium text-ok">
-            Confirmed for {CURRENT_CYCLE}
-          </span>
+          <Badge tone="ok">Confirmed for {CURRENT_CYCLE}</Badge>
         ) : isCurrentCycle ? (
-          <span className="rounded bg-warn-soft px-2 py-0.5 font-medium text-warn">
+          <Badge tone="warn">
             Reported for {CURRENT_CYCLE} &middot; not yet verified
-          </span>
+          </Badge>
         ) : (
-          <span className="rounded bg-warn-soft px-2 py-0.5 font-medium text-warn">
+          <Badge tone="warn">
             From the {prompt.cycleYear} cycle &middot; may not repeat
-          </span>
+          </Badge>
         )}
 
         {prompt.notes && <span>{prompt.notes}</span>}
