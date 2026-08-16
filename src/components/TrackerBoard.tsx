@@ -336,7 +336,14 @@ export function TrackerBoard({
         <p className="mt-1 text-sm text-muted">
           This list is stored in this browser only. We never see it. That also
           means clearing your browser data or switching devices loses it, so
-          export a copy if it matters.
+          export a copy if it matters.{" "}
+          <a
+            href="/privacy"
+            className="text-accent underline underline-offset-2 hover:no-underline"
+          >
+            How we handle your data
+          </a>
+          .
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <button

@@ -73,8 +73,18 @@ export default function RootLayout({
                     </Link>
                   </li>
                   <li>
+                    <Link href="/pricing" className="hover:text-white">
+                      What&apos;s free
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/how-feedback-works" className="hover:text-white">
                       Our feedback policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/privacy" className="hover:text-white">
+                      Privacy
                     </Link>
                   </li>
                   <li>
