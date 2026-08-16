@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { InterviewBoard } from "./InterviewBoard";
 import { MyOverlap } from "./MyOverlap";
 import { SchoolTrackerCard, type SchoolPrompt } from "./SchoolTrackerCard";
 import {
@@ -67,7 +68,7 @@ export function TrackerBoard({
   const [storageOk, setStorageOk] = useState(true);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
-  const [tab, setTab] = useState<"list" | "overlap">("list");
+  const [tab, setTab] = useState<"list" | "overlap" | "interviews">("list");
   const importRef = useRef<HTMLInputElement>(null);
 
   function update(next: TrackerState) {
@@ -285,8 +286,9 @@ export function TrackerBoard({
           >
             {(
               [
-                ["list", "My schools"],
+                ["list", "Secondaries"],
                 ["overlap", "What overlaps"],
+                ["interviews", "Interviews"],
               ] as const
             ).map(([key, label]) => (
               <button
@@ -324,8 +326,14 @@ export function TrackerBoard({
                 </p>
               )}
             </section>
-          ) : (
+          ) : tab === "overlap" ? (
             <MyOverlap schools={tracked} />
+          ) : (
+            <InterviewBoard
+              schools={tracked}
+              today={today}
+              onPatch={patch}
+            />
           )}
         </>
       )}

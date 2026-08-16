@@ -9,6 +9,7 @@ const NAV = [
   { href: "/prompts", label: "Prompts" },
   { href: "/overlap", label: "Overlap" },
   { href: "/my-schools", label: "My schools" },
+  { href: "/interview-prep", label: "Interview prep" },
   { href: "/schools", label: "Schools" },
   { href: "/about", label: "About" },
 ];

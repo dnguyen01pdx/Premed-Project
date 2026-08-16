@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { SubmitForm } from "@/components/SubmitForm";
 import { listSchools } from "@/lib/queries";
-import { SITE_NAME } from "@/lib/config";
+import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
 
 export const revalidate = 3600;
 
@@ -35,6 +35,16 @@ export default async function SubmitPage() {
           live automatically, and a prompt only loses its &ldquo;not
           verified&rdquo; label once it has been checked against the
           school&apos;s own materials.
+        </p>
+        <p className="mt-3">
+          Prefer email? Send it to{" "}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="text-accent underline underline-offset-2 hover:no-underline"
+          >
+            {CONTACT_EMAIL}
+          </a>
+          .
         </p>
       </section>
 

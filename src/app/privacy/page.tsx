@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { SITE_NAME } from "@/lib/config";
+import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "Privacy",
@@ -109,8 +109,15 @@ export default function PrivacyPage() {
             your browser, so it is genuinely gone.
           </p>
           <p>
-            <strong className="text-foreground">A submission:</strong> email and
-            say which one, and it gets deleted. You do not have to explain why.
+            <strong className="text-foreground">A submission:</strong> email{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-accent underline underline-offset-2 hover:no-underline"
+            >
+              {CONTACT_EMAIL}
+            </a>{" "}
+            and say which one, and it gets deleted. You do not have to explain
+            why.
           </p>
         </div>
       </section>
@@ -143,8 +150,14 @@ export default function PrivacyPage() {
         <h2 className="text-lg font-semibold tracking-tight">Questions</h2>
         <p className="mt-2 leading-relaxed text-muted">
           {SITE_NAME} is run by one person, not a company. If something here is
-          unclear or you want data removed, get in touch and a human will
-          actually read it.
+          unclear or you want data removed, email{" "}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="text-accent underline underline-offset-2 hover:no-underline"
+          >
+            {CONTACT_EMAIL}
+          </a>{" "}
+          and a human will actually read it.
         </p>
         <p className="mt-4 text-sm text-muted">
           Last updated: August 2026. Changes get noted here rather than applied

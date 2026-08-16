@@ -49,6 +49,89 @@ export type TrackedEssay = {
 
 export type LimitUnit = "words" | "characters" | "none";
 
+/** Where a school sits in the interview pipeline. */
+export const INTERVIEW_STAGES = [
+  "none",
+  "invited",
+  "scheduled",
+  "completed",
+  "decision",
+] as const;
+
+export type InterviewStage = (typeof INTERVIEW_STAGES)[number];
+
+export const INTERVIEW_STAGE_META: Record<
+  InterviewStage,
+  { label: string; tone: "neutral" | "warn" | "info" | "ok" }
+> = {
+  none: { label: "No invite yet", tone: "neutral" },
+  invited: { label: "Invited", tone: "info" },
+  scheduled: { label: "Scheduled", tone: "warn" },
+  completed: { label: "Interviewed", tone: "ok" },
+  decision: { label: "Decision in", tone: "ok" },
+};
+
+export const INTERVIEW_FORMATS = [
+  "unknown",
+  "traditional",
+  "mmi",
+  "panel",
+  "hybrid",
+] as const;
+
+export type InterviewFormat = (typeof INTERVIEW_FORMATS)[number];
+
+export const INTERVIEW_FORMAT_LABEL: Record<InterviewFormat, string> = {
+  unknown: "Not sure yet",
+  traditional: "Traditional (one-on-one)",
+  mmi: "MMI (multiple mini)",
+  panel: "Panel",
+  hybrid: "Mixed format",
+};
+
+export const DECISIONS = [
+  "pending",
+  "accepted",
+  "waitlisted",
+  "rejected",
+  "withdrew",
+] as const;
+
+export type Decision = (typeof DECISIONS)[number];
+
+export const DECISION_META: Record<
+  Decision,
+  { label: string; tone: "neutral" | "warn" | "info" | "ok" | "danger" }
+> = {
+  pending: { label: "Waiting to hear", tone: "neutral" },
+  accepted: { label: "Accepted", tone: "ok" },
+  waitlisted: { label: "Waitlisted", tone: "warn" },
+  rejected: { label: "Rejected", tone: "danger" },
+  withdrew: { label: "Withdrew", tone: "neutral" },
+};
+
+export type TrackedInterview = {
+  stage: InterviewStage;
+  format: InterviewFormat;
+  /** ISO dates (yyyy-mm-dd). */
+  invitedOn?: string;
+  interviewOn?: string;
+  /** Virtual link or address, whatever they need on the day. */
+  location?: string;
+  thankYouSent: boolean;
+  decision: Decision;
+  notes?: string;
+};
+
+export function emptyInterview(): TrackedInterview {
+  return {
+    stage: "none",
+    format: "unknown",
+    thankYouSent: false,
+    decision: "pending",
+  };
+}
+
 export type TrackedSchool = {
   slug: string;
   /** Denormalized so the tracker still renders if a slug is later renamed. */
@@ -61,6 +144,8 @@ export type TrackedSchool = {
   notes?: string;
   /** Individual essays. Empty is normal: not everyone breaks it down. */
   essays: TrackedEssay[];
+  /** Interview pipeline. Absent until the school reaches that stage. */
+  interview?: TrackedInterview;
 };
 
 export type TrackerState = {
@@ -150,6 +235,7 @@ export function parseTracker(raw: unknown): TrackerState {
       // v1 saves have no essays field. An empty list is exactly right: the
       // school keeps the status the user already set.
       essays: parseEssays(s.essays),
+      interview: parseInterview(s.interview),
     });
   }
 
@@ -158,6 +244,37 @@ export function parseTracker(raw: unknown): TrackerState {
     updatedAt:
       typeof obj.updatedAt === "string" ? obj.updatedAt : new Date().toISOString(),
     schools,
+  };
+}
+
+function parseInterview(raw: unknown): TrackedInterview | undefined {
+  if (!raw || typeof raw !== "object") return undefined;
+  const i = raw as Record<string, unknown>;
+  const stage = (INTERVIEW_STAGES as readonly string[]).includes(
+    i.stage as string,
+  )
+    ? (i.stage as InterviewStage)
+    : "none";
+  const format = (INTERVIEW_FORMATS as readonly string[]).includes(
+    i.format as string,
+  )
+    ? (i.format as InterviewFormat)
+    : "unknown";
+  const decision = (DECISIONS as readonly string[]).includes(
+    i.decision as string,
+  )
+    ? (i.decision as Decision)
+    : "pending";
+
+  return {
+    stage,
+    format,
+    decision,
+    invitedOn: isIsoDate(i.invitedOn) ? i.invitedOn : undefined,
+    interviewOn: isIsoDate(i.interviewOn) ? i.interviewOn : undefined,
+    location: typeof i.location === "string" ? i.location.slice(0, 500) : undefined,
+    thankYouSent: i.thankYouSent === true,
+    notes: typeof i.notes === "string" ? i.notes.slice(0, 2000) : undefined,
   };
 }
 
@@ -241,6 +358,33 @@ export function countEssays(schools: TrackedSchool[]) {
     }
   }
   return { total, done, remaining: total - done };
+}
+
+/** Interview pipeline counts, for the dashboard header. */
+export function interviewTotals(schools: TrackedSchool[]) {
+  let invited = 0;
+  let scheduled = 0;
+  let completed = 0;
+  let accepted = 0;
+  let thankYouOwed = 0;
+
+  for (const s of schools) {
+    const i = s.interview;
+    if (!i || i.stage === "none") continue;
+    if (i.stage === "invited") invited++;
+    if (i.stage === "scheduled") scheduled++;
+    if (i.stage === "completed" || i.stage === "decision") completed++;
+    if (i.decision === "accepted") accepted++;
+    if (i.stage === "completed" && !i.thankYouSent) thankYouOwed++;
+  }
+  return {
+    invited,
+    scheduled,
+    completed,
+    accepted,
+    thankYouOwed,
+    total: invited + scheduled + completed,
+  };
 }
 
 export type OverlapCluster = {

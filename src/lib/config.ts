@@ -8,6 +8,9 @@ export const CURRENT_CYCLE = "2026-2027";
 
 export const SITE_NAME = "MD Atlas";
 
+/** Where people write in: corrections, deletion requests, questions. */
+export const CONTACT_EMAIL = "mdatlas.help@gmail.com";
+
 export const SITE_TAGLINE =
   "Find your way through medical school secondaries.";
 

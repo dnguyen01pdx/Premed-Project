@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
 import { SiteHeader } from "@/components/SiteHeader";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
+import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -68,6 +68,11 @@ export default function RootLayout({
                     </Link>
                   </li>
                   <li>
+                    <Link href="/interview-prep" className="hover:text-white">
+                      Interview prep
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/submit" className="hover:text-white">
                       Submit a prompt
                     </Link>
@@ -91,6 +96,14 @@ export default function RootLayout({
                     <Link href="/about" className="hover:text-white">
                       About
                     </Link>
+                  </li>
+                  <li>
+                    <a
+                      href={`mailto:${CONTACT_EMAIL}`}
+                      className="hover:text-white"
+                    >
+                      Contact
+                    </a>
                   </li>
                 </ul>
               </nav>

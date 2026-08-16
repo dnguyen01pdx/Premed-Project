@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Reveal } from "@/components/Reveal";
-import { SITE_NAME } from "@/lib/config";
+import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "About",
@@ -132,6 +132,16 @@ export default function AboutPage() {
             of them are going to be wrong or out of date. If you received a
             secondary and the wording here does not match, that correction is
             worth more to this site than anything else you could send.
+          </p>
+          <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+            Use the form below, or email{" "}
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-accent underline underline-offset-4 hover:no-underline"
+            >
+              {CONTACT_EMAIL}
+            </a>
+            .
           </p>
           <Link
             href="/submit"
