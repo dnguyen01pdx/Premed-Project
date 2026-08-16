@@ -8,6 +8,13 @@
       "when": 1786864129669,
       "tag": "0000_futuristic_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786902775795,
+      "tag": "0001_aromatic_orphan",
+      "breakpoints": true
     }
   ]
 }

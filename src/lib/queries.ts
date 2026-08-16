@@ -250,3 +250,47 @@ export async function listSchoolsForTracker() {
     promptCount: s.promptCount,
   }));
 }
+
+/**
+ * Prompts we hold, keyed by school slug, for the tracker's import button.
+ *
+ * Sent to the client in full. That is fine at the current size (a few hundred
+ * prompts) and keeps the tracker working offline once loaded. If this grows
+ * past a few hundred KB, switch to fetching per school on demand.
+ */
+export async function getPromptsBySchool(): Promise<
+  Record<
+    string,
+    Array<{
+      id: string;
+      text: string;
+      typeKey: string | null;
+      typeLabel: string | null;
+      limitValue: number | null;
+      limitUnit: "words" | "characters" | "none";
+    }>
+  >
+> {
+  const rows = await db
+    .select({
+      id: prompts.id,
+      text: prompts.text,
+      typeKey: promptTypes.key,
+      typeLabel: promptTypes.label,
+      limitValue: prompts.limitValue,
+      limitUnit: prompts.limitUnit,
+      schoolSlug: schools.slug,
+    })
+    .from(prompts)
+    .innerJoin(schools, eq(prompts.schoolId, schools.id))
+    .leftJoin(promptTypes, eq(prompts.promptTypeId, promptTypes.id))
+    .where(eq(prompts.cycleYear, CURRENT_CYCLE))
+    .orderBy(asc(schools.name), asc(prompts.position));
+
+  const out: Record<string, Array<Omit<(typeof rows)[number], "schoolSlug">>> =
+    {};
+  for (const { schoolSlug, ...rest } of rows) {
+    (out[schoolSlug] ??= []).push(rest);
+  }
+  return out;
+}

@@ -167,3 +167,48 @@ export type School = typeof schools.$inferSelect;
 export type PromptType = typeof promptTypes.$inferSelect;
 export type Prompt = typeof prompts.$inferSelect;
 export type LimitUnit = (typeof limitUnitEnum.enumValues)[number];
+
+/**
+ * Prompts submitted by applicants who actually received a secondary.
+ *
+ * Nothing here reaches the public site. A submission is raw input until it is
+ * reviewed, approved, and hand-copied into data/schools.json, which remains
+ * the single source of truth for what the site serves.
+ */
+export const submissionStatus = pgEnum("submission_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
+
+export const promptSubmissions = pgTable(
+  "prompt_submissions",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    /** Set when the submitter picked a school we know. */
+    schoolSlug: text("school_slug"),
+    /** What they typed, kept even when schoolSlug is set, for auditing. */
+    schoolNameRaw: text("school_name_raw").notNull(),
+    cycleYear: text("cycle_year").notNull(),
+    promptText: text("prompt_text").notNull(),
+    limitValue: integer("limit_value"),
+    limitUnit: limitUnitEnum("limit_unit").notNull().default("none"),
+    /** Optional context: "this was the third essay", "received 7/12". */
+    note: text("note"),
+    /** Optional, so you can follow up. Never displayed publicly. */
+    contactEmail: text("contact_email"),
+    status: submissionStatus("status").notNull().default("pending"),
+    /** Salted hash of the submitter IP, for rate limiting only. */
+    submitterHash: text("submitter_hash"),
+    reviewNote: text("review_note"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  },
+  (t) => [
+    index("prompt_submissions_status_idx").on(t.status),
+    index("prompt_submissions_created_idx").on(t.createdAt),
+    index("prompt_submissions_hash_idx").on(t.submitterHash),
+  ],
+);

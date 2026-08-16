@@ -31,6 +31,24 @@ export const STATUS_META: Record<
   submitted: { label: "Submitted", short: "Submitted", tone: "ok" },
 };
 
+/** One essay inside a school's secondary. */
+export type TrackedEssay = {
+  /** Stable local id. Never sent anywhere. */
+  id: string;
+  /** The prompt text, or whatever the user typed for a manual entry. */
+  label: string;
+  status: Status;
+  /** Set when the essay was imported from our prompt database. */
+  promptId?: string;
+  /** Question type, which is what makes cross-school overlap possible. */
+  typeKey?: string;
+  typeLabel?: string;
+  limitValue?: number | null;
+  limitUnit?: LimitUnit;
+};
+
+export type LimitUnit = "words" | "characters" | "none";
+
 export type TrackedSchool = {
   slug: string;
   /** Denormalized so the tracker still renders if a slug is later renamed. */
@@ -41,16 +59,57 @@ export type TrackedSchool = {
   /** ISO date (yyyy-mm-dd) the school's deadline. */
   dueOn?: string;
   notes?: string;
+  /** Individual essays. Empty is normal: not everyone breaks it down. */
+  essays: TrackedEssay[];
 };
 
 export type TrackerState = {
-  version: 1;
+  version: 2;
   updatedAt: string;
   schools: TrackedSchool[];
 };
 
 export function emptyTracker(): TrackerState {
-  return { version: 1, updatedAt: new Date().toISOString(), schools: [] };
+  return { version: 2, updatedAt: new Date().toISOString(), schools: [] };
+}
+
+/** Local id generator. crypto.randomUUID is not guaranteed on http origins. */
+export function newId(): string {
+  try {
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+  } catch {
+    // fall through
+  }
+  return `e${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * A school's status derived from its essays. Once a user breaks a school into
+ * essays, the school-level status stops being something they should have to
+ * maintain by hand: it is whatever the essays say it is.
+ *
+ * Rules, in order: nothing tracked -> use the stored status. All submitted ->
+ * submitted. All done or better -> done. Anything started -> drafting.
+ */
+export function rollUpStatus(school: TrackedSchool): Status {
+  const essays = school.essays ?? [];
+  if (essays.length === 0) return school.status;
+
+  const rank: Record<Status, number> = {
+    not_started: 0,
+    drafting: 1,
+    done: 2,
+    submitted: 3,
+  };
+  const min = Math.min(...essays.map((e) => rank[e.status]));
+  const max = Math.max(...essays.map((e) => rank[e.status]));
+
+  if (min === 3) return "submitted";
+  if (min >= 2) return "done";
+  if (max >= 1) return "drafting";
+  return "not_started";
 }
 
 function isStatus(v: unknown): v is Status {
@@ -88,15 +147,49 @@ export function parseTracker(raw: unknown): TrackerState {
       receivedOn: isIsoDate(s.receivedOn) ? s.receivedOn : undefined,
       dueOn: isIsoDate(s.dueOn) ? s.dueOn : undefined,
       notes: typeof s.notes === "string" ? s.notes.slice(0, 2000) : undefined,
+      // v1 saves have no essays field. An empty list is exactly right: the
+      // school keeps the status the user already set.
+      essays: parseEssays(s.essays),
     });
   }
 
   return {
-    version: 1,
+    version: 2,
     updatedAt:
       typeof obj.updatedAt === "string" ? obj.updatedAt : new Date().toISOString(),
     schools,
   };
+}
+
+function isLimitUnit(v: unknown): v is LimitUnit {
+  return v === "words" || v === "characters" || v === "none";
+}
+
+function parseEssays(raw: unknown): TrackedEssay[] {
+  if (!Array.isArray(raw)) return [];
+  const out: TrackedEssay[] = [];
+  const seen = new Set<string>();
+  for (const item of raw) {
+    if (!item || typeof item !== "object") continue;
+    const e = item as Record<string, unknown>;
+    const label = typeof e.label === "string" ? e.label.trim() : "";
+    if (!label) continue;
+    const id = typeof e.id === "string" && e.id ? e.id : newId();
+    if (seen.has(id)) continue;
+    seen.add(id);
+    out.push({
+      id,
+      label: label.slice(0, 4000),
+      status: isStatus(e.status) ? e.status : "not_started",
+      promptId: typeof e.promptId === "string" ? e.promptId : undefined,
+      typeKey: typeof e.typeKey === "string" ? e.typeKey : undefined,
+      typeLabel: typeof e.typeLabel === "string" ? e.typeLabel : undefined,
+      limitValue:
+        typeof e.limitValue === "number" ? e.limitValue : undefined,
+      limitUnit: isLimitUnit(e.limitUnit) ? e.limitUnit : undefined,
+    });
+  }
+  return out;
 }
 
 export function loadTracker(): TrackerState {
@@ -133,8 +226,97 @@ export function countByStatus(schools: TrackedSchool[]): Record<Status, number> 
     done: 0,
     submitted: 0,
   } as Record<Status, number>;
-  for (const s of schools) counts[s.status]++;
+  for (const s of schools) counts[rollUpStatus(s)]++;
   return counts;
+}
+
+/** Essay-level totals, which is the number that actually reflects workload. */
+export function countEssays(schools: TrackedSchool[]) {
+  let total = 0;
+  let done = 0;
+  for (const s of schools) {
+    for (const e of s.essays ?? []) {
+      total++;
+      if (e.status === "done" || e.status === "submitted") done++;
+    }
+  }
+  return { total, done, remaining: total - done };
+}
+
+export type OverlapCluster = {
+  typeKey: string;
+  typeLabel: string;
+  /** One entry per essay, across all of the user's schools. */
+  essays: Array<{
+    schoolSlug: string;
+    schoolName: string;
+    essay: TrackedEssay;
+  }>;
+  schoolCount: number;
+  /** Tightest limits in the cluster, which is what to write to first. */
+  minWords: number | null;
+  minChars: number | null;
+};
+
+/**
+ * Groups the user's own tracked essays by question type.
+ *
+ * This is the thing the whole tracker exists for: not "which schools ask a
+ * diversity essay" in the abstract, but "which of MY schools do, and what is
+ * the shortest one I have to fit".
+ *
+ * Only clusters with two or more schools are returned; a "cluster" of one is
+ * just an essay.
+ */
+export function overlapClusters(schools: TrackedSchool[]): OverlapCluster[] {
+  const byType = new Map<string, OverlapCluster>();
+
+  for (const school of schools) {
+    for (const essay of school.essays ?? []) {
+      if (!essay.typeKey) continue;
+      const existing = byType.get(essay.typeKey);
+      const entry = {
+        schoolSlug: school.slug,
+        schoolName: school.name,
+        essay,
+      };
+      if (existing) {
+        existing.essays.push(entry);
+      } else {
+        byType.set(essay.typeKey, {
+          typeKey: essay.typeKey,
+          typeLabel: essay.typeLabel ?? essay.typeKey,
+          essays: [entry],
+          schoolCount: 0,
+          minWords: null,
+          minChars: null,
+        });
+      }
+    }
+  }
+
+  const out: OverlapCluster[] = [];
+  for (const cluster of byType.values()) {
+    cluster.schoolCount = new Set(cluster.essays.map((e) => e.schoolSlug)).size;
+    if (cluster.schoolCount < 2) continue;
+
+    const words = cluster.essays
+      .map((e) => e.essay)
+      .filter((e) => e.limitUnit === "words" && typeof e.limitValue === "number")
+      .map((e) => e.limitValue as number);
+    const chars = cluster.essays
+      .map((e) => e.essay)
+      .filter(
+        (e) => e.limitUnit === "characters" && typeof e.limitValue === "number",
+      )
+      .map((e) => e.limitValue as number);
+
+    cluster.minWords = words.length ? Math.min(...words) : null;
+    cluster.minChars = chars.length ? Math.min(...chars) : null;
+    out.push(cluster);
+  }
+
+  return out.sort((a, b) => b.schoolCount - a.schoolCount);
 }
 
 /**
@@ -152,18 +334,49 @@ export function daysUntil(dueOn: string | undefined, today: Date): number | null
 
 export function toCsv(schools: TrackedSchool[]): string {
   const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
-  const header = ["School", "Status", "Secondary received", "Deadline", "Notes"];
+  const header = [
+    "School",
+    "School status",
+    "Secondary received",
+    "Deadline",
+    "Essay",
+    "Essay status",
+    "Limit",
+    "Question type",
+    "Notes",
+  ];
   const lines = [header.join(",")];
+
   for (const s of schools) {
-    lines.push(
-      [
-        esc(s.name),
-        esc(STATUS_META[s.status].label),
-        esc(s.receivedOn ?? ""),
-        esc(s.dueOn ?? ""),
-        esc(s.notes ?? ""),
-      ].join(","),
-    );
+    const base = [
+      esc(s.name),
+      esc(STATUS_META[rollUpStatus(s)].label),
+      esc(s.receivedOn ?? ""),
+      esc(s.dueOn ?? ""),
+    ];
+    const essays = s.essays ?? [];
+
+    if (essays.length === 0) {
+      lines.push([...base, "", "", "", "", esc(s.notes ?? "")].join(","));
+      continue;
+    }
+    // One row per essay, so the export opens in a spreadsheet as a work list.
+    for (const e of essays) {
+      const limit =
+        e.limitUnit && e.limitUnit !== "none" && typeof e.limitValue === "number"
+          ? `${e.limitValue} ${e.limitUnit}`
+          : "";
+      lines.push(
+        [
+          ...base,
+          esc(e.label),
+          esc(STATUS_META[e.status].label),
+          esc(limit),
+          esc(e.typeLabel ?? ""),
+          esc(s.notes ?? ""),
+        ].join(","),
+      );
+    }
   }
   return lines.join("\n");
 }
@@ -180,7 +393,7 @@ export function toCsv(schools: TrackedSchool[]): string {
  * the parsed object is cached and only rebuilt when the raw string changes.
  * ------------------------------------------------------------------------ */
 
-const EMPTY: TrackerState = { version: 1, updatedAt: "", schools: [] };
+const EMPTY: TrackerState = { version: 2, updatedAt: "", schools: [] };
 
 let cachedRaw: string | null = null;
 let cachedState: TrackerState = EMPTY;

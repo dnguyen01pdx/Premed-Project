@@ -112,10 +112,16 @@ export default async function SchoolPage({
               Browse schools we do have
             </Link>
             <Link
+              href="/submit"
+              className="rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent"
+            >
+              I have this school&apos;s prompts
+            </Link>
+            <Link
               href="/my-schools"
               className="rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent"
             >
-              Track this school anyway
+              Track it anyway
             </Link>
           </div>
         </section>

@@ -133,6 +133,12 @@ export default function AboutPage() {
             secondary and the wording here does not match, that correction is
             worth more to this site than anything else you could send.
           </p>
+          <Link
+            href="/submit"
+            className="mt-4 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+          >
+            Send a prompt
+          </Link>
         </section>
       </Reveal>
     </div>

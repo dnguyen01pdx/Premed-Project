@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
-import { Badge } from "./Badge";
+import { MyOverlap } from "./MyOverlap";
+import { SchoolTrackerCard, type SchoolPrompt } from "./SchoolTrackerCard";
 import {
   STATUSES,
   STATUS_META,
@@ -11,11 +11,12 @@ import {
   type TrackerState,
   commitTracker,
   countByStatus,
-  daysUntil,
+  countEssays,
   emptyTracker,
   getTrackerServerSnapshot,
   getTrackerSnapshot,
   parseTracker,
+  rollUpStatus,
   subscribeNever,
   subscribeToTracker,
   toCsv,
@@ -39,7 +40,14 @@ function download(filename: string, contents: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
-export function TrackerBoard({ schools }: { schools: SchoolOption[] }) {
+export function TrackerBoard({
+  schools,
+  promptsBySchool,
+}: {
+  schools: SchoolOption[];
+  /** Prompts we already hold, keyed by school slug, for the import button. */
+  promptsBySchool: Record<string, SchoolPrompt[]>;
+}) {
   // localStorage is an external store, so it is subscribed to rather than
   // copied into state. See the note in lib/tracker.ts.
   const state = useSyncExternalStore(
@@ -59,6 +67,7 @@ export function TrackerBoard({ schools }: { schools: SchoolOption[] }) {
   const [storageOk, setStorageOk] = useState(true);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
+  const [tab, setTab] = useState<"list" | "overlap">("list");
   const importRef = useRef<HTMLInputElement>(null);
 
   function update(next: TrackerState) {
@@ -87,11 +96,13 @@ export function TrackerBoard({ schools }: { schools: SchoolOption[] }) {
 
   const counts = countByStatus(tracked);
 
+  const essayTotals = countEssays(tracked);
+
   const visible = useMemo(() => {
     const rows =
       statusFilter === "all"
         ? tracked
-        : tracked.filter((s) => s.status === statusFilter);
+        : tracked.filter((s) => rollUpStatus(s) === statusFilter);
     // Soonest deadline first; undated schools sink to the bottom.
     return [...rows].sort((a, b) => {
       if (a.dueOn && b.dueOn) return a.dueOn.localeCompare(b.dueOn);
@@ -106,7 +117,7 @@ export function TrackerBoard({ schools }: { schools: SchoolOption[] }) {
       ...state,
       schools: [
         ...state.schools,
-        { slug: s.slug, name: s.name, status: "not_started" },
+        { slug: s.slug, name: s.name, status: "not_started", essays: [] },
       ],
     });
     setQuery("");
@@ -256,122 +267,66 @@ export function TrackerBoard({ schools }: { schools: SchoolOption[] }) {
             )}
           </section>
 
-          {/* The list */}
-          <section className="space-y-3">
-            {visible.map((s) => {
-              const days = daysUntil(s.dueOn, today);
-              const overdue = days !== null && days < 0 && s.status !== "submitted";
-              const soon =
-                days !== null && days >= 0 && days <= 7 && s.status !== "submitted";
+          {/* Essay totals: the number that reflects real workload. */}
+          {essayTotals.total > 0 && (
+            <p className="text-sm text-muted">
+              <strong className="text-foreground">
+                {essayTotals.remaining}
+              </strong>{" "}
+              of {essayTotals.total} individual essays still to write.
+            </p>
+          )}
 
-              return (
-                <article
+          {/* Tabs */}
+          <div
+            role="tablist"
+            aria-label="Tracker views"
+            className="flex gap-1 rounded-xl border border-line bg-surface p-1"
+          >
+            {(
+              [
+                ["list", "My schools"],
+                ["overlap", "What overlaps"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                role="tab"
+                type="button"
+                aria-selected={tab === key}
+                onClick={() => setTab(key)}
+                className={`flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  tab === key
+                    ? "bg-navy-900 text-white"
+                    : "text-muted hover:bg-accent-soft hover:text-accent"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {tab === "list" ? (
+            <section className="space-y-3">
+              {visible.map((s) => (
+                <SchoolTrackerCard
                   key={s.slug}
-                  className="rounded-xl border border-line bg-surface p-4 sm:p-5"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="font-medium">
-                        <Link
-                          href={`/schools/${s.slug}`}
-                          className="text-accent underline underline-offset-2 hover:no-underline"
-                        >
-                          {s.name}
-                        </Link>
-                      </h3>
-                      <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                        <Badge tone={STATUS_META[s.status].tone}>
-                          {STATUS_META[s.status].label}
-                        </Badge>
-                        {overdue && (
-                          <Badge tone="danger">
-                            Deadline passed {Math.abs(days!)}d ago
-                          </Badge>
-                        )}
-                        {soon && (
-                          <Badge tone="warn">
-                            {days === 0 ? "Due today" : `Due in ${days}d`}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => remove(s.slug)}
-                      className="shrink-0 text-xs text-muted underline underline-offset-2 hover:text-danger"
-                    >
-                      Remove
-                    </button>
-                  </div>
-
-                  <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                    <label className="text-sm">
-                      <span className="mb-1 block text-xs font-medium text-muted">
-                        Status
-                      </span>
-                      <select
-                        value={s.status}
-                        onChange={(e) =>
-                          patch(s.slug, { status: e.target.value as Status })
-                        }
-                        className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
-                      >
-                        {STATUSES.map((v) => (
-                          <option key={v} value={v}>
-                            {STATUS_META[v].label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className="text-sm">
-                      <span className="mb-1 block text-xs font-medium text-muted">
-                        Secondary received
-                      </span>
-                      <input
-                        type="date"
-                        value={s.receivedOn ?? ""}
-                        onChange={(e) =>
-                          patch(s.slug, { receivedOn: e.target.value || undefined })
-                        }
-                        className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
-                      />
-                    </label>
-
-                    <label className="text-sm">
-                      <span className="mb-1 block text-xs font-medium text-muted">
-                        Deadline
-                      </span>
-                      <input
-                        type="date"
-                        value={s.dueOn ?? ""}
-                        onChange={(e) =>
-                          patch(s.slug, { dueOn: e.target.value || undefined })
-                        }
-                        className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
-                      />
-                    </label>
-                  </div>
-
-                  <label className="mt-3 block text-sm">
-                    <span className="mb-1 block text-xs font-medium text-muted">
-                      Notes
-                    </span>
-                    <textarea
-                      value={s.notes ?? ""}
-                      onChange={(e) =>
-                        patch(s.slug, { notes: e.target.value || undefined })
-                      }
-                      rows={2}
-                      placeholder="Which essays are left, who you mentioned, anything you want to remember."
-                      className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
-                    />
-                  </label>
-                </article>
-              );
-            })}
-          </section>
+                  school={s}
+                  prompts={promptsBySchool[s.slug] ?? []}
+                  today={today}
+                  onPatch={patch}
+                  onRemove={remove}
+                />
+              ))}
+              {visible.length === 0 && (
+                <p className="rounded-2xl border border-dashed border-line-strong bg-surface p-8 text-center text-sm text-muted">
+                  No schools with that status.
+                </p>
+              )}
+            </section>
+          ) : (
+            <MyOverlap schools={tracked} />
+          )}
         </>
       )}
 

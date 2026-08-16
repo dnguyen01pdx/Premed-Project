@@ -68,6 +68,11 @@ export default function RootLayout({
                     </Link>
                   </li>
                   <li>
+                    <Link href="/submit" className="hover:text-white">
+                      Submit a prompt
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/how-feedback-works" className="hover:text-white">
                       Our feedback policy
                     </Link>
