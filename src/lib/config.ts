@@ -6,10 +6,10 @@
  */
 export const CURRENT_CYCLE = "2026-2027";
 
-export const SITE_NAME = "Secondary Prompt Library";
+export const SITE_NAME = "MD Atlas";
 
 export const SITE_TAGLINE =
-  "Every US MD secondary essay prompt, searchable and free.";
+  "Find your way through medical school secondaries.";
 
 /**
  * Canonical origin, used for sitemap and robots. Set NEXT_PUBLIC_SITE_URL in

@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- BEGIN:project-rules -->
 
-# Secondary Prompt Library — project rules
+# MD Atlas — project rules
 
 ## Scope discipline
 This repo implements build steps 1-3, plus one deliberate exception.
@@ -56,4 +56,17 @@ Stripe, the experience log, the LOR tracker.
   Every text pairing must clear WCAG AA (4.5:1).
 - Status is never communicated by color alone; the label always says it too.
 - Every page has exactly one `h1` and a working skip link.
+
+## Brand
+- The product is **MD Atlas**. `SITE_NAME` in `src/lib/config.ts` is the single
+  source; never hardcode the name in a component.
+- The compass mark lives in `src/components/Logo.tsx` and uses `currentColor`
+  so one component works on navy and on white. It is intentionally low-detail:
+  check any change at 16px before shipping it.
+
+## Motion
+- `Reveal` and `CountUp` must degrade to fully visible, correct content with no
+  JS. Never make content depend on an animation having run.
+- Everything respects `prefers-reduced-motion`.
+- Reveals fire once and disconnect. Nothing re-animates on scroll-back.
 <!-- END:project-rules -->

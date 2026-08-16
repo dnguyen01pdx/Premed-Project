@@ -1,4 +1,4 @@
-# Secondary Prompt Library
+# MD Atlas
 
 Build steps 1-3 of the premed application platform: the prompt database schema,
 seed data for 27 schools, and a public searchable prompt browser with no auth.
