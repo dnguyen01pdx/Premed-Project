@@ -20,9 +20,10 @@ export default function PrivacyPage() {
       <header>
         <h1 className="text-4xl font-semibold tracking-tight">Privacy</h1>
         <p className="mt-4 text-lg leading-relaxed text-muted">
-          The short version: your school list never leaves your browser, and the
-          only personal thing {SITE_NAME} can store is an email address you
-          typed on purpose.
+          The short version: without an account, nothing you track ever leaves
+          your browser. If you choose to sign in, a copy of your dashboard is
+          stored so it can follow you between devices. That choice is yours and
+          it is reversible.
         </p>
       </header>
 
@@ -78,10 +79,10 @@ export default function PrivacyPage() {
           <div>
             <h3 className="font-semibold">Nothing else</h3>
             <p className="mt-1.5 leading-relaxed text-muted">
-              No advertising trackers. No third-party analytics scripts. No
-              cookies for visitors — the one cookie this site can set exists
-              only on the private admin page and only the site owner ever sees
-              it. We do not use your submissions to train anything.
+              No advertising trackers. No third-party analytics scripts. The
+              only cookie we set for visitors is the one that keeps you signed
+              in, and only if you sign in. We do not use your submissions or
+              your dashboard to train anything.
             </p>
           </div>
         </div>
@@ -93,8 +94,8 @@ export default function PrivacyPage() {
         </h2>
         <p className="mt-3 leading-relaxed text-muted">
           {SITE_NAME} runs on Vercel, which serves the site and keeps standard
-          server logs, and on Neon, which hosts the database where submissions
-          are stored. That is the entire list.
+          server logs, and on Neon, which hosts the database. If you sign in,
+          Resend delivers the sign-in email. That is the entire list.
         </p>
       </section>
 
@@ -124,15 +125,34 @@ export default function PrivacyPage() {
 
       <section>
         <h2 className="text-2xl font-semibold tracking-tight">
-          If accounts arrive later
+          If you sign in
         </h2>
-        <p className="mt-3 leading-relaxed text-muted">
-          There is a plan to add an optional account so your tracker can follow
-          you between your laptop and your phone. Optional is the important
-          word: the tracker will keep working with no account at all. If that
-          ships, this page gets updated in the same release that ships it, and
-          it will say plainly what an account stores.
-        </p>
+        <div className="mt-3 space-y-3 leading-relaxed text-muted">
+          <p>
+            Signing in is optional and the dashboard works fully without it. It
+            exists for one reason: so your list is on your phone as well as your
+            laptop.
+          </p>
+          <p>
+            When you sign in we store your email address and a copy of your
+            dashboard — schools, essays, statuses, interviews, prep notes. We
+            use your email to send sign-in links and to tell you when essay
+            feedback launches. We do not sell it, and there is no other mailing
+            list.
+          </p>
+          <p>
+            There are no passwords. Signing in sends a link that works once and
+            expires in 15 minutes. We store only a scrambled version of that
+            link and of your session, so a database leak does not hand anyone a
+            way into your account.
+          </p>
+          <p>
+            <strong className="text-foreground">Deleting it:</strong> the
+            account page has a delete button that removes your email and your
+            synced dashboard from our database immediately. Your browser copy
+            stays, so deleting the account does not cost you your work.
+          </p>
+        </div>
       </section>
 
       <section>

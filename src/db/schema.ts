@@ -9,6 +9,7 @@ import {
   boolean,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -212,3 +213,92 @@ export const promptSubmissions = pgTable(
     index("prompt_submissions_hash_idx").on(t.submitterHash),
   ],
 );
+
+/* ---------------------------------------------------------------------------
+ * Accounts.
+ *
+ * Optional by design: the tracker works with no account at all. An account
+ * buys one thing, syncing across devices, so the model stays deliberately
+ * thin. We store an email and a blob of the user's own tracker. No name, no
+ * profile, nothing we do not need to deliver that one feature.
+ * ------------------------------------------------------------------------ */
+
+export const users = pgTable(
+  "users",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    /** Stored lowercased; the unique index below is what prevents duplicates. */
+    email: text("email").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("users_email_idx").on(t.email)],
+);
+
+/**
+ * Single-use sign-in tokens.
+ *
+ * Only a hash is stored, so a database leak does not hand anyone a working
+ * login link. Tokens expire fast and are deleted the moment they are used.
+ */
+export const authTokens = pgTable(
+  "auth_tokens",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    email: text("email").notNull(),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("auth_tokens_hash_idx").on(t.tokenHash),
+    index("auth_tokens_email_idx").on(t.email),
+    index("auth_tokens_expires_idx").on(t.expiresAt),
+  ],
+);
+
+/** Sessions live in the database so they can actually be revoked. */
+export const sessions = pgTable(
+  "sessions",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("sessions_hash_idx").on(t.tokenHash),
+    index("sessions_user_idx").on(t.userId),
+  ],
+);
+
+/**
+ * The synced copy of a user's tracker and prep notes.
+ *
+ * Stored as opaque JSON on purpose. The shape is owned by the client (see
+ * lib/tracker.ts), the server never interprets it, and that keeps schema
+ * migrations out of the sync path entirely.
+ */
+export const trackerSnapshots = pgTable("tracker_snapshots", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  tracker: jsonb("tracker"),
+  prep: jsonb("prep"),
+  primary: jsonb("primary"),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});

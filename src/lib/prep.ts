@@ -90,6 +90,11 @@ export function commitPrep(next: PrepState): boolean {
     cachedState = parsePrep(withStamp);
   }
   for (const l of listeners) l();
+  // Lets the sync panel push without polling. Same-tab localStorage writes do
+  // not fire the native `storage` event, so we raise our own.
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("mda:local-change"));
+  }
   return ok;
 }
 

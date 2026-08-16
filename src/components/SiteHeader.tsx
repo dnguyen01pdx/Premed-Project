@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
 const NAV = [
+  { href: "/primary", label: "Primary" },
+  { href: "/my-schools", label: "Secondaries" },
+  { href: "/interview-prep", label: "Interviews" },
   { href: "/prompts", label: "Prompts" },
-  { href: "/overlap", label: "Overlap" },
-  { href: "/my-schools", label: "My schools" },
-  { href: "/interview-prep", label: "Interview prep" },
   { href: "/schools", label: "Schools" },
   { href: "/about", label: "About" },
 ];

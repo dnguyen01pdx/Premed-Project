@@ -10,6 +10,21 @@ export const metadata: Metadata = {
 
 const ROWS: Array<{ feature: string; free: string; paid: string }> = [
   {
+    feature: "Activity log with verifier contacts",
+    free: "Yes",
+    paid: "Yes",
+  },
+  {
+    feature: "Work & Activities and personal statement drafting",
+    free: "Yes",
+    paid: "Yes",
+  },
+  {
+    feature: "Letter of recommendation tracker",
+    free: "Yes",
+    paid: "Yes",
+  },
+  {
     feature: "Every US MD secondary prompt we have",
     free: "Yes",
     paid: "Yes",

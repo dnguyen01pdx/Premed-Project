@@ -12,7 +12,7 @@ export const SITE_NAME = "MD Atlas";
 export const CONTACT_EMAIL = "mdatlas.help@gmail.com";
 
 export const SITE_TAGLINE =
-  "Find your way through medical school secondaries.";
+  "Navigate your way through the medical school application cycle.";
 
 /**
  * Canonical origin, used for sitemap and robots. Set NEXT_PUBLIC_SITE_URL in

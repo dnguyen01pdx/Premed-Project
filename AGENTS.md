@@ -12,17 +12,27 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # MD Atlas — project rules
 
-## Scope discipline
-This repo implements build steps 1-3, plus one deliberate exception.
+## What this is now
+The original spec described a prompt database with a paid essay-feedback tier.
+The product has deliberately grown into a dashboard for the whole application
+cycle, in three stages that mirror the applicant's year:
 
-The exception: the secondary status tracker (`/my-schools`) was pulled forward
-from step 8 by an explicit product call. It is client-only — everything lives
-in the user's `localStorage`, nothing is sent to a server — so it cost no auth
-work and pulled nothing else forward. When accounts land in step 4, migrate
-this data server-side rather than rebuilding it.
+- `/primary` — activity log with verifier contacts, Work & Activities drafting
+  with AMCAS character limits, personal statement, letters of recommendation.
+- `/my-schools` — secondary prompts per school, per-essay status, cross-school
+  overlap, and the interview pipeline.
+- `/interview-prep` — question bank with what each question tests.
 
-Still not built, and still not to be built ahead: auth, the feedback engine,
-Stripe, the experience log, the LOR tracker.
+Accounts are optional and exist only to sync across devices.
+
+Still not built: the essay feedback engine and Stripe. Those remain the paid
+tier and the only paid tier.
+
+## The load-bearing product decision
+Free covers everything organizational; only feedback is paid. Do not move a
+tracking feature behind the paywall or behind a mandatory sign-up. The free
+tier is the funnel and the retention story: a sophomore logging hours is
+already in the app when their application year arrives.
 
 ## Non-negotiables
 1. Never generate essay text for a user. No rewritten paragraphs, no suggested
@@ -46,9 +56,19 @@ Stripe, the experience log, the LOR tracker.
 - Database reads go in `src/lib/queries.ts`, never inline in a page.
 - Filter state lives in the URL, not component state.
 - `CURRENT_CYCLE` lives in `src/lib/config.ts`.
-- Tracker state lives only in the browser. Never add a network call that sends
-  a user's school list anywhere; the privacy claim on `/my-schools` depends on
-  that staying true.
+- All three client stores (`tracker.ts`, `prep.ts`, `primary.ts`) follow the
+  same shape: localStorage behind `useSyncExternalStore`, a cached snapshot for
+  referential stability, and a `mda:local-change` event on write so `SyncPanel`
+  can push without polling. Copy that pattern for any new store.
+
+## Accounts and sync
+- Local storage is always the working copy. Signing in adds a synced backup; it
+  never becomes what the page reads from. Never invert this.
+- On sign-in, if both sides hold data and they differ, ASK. Never silently pick
+  a winner. Losing an applicant's list in August is not recoverable for them.
+- Deleting an account must not touch their local data.
+- `/api/sync` stores opaque JSON. The server never interprets the shape, which
+  is what keeps client model changes out of the sync path.
 
 ## Design
 - Colors are defined once in `src/app/globals.css` and mirrored in

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: `%s — ${SITE_NAME}`,
   },
   description:
-    "A free, searchable atlas of medical school secondary essay prompts, plus a tracker for everything you still owe. Every accredited US MD program.",
+    "A free dashboard for the whole medical school application: log your activities, draft Work & Activities entries, track every secondary, and manage interviews.",
   openGraph: {
     siteName: SITE_NAME,
     type: "website",
@@ -53,6 +53,11 @@ export default function RootLayout({
               <nav aria-label="Footer">
                 <ul className="space-y-2 text-sm">
                   <li>
+                    <Link href="/primary" className="hover:text-white">
+                      Primary application
+                    </Link>
+                  </li>
+                  <li>
                     <Link href="/prompts" className="hover:text-white">
                       Browse prompts
                     </Link>
@@ -85,6 +90,11 @@ export default function RootLayout({
                   <li>
                     <Link href="/how-feedback-works" className="hover:text-white">
                       Our feedback policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/account" className="hover:text-white">
+                      Your account
                     </Link>
                   </li>
                   <li>

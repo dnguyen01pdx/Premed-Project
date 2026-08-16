@@ -22,24 +22,25 @@ export default async function HomePage() {
       <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-16 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-20">
         <CompassMark className="h-12 w-12 text-white/70" />
         <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
-          Find your way through secondaries.
+          Navigate your way through the application cycle.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
-          Every accredited US MD program in one place. Search the prompts, spot
-          the essays that overlap, and keep track of what you still owe.
+          Primaries are one big push. Then twenty secondaries arrive, then the
+          interviews. MD Atlas is where you keep track of all of it: every
+          prompt, every essay, every invite, in one place.
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
           <Link
-            href="/prompts"
+            href="/primary"
             className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 transition-transform hover:scale-[1.02] hover:bg-navy-100"
           >
-            Browse prompts
+            Start with my activities
           </Link>
           <Link
             href="/my-schools"
             className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
           >
-            Track my secondaries
+            Open my dashboard
           </Link>
         </div>
       </section>
@@ -75,31 +76,31 @@ export default async function HomePage() {
             id="features-heading"
             className="text-3xl font-semibold tracking-tight sm:text-4xl"
           >
-            Three things, done well.
+One place for the whole cycle.
           </h2>
         </Reveal>
         <div className="mt-8 grid gap-5 sm:grid-cols-3">
           {[
             {
-              href: "/prompts",
+              href: "/primary",
               step: "01",
-              title: "Search every prompt",
-              body: "Filter by school, question type, and word or character limit. Every prompt is labeled with its cycle and whether it has been verified.",
-              cta: "Browse prompts",
-            },
-            {
-              href: "/overlap",
-              step: "02",
-              title: "Find the overlap",
-              body: "Most secondaries ask the same handful of questions. See which schools ask each one and the tightest limit to write to.",
-              cta: "See the overlap",
+              title: "Primary",
+              body: "Log hours and supervisor contacts as you go, years before you apply. Then turn them into your fifteen Work & Activities entries with live character counts.",
+              cta: "Start logging",
             },
             {
               href: "/my-schools",
+              step: "02",
+              title: "Secondaries",
+              body: "Every prompt for every school, your essays tracked one by one, and the overlap between schools so you write once and adapt.",
+              cta: "Track secondaries",
+            },
+            {
+              href: "/interview-prep",
               step: "03",
-              title: "Track what you owe",
-              body: "Not started, drafting, done, submitted. Deadlines closing in float to the top. Nothing leaves your browser.",
-              cta: "Open my list",
+              title: "Interviews",
+              body: "Invites, dates, formats and thank-you notes, plus what each interview question is really testing.",
+              cta: "Prep interviews",
             },
           ].map((card, i) => (
             <Reveal key={card.href} delay={i * 90}>

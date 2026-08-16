@@ -1,0 +1,1 @@
+ALTER TABLE "tracker_snapshots" ADD COLUMN "primary" jsonb;

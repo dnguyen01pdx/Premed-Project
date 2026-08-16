@@ -15,6 +15,20 @@
       "when": 1786902775795,
       "tag": "0001_aromatic_orphan",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786907218630,
+      "tag": "0002_red_blue_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786913997066,
+      "tag": "0003_noisy_sharon_ventura",
+      "breakpoints": true
     }
   ]
 }

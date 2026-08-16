@@ -599,6 +599,9 @@ export function commitTracker(next: TrackerState): boolean {
     cachedState = parseTracker(withStamp);
   }
   emit();
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("mda:local-change"));
+  }
   return ok;
 }
 
