@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 async function doSignOut() {
   "use server";
   await signOutCurrentSession();
-  redirect("/my-schools");
+  redirect("/secondaries");
 }
 
 async function doDelete(formData: FormData) {
@@ -61,7 +61,7 @@ export default async function AccountPage({
           without an account. Signing in only adds syncing across devices.
         </p>
         <Link
-          href="/my-schools"
+          href="/secondaries"
           className="inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
         >
           Go to my dashboard

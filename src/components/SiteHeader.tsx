@@ -5,13 +5,20 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
+/**
+ * Five items, in the order the year happens.
+ *
+ * "Prompts" and "Schools" used to sit up here as peers of the stages, which is
+ * what made the site read as a prompt library wearing a dashboard costume. They
+ * are reference material for exactly one stage, so they now live inside
+ * Secondaries and in the footer, and the top nav only holds places you *work*.
+ */
 const NAV = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/planner", label: "Planner" },
   { href: "/primary", label: "Primary" },
-  { href: "/my-schools", label: "Secondaries" },
-  { href: "/interview-prep", label: "Interviews" },
-  { href: "/prompts", label: "Prompts" },
-  { href: "/schools", label: "Schools" },
-  { href: "/about", label: "About" },
+  { href: "/secondaries", label: "Secondaries" },
+  { href: "/interviews", label: "Interviews" },
 ];
 
 /**
@@ -67,7 +74,7 @@ export function SiteHeader() {
           <Logo />
         </Link>
 
-        <nav aria-label="Main" className="hidden sm:block">
+        <nav aria-label="Main" className="hidden md:block">
           <ul className="flex items-center gap-1">
             {NAV.map((item) => {
               const active =
@@ -96,7 +103,7 @@ export function SiteHeader() {
           onClick={() => setMenuOpen((v) => !v)}
           aria-expanded={menuOpen}
           aria-controls="mobile-nav"
-          className="rounded-lg px-3 py-1.5 text-sm text-navy-100 hover:bg-white/10 hover:text-white sm:hidden"
+          className="rounded-lg px-3 py-1.5 text-sm text-navy-100 hover:bg-white/10 hover:text-white md:hidden"
         >
           {menuOpen ? "Close" : "Menu"}
         </button>
@@ -106,7 +113,7 @@ export function SiteHeader() {
         <nav
           id="mobile-nav"
           aria-label="Main"
-          className="border-t border-white/10 sm:hidden"
+          className="anim-slide border-t border-white/10 md:hidden"
         >
           <ul className="mx-auto max-w-6xl px-5 py-2">
             {NAV.map((item) => (

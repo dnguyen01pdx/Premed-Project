@@ -14,14 +14,27 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## What this is now
 The original spec described a prompt database with a paid essay-feedback tier.
-The product has deliberately grown into a dashboard for the whole application
-cycle, in three stages that mirror the applicant's year:
+It is now a dashboard for the whole premed timeline. The top nav holds only
+places you *work*, in the order the years happen:
 
+- `/dashboard` — the hub. Progress rings per stage plus "Next up", ordered by
+  what actually goes wrong. Every number links to where you can act on it.
+- `/planner` — recurring weekly schedule. Blocks carry an activity category, so
+  the week totals into hours-per-category and feeds Primary.
 - `/primary` — activity log with verifier contacts, Work & Activities drafting
   with AMCAS character limits, personal statement, letters of recommendation.
-- `/my-schools` — secondary prompts per school, per-essay status, cross-school
-  overlap, and the interview pipeline.
-- `/interview-prep` — question bank with what each question tests.
+- `/secondaries` — the tracker: schools, per-essay status, cross-school overlap.
+- `/interviews` — interview pipeline plus the question bank, as two tabs.
+
+Reference material is NOT top-level nav. `/prompts` (search) and `/schools`
+(browse, one static page per school for SEO) are reached from inside
+`/secondaries` and from the footer. Putting them back in the nav is what made
+the site read as a prompt library wearing a dashboard costume.
+
+Redirects in `next.config.ts` cover the old URLs: `/my-schools` and `/overlap`
+to `/secondaries`, `/interview-prep` to `/interviews`. Applicants bookmark
+these in July and return in December, so those redirects are permanent and
+must not be dropped.
 
 Accounts are optional and exist only to sync across devices.
 
@@ -47,8 +60,15 @@ already in the app when their application year arrives.
 ## Data
 - `data/schools.json` and `data/prompt-types.json` are the source of truth.
   Edit those, then run `npm run db:seed`. Do not hand-edit the database.
-- A prompt's `confirmed` flag may only be set true after the text has been
-  checked against the school's own materials for that cycle.
+- 161 MD programs, 769 prompts, 153 programs covered. Every prompt carries a
+  per-prompt `source` URL — the page its text was actually read from.
+- `confirmed` is true only where the text was read on the school's own domain.
+  That is currently 7 prompts. Everything else came from aggregators and
+  applicant reports and is displayed as unverified. Do not bulk-flip this flag.
+- `truncated` marks prompts the *source* cut off. `PromptCard` renders these as
+  a block-level warning, not a footnote: text that reads as a complete question
+  but is not is the one thing here that can actively waste someone's essay.
+  Never "complete" a truncated prompt by inference.
 - Each cycle gets its own prompt row. Never mutate a prior-cycle row into the
   current cycle.
 
@@ -56,7 +76,8 @@ already in the app when their application year arrives.
 - Database reads go in `src/lib/queries.ts`, never inline in a page.
 - Filter state lives in the URL, not component state.
 - `CURRENT_CYCLE` lives in `src/lib/config.ts`.
-- All three client stores (`tracker.ts`, `prep.ts`, `primary.ts`) follow the
+- All four client stores (`tracker.ts`, `prep.ts`, `primary.ts`, `planner.ts`)
+  follow the
   same shape: localStorage behind `useSyncExternalStore`, a cached snapshot for
   referential stability, and a `mda:local-change` event on write so `SyncPanel`
   can push without polling. Copy that pattern for any new store.
@@ -85,8 +106,27 @@ already in the app when their application year arrives.
   check any change at 16px before shipping it.
 
 ## Motion
+- The kit lives at the bottom of `globals.css`: `.anim-rise`, `.anim-pop`,
+  `.anim-slide`, `.anim-stagger`, `.anim-ring`, `.lift`, `.link-sweep`.
+- Animations may only change how content ARRIVES, never whether it is there.
+  Every keyframe ends at the resting state and uses `fill-mode: both`, so a
+  browser that never runs it still paints the final frame.
 - `Reveal` and `CountUp` must degrade to fully visible, correct content with no
   JS. Never make content depend on an animation having run.
-- Everything respects `prefers-reduced-motion`.
+- `prefers-reduced-motion` kills the movement itself, not just the duration, so
+  nothing lurches into place in one frame.
 - Reveals fire once and disconnect. Nothing re-animates on scroll-back.
+- Stagger delays are capped (`min(var(--i), 12)`); an unbounded stagger on a
+  200-row list leaves the last row waiting seconds.
+
+## Planner
+- The unit is a recurring weekday block, not a dated event. A premed's week
+  repeats; asking for 45 separate dates is why planners go unused by week two.
+- Every block carries a category from `PLANNER_CATEGORIES`, which mirrors AMCAS
+  activity types rather than generic calendar colors. `REPORTABLE` is the subset
+  whose hours belong on an application, and the split between reportable and
+  everything else must stay visible — a weekly total that quietly includes gym
+  time is worse than no total.
+- Category colors are a text/fill/edge triple so the identity survives for
+  anyone who cannot separate the hues. All pairings are in the contrast script.
 <!-- END:project-rules -->

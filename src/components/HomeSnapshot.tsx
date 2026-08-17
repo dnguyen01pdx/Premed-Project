@@ -16,6 +16,12 @@ import {
   primaryTotals,
   subscribeToPrimary,
 } from "@/lib/primary";
+import {
+  getPlannerServerSnapshot,
+  getPlannerSnapshot,
+  subscribeToPlanner,
+  weeklyTotals,
+} from "@/lib/planner";
 
 /**
  * The part that makes this a headquarters rather than a landing page.
@@ -40,6 +46,11 @@ export function HomeSnapshot() {
     getPrimarySnapshot,
     getPrimaryServerSnapshot,
   );
+  const planner = useSyncExternalStore(
+    subscribeToPlanner,
+    getPlannerSnapshot,
+    getPlannerServerSnapshot,
+  );
   const hydrated = useSyncExternalStore(
     subscribeNever,
     () => true,
@@ -51,20 +62,30 @@ export function HomeSnapshot() {
   const pt = primaryTotals(primary);
   const essays = countEssays(tracker.schools);
   const iv = interviewTotals(tracker.schools);
+  const wk = weeklyTotals(planner);
 
   const hasAnything =
-    pt.entries > 0 || tracker.schools.length > 0 || iv.total > 0;
+    pt.entries > 0 ||
+    tracker.schools.length > 0 ||
+    iv.total > 0 ||
+    wk.events > 0;
   if (!hasAnything) return null;
 
-  // The stage worth sending them to is the latest one they have touched.
-  const resume =
-    iv.total > 0
-      ? { href: "/my-schools", label: "Go to interviews" }
-      : tracker.schools.length > 0
-        ? { href: "/my-schools", label: "Go to secondaries" }
-        : { href: "/primary", label: "Go to my activities" };
-
+  // Everything here is a teaser for /dashboard, which does the real triage.
   const stages = [
+    {
+      href: "/planner",
+      label: "This week",
+      headline:
+        wk.events > 0
+          ? `${Math.round(wk.total / 60)} hours booked`
+          : "Empty week",
+      detail:
+        wk.events > 0
+          ? `${Math.round(wk.reportable / 60)} count on AMCAS`
+          : "Add your classes and shifts",
+      urgent: wk.conflicts > 0,
+    },
     {
       href: "/primary",
       label: "Primary",
@@ -81,7 +102,7 @@ export function HomeSnapshot() {
       urgent: pt.missingSupervisor > 0,
     },
     {
-      href: "/my-schools",
+      href: "/secondaries",
       label: "Secondaries",
       headline:
         tracker.schools.length > 0
@@ -96,7 +117,7 @@ export function HomeSnapshot() {
       urgent: essays.remaining > 0,
     },
     {
-      href: "/my-schools",
+      href: "/interviews",
       label: "Interviews",
       headline:
         iv.total > 0 ? `${iv.total} in flight` : "No invites yet",
@@ -130,14 +151,14 @@ export function HomeSnapshot() {
           </p>
         </div>
         <Link
-          href={resume.href}
-          className="rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+          href="/dashboard"
+          className="lift rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-navy-900 hover:bg-navy-100"
         >
-          {resume.label}
+          Open my dashboard
         </Link>
       </div>
 
-      <ol className="mt-7 grid gap-4 sm:grid-cols-3">
+      <ol className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stages.map((s, i) => (
           <li key={s.label}>
             <Link

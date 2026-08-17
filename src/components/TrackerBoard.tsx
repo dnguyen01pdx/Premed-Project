@@ -44,10 +44,18 @@ function download(filename: string, contents: string, type: string) {
 export function TrackerBoard({
   schools,
   promptsBySchool,
+  showInterviews = false,
 }: {
   schools: SchoolOption[];
   /** Prompts we already hold, keyed by school slug, for the import button. */
   promptsBySchool: Record<string, SchoolPrompt[]>;
+  /**
+   * Interviews used to be a third tab in here. They now have their own page,
+   * because a secondary and an interview invite are different jobs weeks apart
+   * and stacking them made this screen read as a pile. Kept as a prop rather
+   * than deleted so the combined view is one flag away if that turns out wrong.
+   */
+  showInterviews?: boolean;
 }) {
   // localStorage is an external store, so it is subscribed to rather than
   // copied into state. See the note in lib/tracker.ts.
@@ -286,10 +294,12 @@ export function TrackerBoard({
           >
             {(
               [
-                ["list", "Secondaries"],
+                ["list", "My schools"],
                 ["overlap", "What overlaps"],
-                ["interviews", "Interviews"],
-              ] as const
+                ...(showInterviews
+                  ? ([["interviews", "Interviews"]] as const)
+                  : []),
+              ] as ReadonlyArray<readonly [typeof tab, string]>
             ).map(([key, label]) => (
               <button
                 key={key}
@@ -328,13 +338,9 @@ export function TrackerBoard({
             </section>
           ) : tab === "overlap" ? (
             <MyOverlap schools={tracked} />
-          ) : (
-            <InterviewBoard
-              schools={tracked}
-              today={today}
-              onPatch={patch}
-            />
-          )}
+          ) : showInterviews ? (
+            <InterviewBoard schools={tracked} today={today} onPatch={patch} />
+          ) : null}
         </>
       )}
 

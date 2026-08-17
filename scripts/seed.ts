@@ -30,9 +30,17 @@ type SeedPrompt = {
   limit: number | null;
   unit: LimitUnit;
   optional: boolean;
-  notes?: string;
+  notes?: string | null;
   /** Set true only after verifying the prompt on the school's own materials. */
   confirmed?: boolean;
+  /**
+   * The URL this exact text was read from. Per-prompt rather than per-school,
+   * because a school's prompts often come from several different pages and an
+   * applicant checking our work needs the page that actually has their essay.
+   */
+  source?: string | null;
+  /** The source itself cut the text off. Surfaced as a warning in the UI. */
+  truncated?: boolean;
 };
 
 type SeedSchool = {
@@ -143,8 +151,10 @@ export async function seed(db: NodePgDatabase<Record<string, never>>) {
         confirmedAt: confirmed ? new Date() : null,
         optional: p.optional,
         position: index + 1,
-        source: s.source,
-        notes: p.notes,
+        // Per-prompt source wins; the school-level one is only a fallback for
+        // hand-entered data that predates per-prompt sourcing.
+        source: p.source ?? s.source ?? null,
+        notes: p.notes ?? null,
       };
     });
 

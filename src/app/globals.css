@@ -40,6 +40,32 @@
   --neutral-soft: #eceff5;
   --danger: #9b1c1c;
   --danger-soft: #fdeaea;
+
+  /*
+   * Planner categories. Nine hues that must stay distinguishable side by side
+   * in a dense week grid, so each is a text/fill/edge triple rather than one
+   * color: the fill carries the identity at a glance, the text carries it for
+   * anyone who cannot separate the hues. Every text-on-fill pairing is in
+   * scripts/check-contrast.ts.
+   */
+  --cat-class: #1e40af;
+  --cat-class-soft: #e4ecfd;
+  --cat-study: #5b21b6;
+  --cat-study-soft: #eee9fd;
+  --cat-clinical: #0f6156;
+  --cat-clinical-soft: #ddf2ee;
+  --cat-research: #155e75;
+  --cat-research-soft: #ddf0f7;
+  --cat-volunteer: #8a4b04;
+  --cat-volunteer-soft: #fdf1e0;
+  --cat-work: #3f4756;
+  --cat-work-soft: #eceff4;
+  --cat-leadership: #9d174d;
+  --cat-leadership-soft: #fde7ef;
+  --cat-application: #0a1c3d;
+  --cat-application-soft: #dde5f5;
+  --cat-personal: #4b5563;
+  --cat-personal-soft: #f0f2f5;
 }
 
 @theme inline {
@@ -72,6 +98,25 @@
   --color-neutral-soft: var(--neutral-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
+
+  --color-cat-class: var(--cat-class);
+  --color-cat-class-soft: var(--cat-class-soft);
+  --color-cat-study: var(--cat-study);
+  --color-cat-study-soft: var(--cat-study-soft);
+  --color-cat-clinical: var(--cat-clinical);
+  --color-cat-clinical-soft: var(--cat-clinical-soft);
+  --color-cat-research: var(--cat-research);
+  --color-cat-research-soft: var(--cat-research-soft);
+  --color-cat-volunteer: var(--cat-volunteer);
+  --color-cat-volunteer-soft: var(--cat-volunteer-soft);
+  --color-cat-work: var(--cat-work);
+  --color-cat-work-soft: var(--cat-work-soft);
+  --color-cat-leadership: var(--cat-leadership);
+  --color-cat-leadership-soft: var(--cat-leadership-soft);
+  --color-cat-application: var(--cat-application);
+  --color-cat-application-soft: var(--cat-application-soft);
+  --color-cat-personal: var(--cat-personal);
+  --color-cat-personal-soft: var(--cat-personal-soft);
 
   /* System stack: no external font request, no layout shift on first paint.
      For a text-heavy site that lives on search traffic, that matters more
@@ -119,11 +164,129 @@ body {
   font-weight: 600;
 }
 
+/*
+ * Motion kit.
+ *
+ * Rule for everything below: the animation may only ever change how content
+ * ARRIVES, never whether it is there. Each keyframe therefore ends at the
+ * element's real resting state, and `animation-fill-mode: both` means a browser
+ * that never runs the animation still paints the final frame. No content is
+ * ever gated behind an animation having completed.
+ */
+@keyframes mda-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mda-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mda-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes mda-draw {
+  from {
+    stroke-dashoffset: var(--dash-total, 1000);
+  }
+}
+
+.anim-rise {
+  animation: mda-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-pop {
+  animation: mda-pop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-slide {
+  animation: mda-slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stagger children by index: style={{ "--i": n }}. Capped so a 200-row list
+   does not end up with a six-second wait on the last item. */
+.anim-stagger > * {
+  animation: mda-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(min(var(--i, 0), 12) * 45ms);
+}
+
+/* Progress ring sweep. --dash-total is set inline from the circumference. */
+.anim-ring {
+  animation: mda-draw 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Interactive lift. Transform-only so it never triggers layout. */
+.lift {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -12px rgb(10 28 61 / 0.28);
+}
+
+.lift:active {
+  transform: translateY(0);
+  transition-duration: 0.06s;
+}
+
+/* Underline that grows from the left instead of appearing all at once. */
+.link-sweep {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1.5px;
+  transition: background-size 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link-sweep:hover {
+  background-size: 100% 1.5px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* Belt and braces: kill the movement itself, not just its duration, so
+     nothing lurches into place in a single frame. */
+  .anim-rise,
+  .anim-pop,
+  .anim-slide,
+  .anim-stagger > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .lift:hover {
+    transform: none;
   }
 }

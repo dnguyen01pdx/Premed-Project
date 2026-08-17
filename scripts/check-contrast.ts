@@ -30,6 +30,26 @@ const C = {
   neutralSoft: "#eceff5",
   danger: "#9b1c1c",
   dangerSoft: "#fdeaea",
+
+  // Planner category triples.
+  catClass: "#1e40af",
+  catClassSoft: "#e4ecfd",
+  catStudy: "#5b21b6",
+  catStudySoft: "#eee9fd",
+  catClinical: "#0f6156",
+  catClinicalSoft: "#ddf2ee",
+  catResearch: "#155e75",
+  catResearchSoft: "#ddf0f7",
+  catVolunteer: "#8a4b04",
+  catVolunteerSoft: "#fdf1e0",
+  catWork: "#3f4756",
+  catWorkSoft: "#eceff4",
+  catLeadership: "#9d174d",
+  catLeadershipSoft: "#fde7ef",
+  catApplication: "#0a1c3d",
+  catApplicationSoft: "#dde5f5",
+  catPersonal: "#4b5563",
+  catPersonalSoft: "#f0f2f5",
 } as const;
 
 function channel(v: number) {
@@ -88,6 +108,24 @@ const PAIRS: Array<[string, string, string, number]> = [
   ["ok badge text on card", C.ok, C.surface, 4.5],
   ["info badge text on card", C.info, C.surface, 4.5],
   ["neutral badge text on card", C.neutral, C.surface, 4.5],
+
+  // Planner blocks: label sits on its own category fill.
+  ["planner class", C.catClass, C.catClassSoft, 4.5],
+  ["planner study", C.catStudy, C.catStudySoft, 4.5],
+  ["planner clinical", C.catClinical, C.catClinicalSoft, 4.5],
+  ["planner research", C.catResearch, C.catResearchSoft, 4.5],
+  ["planner volunteer", C.catVolunteer, C.catVolunteerSoft, 4.5],
+  ["planner work", C.catWork, C.catWorkSoft, 4.5],
+  ["planner leadership", C.catLeadership, C.catLeadershipSoft, 4.5],
+  ["planner application", C.catApplication, C.catApplicationSoft, 4.5],
+  ["planner personal", C.catPersonal, C.catPersonalSoft, 4.5],
+
+  // And the same text again on a plain card, for legends and totals.
+  ["planner class on card", C.catClass, C.surface, 4.5],
+  ["planner study on card", C.catStudy, C.surface, 4.5],
+  ["planner clinical on card", C.catClinical, C.surface, 4.5],
+  ["planner research on card", C.catResearch, C.surface, 4.5],
+  ["planner leadership on card", C.catLeadership, C.surface, 4.5],
 ];
 
 let failures = 0;

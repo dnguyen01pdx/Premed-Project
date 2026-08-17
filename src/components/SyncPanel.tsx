@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { commitTracker, getTrackerSnapshot, parseTracker } from "@/lib/tracker";
 import { commitPrep, getPrepSnapshot, parsePrep } from "@/lib/prep";
 import { commitPrimary, getPrimarySnapshot, parsePrimary } from "@/lib/primary";
+import { getPlannerSnapshot, replacePlanner } from "@/lib/planner";
 
 type Status =
   | { kind: "loading" }
@@ -12,7 +13,12 @@ type Status =
   | { kind: "conflict"; email: string; server: Remote }
   | { kind: "signedIn"; email: string; saving: boolean; savedAt: string | null };
 
-type Remote = { tracker: unknown; prep: unknown; primary: unknown };
+type Remote = {
+  tracker: unknown;
+  prep: unknown;
+  primary: unknown;
+  planner: unknown;
+};
 
 function countSchools(t: unknown): number {
   const parsed = parseTracker(t);
@@ -73,6 +79,7 @@ export function SyncPanel() {
                 tracker: data.tracker,
                 prep: data.prep,
                 primary: data.primary,
+                planner: data.planner,
               },
             });
             return;
@@ -84,9 +91,13 @@ export function SyncPanel() {
           commitTracker(parseTracker(data.tracker));
           if (data.prep) commitPrep(parsePrep(data.prep));
           if (data.primary) commitPrimary(parsePrimary(data.primary));
+          if (data.planner) replacePlanner(data.planner);
         }
         // Primary data can exist without any schools tracked yet, so it pulls
         // down on its own terms rather than riding on the school comparison.
+        if (data.planner && getPlannerSnapshot().events.length === 0) {
+          replacePlanner(data.planner);
+        }
         if (data.primary && getPrimarySnapshot().experiences.length === 0) {
           commitPrimary(parsePrimary(data.primary));
         }
@@ -123,6 +134,7 @@ export function SyncPanel() {
               tracker: getTrackerSnapshot(),
               prep: getPrepSnapshot(),
               primary: getPrimarySnapshot(),
+              planner: getPlannerSnapshot(),
             }),
           });
           setStatus((s) =>
@@ -181,6 +193,7 @@ export function SyncPanel() {
     if (keep === "server") {
       commitTracker(parseTracker(status.server.tracker));
       if (status.server.prep) commitPrep(parsePrep(status.server.prep));
+      if (status.server.planner) replacePlanner(status.server.planner);
       if (status.server.primary) {
         commitPrimary(parsePrimary(status.server.primary));
       }

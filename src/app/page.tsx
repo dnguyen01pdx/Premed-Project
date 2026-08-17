@@ -26,28 +26,43 @@ export default async function HomePage() {
   const STAGES = [
     {
       n: "01",
+      href: "/planner",
+      when: "Every week, all four years",
+      title: "Planner",
+      lead: "Your week, entered once.",
+      body: "Classes, shifts, lab hours, volunteering, standing meetings. The planner totals them by category every week, which means the hours question on your application is already answered before anyone asks it.",
+      points: [
+        "A repeating week, not 52 copies of the same entry",
+        "Hours per category, split into what counts on AMCAS and what does not",
+        "Double-booked blocks flagged before you commit to both",
+        "Export the whole week to a spreadsheet",
+      ],
+      cta: "Lay out my week",
+    },
+    {
+      n: "02",
       href: "/primary",
       when: "Sophomore year through May",
       title: "Primary",
       lead: "Log it while you remember it.",
-      body: "Hours, dates, and the supervisor's email for every activity, captured when you still see these people. Then turn those entries into your fifteen Work & Activities descriptions and your personal statement, with AMCAS character limits counted live.",
+      body: "Hours, dates, and the supervisor's email for every activity, captured while you still see these people. Then turn those entries into your fifteen Work & Activities descriptions and your personal statement, with AMCAS limits counted live.",
       points: [
         "18 AMCAS categories, hours done and hours planned kept separate",
         "Verifier contact per entry, with a nag until you have one",
         "Personal statement at 5,300 characters",
-        "Letters of recommendation from asked to submitted",
+        "Letters of recommendation, from asked to submitted",
       ],
       cta: "Start logging",
     },
     {
-      n: "02",
-      href: "/my-schools",
+      n: "03",
+      href: "/secondaries",
       when: "June through September",
       title: "Secondaries",
       lead: "Twenty applications, eight actual questions.",
-      body: "Every prompt we have, per school, broken into individual essays you can track one at a time. The overlap view groups your own schools by question type, so you write once and adapt instead of starting over twenty times.",
+      body: "Every prompt we have, per school, broken into individual essays you track one at a time. The overlap view groups your own schools by question type, so you write once and adapt instead of starting over twenty times.",
       points: [
-        `${stats.prompts} prompts across ${schools.length} MD programs`,
+        `${stats.prompts.toLocaleString()} prompts across ${stats.schools} of ${schools.length} MD programs`,
         "Each essay tracked: not started, drafting, done, submitted",
         "Overlap across your list, with the tightest limit to write to",
         "Deadlines closing in float to the top",
@@ -55,8 +70,8 @@ export default async function HomePage() {
       cta: "Track secondaries",
     },
     {
-      n: "03",
-      href: "/interview-prep",
+      n: "04",
+      href: "/interviews",
       when: "September through March",
       title: "Interviews",
       lead: "The part that is pure logistics.",
@@ -83,17 +98,17 @@ export default async function HomePage() {
           Navigate your way through the application cycle.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
-          Applying to medical school is three years of work with no system
-          attached to it. MD Atlas is the one place it all lives: the hours you
-          logged sophomore year, the twenty secondaries in August, the interview
-          invites in November.
+          Four years of work with no system attached to it. MD Atlas is the one
+          place it all lives — the week you are actually living, the hours it
+          adds up to, the twenty secondaries in August, the interview invites in
+          November.
         </p>
         <div className="mt-9 flex flex-wrap gap-3">
           <Link
-            href="/primary"
-            className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 transition-transform hover:scale-[1.02] hover:bg-navy-100"
+            href="/dashboard"
+            className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
           >
-            Set up my dashboard
+            Open my dashboard
           </Link>
           <Link
             href="/prompts"
@@ -115,9 +130,9 @@ export default async function HomePage() {
           </h2>
           <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
             {[
-              { n: schools.length, label: "MD programs covered" },
+              { n: schools.length, label: "MD programs" },
               { n: stats.prompts, label: "Secondary prompts" },
-              { n: 15, label: "Activity slots tracked" },
+              { n: stats.schools, label: "Programs with prompts" },
               { n: 0, label: "Dollars to use it", literal: "$0" },
             ].map((s) => (
               <div key={s.label}>
@@ -139,13 +154,13 @@ export default async function HomePage() {
               id="stages-heading"
               className="text-3xl font-semibold tracking-tight sm:text-4xl"
             >
-              One application. Three very different jobs.
+              One application. Four very different jobs.
             </h2>
             <p className="mt-3 leading-relaxed text-muted">
-              Most tools pick one of these. The whole point of MD Atlas is that
-              what you write down in the first stage is what you need in the
-              second, and what you did in the second is what they ask about in
-              the third.
+              Most tools pick one of these. The point of MD Atlas is that they
+              feed each other: the hours in your week become the hours on your
+              application, and what you did there is what they ask about in the
+              interview.
             </p>
           </div>
         </Reveal>
@@ -259,20 +274,28 @@ export default async function HomePage() {
           </h2>
           <div className="mt-3 max-w-2xl space-y-3 leading-relaxed text-warn">
             <p>
-              The tracker is finished. The prompt library is not, and it would be
-              dishonest to imply otherwise. Schools change prompts without
-              notice, and most do not publish them until they send you a
-              secondary, so every prompt here is labeled with the cycle it was
-              reported for and whether anyone has verified it.
+              We hold {stats.prompts.toLocaleString()} prompts covering{" "}
+              {stats.schools} of the {schools.length} MD programs listed. Every
+              one carries the source it was read from and the cycle it was
+              reported for.
             </p>
             <p>
-              {withoutPrompts} of the {schools.length} programs listed have no
-              prompts collected yet. Their pages say so plainly.
+              Almost all of it was compiled from aggregators and applicant
+              reports, not read off the school&apos;s own secondary, so treat it
+              as a head start rather than gospel. Schools change prompts without
+              notice and most do not publish them until they send you the
+              secondary. Confirm against the real thing before you write.
             </p>
+            {withoutPrompts > 0 && (
+              <p>
+                {withoutPrompts} programs still have nothing collected. Their
+                pages say so plainly instead of guessing.
+              </p>
+            )}
           </div>
           <Link
             href="/submit"
-            className="mt-5 inline-block rounded-xl bg-warn px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            className="lift mt-5 inline-block rounded-xl bg-warn px-5 py-2.5 text-sm font-semibold text-white"
           >
             Got a secondary? Send us the prompts
           </Link>
@@ -287,25 +310,32 @@ export default async function HomePage() {
             Start wherever you actually are.
           </h2>
           <p className="mx-auto mt-3 max-w-xl leading-relaxed text-navy-100">
-            Two years out and just want somewhere to put your hours? Start at
-            Primary. Secondaries already piling up? Start there. Nothing has to
-            be filled in for the rest to work.
+            Sophomore with a chaotic schedule? Start at the planner. Two years
+            out and just want somewhere to put your hours? Primary. Secondaries
+            already piling up? Start there. Nothing has to be filled in for the
+            rest to work.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link
+              href="/planner"
+              className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+            >
+              Planner
+            </Link>
+            <Link
               href="/primary"
-              className="rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+              className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
             >
               Primary
             </Link>
             <Link
-              href="/my-schools"
+              href="/secondaries"
               className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
             >
               Secondaries
             </Link>
             <Link
-              href="/interview-prep"
+              href="/interviews"
               className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
             >
               Interviews

@@ -63,18 +63,23 @@ export default function RootLayout({
                     </Link>
                   </li>
                   <li>
-                    <Link href="/overlap" className="hover:text-white">
-                      Find overlap
+                    <Link href="/dashboard" className="hover:text-white">
+                      Dashboard
                     </Link>
                   </li>
                   <li>
-                    <Link href="/my-schools" className="hover:text-white">
-                      My schools
+                    <Link href="/planner" className="hover:text-white">
+                      Weekly planner
                     </Link>
                   </li>
                   <li>
-                    <Link href="/interview-prep" className="hover:text-white">
-                      Interview prep
+                    <Link href="/secondaries" className="hover:text-white">
+                      Secondaries
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/interviews" className="hover:text-white">
+                      Interviews
                     </Link>
                   </li>
                   <li>

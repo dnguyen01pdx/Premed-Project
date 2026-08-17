@@ -118,7 +118,7 @@ export default async function SchoolPage({
               I have this school&apos;s prompts
             </Link>
             <Link
-              href="/my-schools"
+              href="/secondaries"
               className="rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent"
             >
               Track it anyway
