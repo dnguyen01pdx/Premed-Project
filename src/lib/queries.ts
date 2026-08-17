@@ -4,6 +4,38 @@ import { db } from "@/db";
 import { prompts, promptTypes, schools } from "@/db/schema";
 import { CURRENT_CYCLE } from "./config";
 
+/**
+ * Keeps only each school's most recent cycle of prompts.
+ *
+ * Most schools do not publish their secondary until they send it to you, so our
+ * newest text for a given school is often a cycle or two old. Filtering on
+ * CURRENT_CYCLE — which is what this used to do — silently hid every one of
+ * those schools: the tracker's import button offered nothing and the overlap
+ * view saw a fraction of the corpus.
+ *
+ * So each school contributes its newest text, and the UI says which cycle that
+ * is. `PromptCard` renders the cycle badge loudly, which is the honest version
+ * of this: never relabel an old prompt as current (AGENTS.md).
+ *
+ * Done in JS rather than as a correlated subquery because the whole corpus is
+ * under a thousand rows, and a wrong answer here is invisible — it looks like
+ * "we just don't have that school" rather than like a bug.
+ *
+ * Lexicographic comparison is correct for the "YYYY-YYYY" format these use.
+ */
+function onlyLatestCycle<T extends { cycleYear: string; schoolSlug: string }>(
+  rows: T[],
+): T[] {
+  const newest = new Map<string, string>();
+  for (const r of rows) {
+    const seen = newest.get(r.schoolSlug);
+    if (seen === undefined || r.cycleYear > seen) {
+      newest.set(r.schoolSlug, r.cycleYear);
+    }
+  }
+  return rows.filter((r) => r.cycleYear === newest.get(r.schoolSlug));
+}
+
 export type PromptFilters = {
   /** Free-text search across prompt text and school name. */
   q?: string;
@@ -204,18 +236,15 @@ export type OverlapGroup = {
  * course numbers".
  */
 export async function getOverlapGroups(): Promise<OverlapGroup[]> {
-  const rows = await db
+  const allRows = await db
     .select(BASE_SELECT)
     .from(prompts)
     .innerJoin(schools, eq(prompts.schoolId, schools.id))
     .innerJoin(promptTypes, eq(prompts.promptTypeId, promptTypes.id))
-    .where(
-      and(
-        eq(prompts.cycleYear, CURRENT_CYCLE),
-        sql`${promptTypes.key} <> 'administrative'`,
-      ),
-    )
+    .where(sql`${promptTypes.key} <> 'administrative'`)
     .orderBy(asc(promptTypes.sortOrder), asc(schools.name));
+
+  const rows = onlyLatestCycle(allRows);
 
   const types = await listPromptTypes();
   const meta = new Map(types.map((t) => [t.key, t]));
@@ -271,10 +300,11 @@ export async function getPromptsBySchool(): Promise<
     }>
   >
 > {
-  const rows = await db
+  const allRows = await db
     .select({
       id: prompts.id,
       text: prompts.text,
+      cycleYear: prompts.cycleYear,
       typeKey: promptTypes.key,
       typeLabel: promptTypes.label,
       limitValue: prompts.limitValue,
@@ -284,8 +314,9 @@ export async function getPromptsBySchool(): Promise<
     .from(prompts)
     .innerJoin(schools, eq(prompts.schoolId, schools.id))
     .leftJoin(promptTypes, eq(prompts.promptTypeId, promptTypes.id))
-    .where(eq(prompts.cycleYear, CURRENT_CYCLE))
     .orderBy(asc(schools.name), asc(prompts.position));
+
+  const rows = onlyLatestCycle(allRows);
 
   const out: Record<string, Array<Omit<(typeof rows)[number], "schoolSlug">>> =
     {};

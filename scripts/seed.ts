@@ -7,7 +7,7 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Pool } from "pg";
 import { drizzle, type NodePgDatabase } from "drizzle-orm/node-postgres";
 import {
@@ -120,17 +120,15 @@ export async function seed(db: NodePgDatabase<Record<string, never>>) {
       })
       .returning();
 
-    // Replace this school's prompts for this cycle wholesale. Prompt text is
-    // the content, so there is no natural key to diff against; rewriting the
-    // cycle is simpler and cannot leave stale rows behind.
-    await db
-      .delete(prompts)
-      .where(
-        and(
-          eq(prompts.schoolId, school.id),
-          eq(prompts.cycleYear, s.cycleYear),
-        ),
-      );
+    // Replace ALL of this school's prompts, not just the cycle being written.
+    //
+    // This used to scope the delete to `s.cycleYear`, which broke the moment a
+    // school's newest available text came from an older cycle than what was
+    // already in the database: the old rows survived and the school's page
+    // rendered two cycles of near-duplicate prompts. data/schools.json is the
+    // single source of truth for a school, so seeding makes the database match
+    // it exactly rather than merging into it.
+    await db.delete(prompts).where(eq(prompts.schoolId, school.id));
 
     const rows = s.prompts.map((p, index) => {
       if (p.type && !typeIdByKey.has(p.type)) {
