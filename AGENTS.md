@@ -60,6 +60,10 @@ already in the app when their application year arrives.
 ## Data
 - `data/schools.json` and `data/prompt-types.json` are the source of truth.
   Edit those, then run `npm run db:seed`. Do not hand-edit the database.
+- `scripts/setup.ts` runs on every build and ALWAYS seeds. It used to skip when
+  the database already held prompts, which meant a growing corpus never reached
+  production while every local check passed against a fresh database. Do not
+  reintroduce that guard. `SKIP_SEED=1` exists for the rare case you need it.
 - 161 MD programs, 769 prompts, 153 programs covered. Every prompt carries a
   per-prompt `source` URL — the page its text was actually read from.
 - `confirmed` is true only where the text was read on the school's own domain.
