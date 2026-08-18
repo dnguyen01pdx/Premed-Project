@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
 import { SiteHeader } from "@/components/SiteHeader";
-import { CONTACT_EMAIL, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
+import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -105,12 +105,9 @@ export default function RootLayout({
                       </Link>
                     </li>
                     <li>
-                      <a
-                        href={`mailto:${CONTACT_EMAIL}`}
-                        className="hover:text-white"
-                      >
+                      <Link href="/contact" className="hover:text-white">
                         Contact
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </nav>
