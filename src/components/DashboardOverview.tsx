@@ -305,9 +305,9 @@ export function DashboardOverview() {
         <StageCard
           index={0}
           href="/planner"
-          eyebrow="My week"
+          eyebrow="Planner"
           headline={
-            wk.total > 0 ? `${Math.round(wk.total / 60)} hours booked` : "Empty week"
+            wk.total > 0 ? `${Math.round(wk.total / 60)} hours/wk booked` : "Nothing scheduled"
           }
           detail={
             wk.reportable > 0
