@@ -43,8 +43,31 @@ export type TrackedEssay = {
   /** Question type, which is what makes cross-school overlap possible. */
   typeKey?: string;
   typeLabel?: string;
+  /** "auto" when we guessed the category, "manual" once the user picks it themselves. */
+  typeSource?: "auto" | "manual";
   limitValue?: number | null;
   limitUnit?: LimitUnit;
+  /** Per-essay deadline, for custom prompts that don't share the school's date. */
+  dueOn?: string;
+  /** Optional notes the user leaves themselves about this prompt. */
+  notes?: string;
+
+  /**
+   * The user's own draft answer, pasted in voluntarily. Never generated,
+   * never required. Existing only so the reuse tools (Master Essay Map,
+   * school-name safety check) have real text to work with instead of just a
+   * status flag.
+   */
+  draftText?: string;
+  /**
+   * Points at another essay's id when this prompt is being answered with
+   * that essay's draft, possibly adapted. The linked-to essay is the "master"
+   * for that group; this essay defers to its draftText for the safety check
+   * and coverage, but is scored on its OWN school for name-mixups.
+   */
+  linkedToId?: string;
+  /** Free-text tags for which activities/stories this essay draws on. */
+  experienceTags?: string[];
 };
 
 export type LimitUnit = "words" | "characters" | "none";
@@ -239,6 +262,16 @@ export function parseTracker(raw: unknown): TrackerState {
     });
   }
 
+  // linkedToId can point at an essay on a different school, which is the
+  // whole point of cross-school reuse — so dangling references can only be
+  // caught once every school's essays are in hand, not inside parseEssays.
+  const allIds = new Set(schools.flatMap((s) => s.essays.map((e) => e.id)));
+  for (const s of schools) {
+    for (const e of s.essays) {
+      if (e.linkedToId && !allIds.has(e.linkedToId)) e.linkedToId = undefined;
+    }
+  }
+
   return {
     version: 2,
     updatedAt:
@@ -301,9 +334,21 @@ function parseEssays(raw: unknown): TrackedEssay[] {
       promptId: typeof e.promptId === "string" ? e.promptId : undefined,
       typeKey: typeof e.typeKey === "string" ? e.typeKey : undefined,
       typeLabel: typeof e.typeLabel === "string" ? e.typeLabel : undefined,
+      typeSource: e.typeSource === "auto" || e.typeSource === "manual" ? e.typeSource : undefined,
       limitValue:
         typeof e.limitValue === "number" ? e.limitValue : undefined,
       limitUnit: isLimitUnit(e.limitUnit) ? e.limitUnit : undefined,
+      dueOn: isIsoDate(e.dueOn) ? e.dueOn : undefined,
+      notes: typeof e.notes === "string" ? e.notes.slice(0, 4000) : undefined,
+      draftText:
+        typeof e.draftText === "string" ? e.draftText.slice(0, 20000) : undefined,
+      linkedToId: typeof e.linkedToId === "string" ? e.linkedToId : undefined,
+      experienceTags: Array.isArray(e.experienceTags)
+        ? e.experienceTags
+            .filter((t): t is string => typeof t === "string" && t.trim() !== "")
+            .map((t) => t.trim().slice(0, 80))
+            .slice(0, 20)
+        : undefined,
     });
   }
   return out;
