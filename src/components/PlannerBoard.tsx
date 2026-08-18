@@ -1,28 +1,39 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   DAYS,
   PLANNER_CATEGORIES,
+  RECURRENCE_TYPES,
   REPORTABLE,
+  addDaysIso,
   blankEvent,
   categoryLabel,
   conflictIds,
   duration,
-  eventsForDay,
+  eventsOnDate,
+  fmtDateShort,
   fmtDuration,
   fmtTime,
+  fromIso,
   fromTimeInput,
   getPlannerServerSnapshot,
   getPlannerSnapshot,
-  layoutDay,
+  icsForEvents,
+  layoutForDate,
+  monthGridDates,
   plannerToCsv,
+  recurrenceSummary,
+  todayIso,
   toTimeInput,
   updatePlanner,
+  weekDates,
+  weekdayOfIso,
   weeklyTotals,
   type PlannerCategory,
   type PlannerEvent,
+  type RecurrenceType,
 } from "@/lib/planner";
 import { subscribeToPlanner } from "@/lib/planner";
 import { subscribeNever } from "@/lib/tracker";
@@ -62,6 +73,18 @@ function hoursLabel(mins: number) {
   return `${h % 1 === 0 ? h : h.toFixed(1)}h`;
 }
 
+function downloadFile(filename: string, contents: string, mime: string) {
+  const blob = new Blob([contents], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+type ViewMode = "week" | "month" | "year";
+
 export function PlannerBoard() {
   const state = useSyncExternalStore(
     subscribeToPlanner,
@@ -74,29 +97,26 @@ export function PlannerBoard() {
     () => false,
   );
 
+  const [view, setView] = useState<ViewMode>("week");
+  const [anchor, setAnchor] = useState(todayIso);
   const [draft, setDraft] = useState<PlannerEvent | null>(null);
   const [isNew, setIsNew] = useState(false);
-  const gridRef = useRef<HTMLDivElement>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const totals = useMemo(() => weeklyTotals(state), [state]);
   const conflicts = useMemo(() => conflictIds(state), [state]);
+  const thisWeekMinutes = useMemo(() => {
+    return weekDates(todayIso()).reduce(
+      (sum, d) => sum + eventsOnDate(state, d).reduce((n, e) => n + duration(e), 0),
+      0,
+    );
+  }, [state]);
 
-  const firstHour = Math.floor(state.dayStart / 60);
-  const lastHour = Math.ceil(state.dayEnd / 60);
-  const hours = useMemo(
-    () => Array.from({ length: lastHour - firstHour }, (_, i) => firstHour + i),
-    [firstHour, lastHour],
-  );
-  const gridHeight = (lastHour - firstHour) * HOUR;
-
-  const openNew = useCallback(
-    (day: number, start: number) => {
-      const snapped = Math.round(start / 15) * 15;
-      setDraft(blankEvent(day, Math.max(0, Math.min(23 * 60, snapped))));
-      setIsNew(true);
-    },
-    [],
-  );
+  const openNew = useCallback((dateIso: string, start: number) => {
+    const snapped = Math.round(start / 15) * 15;
+    setDraft(blankEvent(dateIso, Math.max(0, Math.min(23 * 60, snapped))));
+    setIsNew(true);
+  }, []);
 
   const openExisting = useCallback((e: PlannerEvent) => {
     setDraft({ ...e });
@@ -110,45 +130,80 @@ export function PlannerBoard() {
     const clean: PlannerEvent = {
       ...draft,
       title,
-      end: draft.end > draft.start ? draft.end : draft.start + 30,
+      endTime: draft.endTime > draft.startTime ? draft.endTime : draft.startTime + 30,
+      recurDays:
+        draft.recurrence === "custom_days" ? draft.recurDays ?? [] : undefined,
+      endDate: draft.recurrence === "none" ? undefined : draft.endDate,
     };
     updatePlanner((s) => ({
       ...s,
       events: s.events.some((e) => e.id === clean.id)
         ? s.events.map((e) => (e.id === clean.id ? clean : e))
         : [...s.events, clean],
-      // Keep the visible window wide enough to actually contain the block the
-      // user just saved, or it silently vanishes off the top or bottom.
-      dayStart: Math.min(s.dayStart, Math.floor(clean.start / 60) * 60),
-      dayEnd: Math.max(s.dayEnd, Math.ceil(clean.end / 60) * 60),
+      dayStart: Math.min(s.dayStart, Math.floor(clean.startTime / 60) * 60),
+      dayEnd: Math.max(s.dayEnd, Math.ceil(clean.endTime / 60) * 60),
     }));
     setDraft(null);
   }, [draft]);
 
   const remove = useCallback((id: string) => {
     updatePlanner((s) => ({ ...s, events: s.events.filter((e) => e.id !== id) }));
+    setSelected((s) => {
+      if (!s.has(id)) return s;
+      const next = new Set(s);
+      next.delete(id);
+      return next;
+    });
     setDraft(null);
   }, []);
 
   const exportCsv = useCallback(() => {
-    const blob = new Blob([plannerToCsv(state)], {
-      type: "text/csv;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "md-atlas-week.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadFile("md-atlas-planner.csv", plannerToCsv(state), "text/csv");
   }, [state]);
 
-  /** Turn a click anywhere in a day column into a start time. */
-  const onColumnClick = (day: number) => (ev: React.MouseEvent<HTMLDivElement>) => {
-    if (ev.target !== ev.currentTarget) return; // a block was clicked, not the column
-    const rect = ev.currentTarget.getBoundingClientRect();
-    const mins = firstHour * 60 + (ev.clientY - rect.top) / PPM;
-    openNew(day, mins);
-  };
+  const exportAllIcs = useCallback(() => {
+    downloadFile("md-atlas-planner.ics", icsForEvents(state.events), "text/calendar");
+  }, [state]);
+
+  const exportSelectedIcs = useCallback(() => {
+    const events = state.events.filter((e) => selected.has(e.id));
+    if (!events.length) return;
+    downloadFile(
+      events.length === 1
+        ? `md-atlas-${events[0].title.trim().slice(0, 40) || "event"}.ics`
+        : "md-atlas-selected.ics",
+      icsForEvents(events),
+      "text/calendar",
+    );
+  }, [state, selected]);
+
+  const toggleSelected = useCallback((id: string) => {
+    setSelected((s) => {
+      const next = new Set(s);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const goToday = useCallback(() => setAnchor(todayIso()), []);
+  const goBy = useCallback(
+    (dir: 1 | -1) => {
+      setAnchor((a) => {
+        if (view === "week") return addDaysIso(a, dir * 7);
+        if (view === "year") {
+          return `${Number(a.slice(0, 4)) + dir}${a.slice(4)}`;
+        }
+        // month
+        const [y, m, day] = a.split("-").map(Number);
+        const d = new Date(y, m - 1 + dir, Math.min(day, 28));
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+          d.getDate(),
+        ).padStart(2, "0")}`;
+      });
+    },
+    [view],
+  );
 
   if (!hydrated) {
     return (
@@ -156,7 +211,7 @@ export function PlannerBoard() {
         className="rounded-2xl border border-line bg-surface p-8 text-center text-muted"
         aria-live="polite"
       >
-        Loading your week…
+        Loading your calendar…
       </div>
     );
   }
@@ -167,41 +222,29 @@ export function PlannerBoard() {
     <div className="space-y-6">
       {/* ---------------------------------------------------- summary bar -- */}
       <section
-        aria-label="Week at a glance"
+        aria-label="Planner at a glance"
         className="anim-rise grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
       >
         <Stat
-          label="Scheduled"
+          label="Scheduled (avg/wk)"
           value={hoursLabel(totals.total)}
-          detail={`${totals.events} block${totals.events === 1 ? "" : "s"}`}
+          detail={`${totals.events} saved block${totals.events === 1 ? "" : "s"}`}
         />
         <Stat
-          label="Application hours"
+          label="This week"
+          value={hoursLabel(thisWeekMinutes)}
+          detail="Actually on the calendar"
+        />
+        <Stat
+          label="Application hours (avg/wk)"
           value={hoursLabel(totals.reportable)}
           detail="Clinical, research, service, work, leadership"
           accent
         />
         <Stat
-          label="Busiest day"
-          value={
-            totals.busiest && totals.busiest.minutes > 0
-              ? DAYS[totals.busiest.day].short
-              : "—"
-          }
-          detail={
-            totals.busiest && totals.busiest.minutes > 0
-              ? hoursLabel(totals.busiest.minutes)
-              : "Nothing scheduled yet"
-          }
-        />
-        <Stat
           label="Double-booked"
           value={String(totals.conflicts)}
-          detail={
-            totals.conflicts > 0
-              ? "Blocks that overlap"
-              : "Nothing collides"
-          }
+          detail={totals.conflicts > 0 ? "Blocks that overlap" : "Nothing collides"}
           warn={totals.conflicts > 0}
         />
       </section>
@@ -210,10 +253,10 @@ export function PlannerBoard() {
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={() => openNew(1, 9 * 60)}
+          onClick={() => openNew(anchor, 9 * 60)}
           className="lift rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
         >
-          + Add to my week
+          + Add to my calendar
         </button>
         <button
           type="button"
@@ -223,19 +266,24 @@ export function PlannerBoard() {
         >
           Export CSV
         </button>
-        <p className="ml-auto text-sm text-muted">
-          Click any empty spot on the grid to add something there.
-        </p>
+        <button
+          type="button"
+          onClick={exportAllIcs}
+          disabled={empty}
+          className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          Export all to calendar (.ics)
+        </button>
       </div>
 
       {empty && (
         <section className="anim-pop rounded-2xl border border-dashed border-line-strong bg-surface p-8 text-center">
           <h2 className="text-lg font-semibold tracking-tight">
-            Your week is empty.
+            Your calendar is empty.
           </h2>
           <p className="mx-auto mt-2 max-w-md leading-relaxed text-muted">
-            Put your recurring commitments in once — lectures, shifts, lab
-            hours, standing meetings. The planner totals them every week, and
+            Add your commitments — recurring, or just once. Lectures, shifts,
+            lab hours, a one-time MCAT date. The planner totals them, and
             those totals are the hours your application asks for later.
           </p>
           <div className="mt-5 flex flex-wrap justify-center gap-2">
@@ -245,7 +293,7 @@ export function PlannerBoard() {
                   key={c}
                   type="button"
                   onClick={() => {
-                    const e = blankEvent(1, 9 * 60);
+                    const e = blankEvent(anchor, 9 * 60);
                     setDraft({ ...e, category: c });
                     setIsNew(true);
                   }}
@@ -259,171 +307,92 @@ export function PlannerBoard() {
         </section>
       )}
 
-      {/* ----------------------------------------------- the week (desktop) */}
-      <section
-        aria-label="Weekly calendar"
-        className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block"
-      >
-        <div className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))] border-b border-line bg-sunken">
-          <div />
-          {DAYS.map((d) => {
-            const mins = eventsForDay(state, d.key).reduce(
-              (n, e) => n + duration(e),
-              0,
-            );
-            return (
-              <div
-                key={d.key}
-                className="border-l border-line px-2 py-2.5 text-center"
-              >
-                <span className="block text-sm font-semibold tracking-tight">
-                  {d.short}
-                </span>
-                <span className="block text-xs tabular-nums text-muted">
-                  {mins > 0 ? hoursLabel(mins) : "—"}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-
+      {/* ------------------------------------------------------ view tabs -- */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div
-          ref={gridRef}
-          className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))]"
+          role="tablist"
+          aria-label="Calendar view"
+          className="flex gap-1 rounded-xl border border-line bg-surface p-1"
         >
-          {/* time gutter */}
-          <div className="relative" style={{ height: gridHeight }}>
-            {hours.map((h, i) => (
-              <div
-                key={h}
-                /* Every hour gets a label, including the first. Centering it on
-                   its line would clip it against the day header, so the top one
-                   hangs just below instead of straddling. */
-                className={`absolute right-2 text-xs tabular-nums text-muted ${
-                  i === 0 ? "translate-y-0.5" : "-translate-y-1/2"
-                }`}
-                style={{ top: i * HOUR }}
-              >
-                {fmtTime(h * 60).replace(":00", "")}
-              </div>
-            ))}
-          </div>
-
-          {DAYS.map((d) => {
-            const laid = layoutDay(state, d.key);
-            return (
-              <div
-                key={d.key}
-                onClick={onColumnClick(d.key)}
-                className="relative border-l border-line"
-                style={{ height: gridHeight }}
-              >
-                {/* hour lines, pointer-events-none so clicks reach the column */}
-                {hours.map((h, i) => (
-                  <div
-                    key={h}
-                    className="pointer-events-none absolute inset-x-0 border-t border-line/70"
-                    style={{ top: i * HOUR }}
-                  />
-                ))}
-
-                {laid.map(({ event, lane, lanes }, idx) => {
-                  const top = (event.start - firstHour * 60) * PPM;
-                  const h = Math.max(18, duration(event) * PPM - 2);
-                  const clash = conflicts.has(event.id);
-                  return (
-                    <button
-                      key={event.id}
-                      type="button"
-                      onClick={() => openExisting(event)}
-                      style={{
-                        top,
-                        height: h,
-                        left: `calc(${(lane / lanes) * 100}% + 2px)`,
-                        width: `calc(${100 / lanes}% - 4px)`,
-                        animationDelay: `${Math.min(idx, 12) * 30}ms`,
-                      }}
-                      className={`anim-pop lift absolute overflow-hidden rounded-lg border px-2 py-1 text-left ${CAT_CLASS[event.category]} ${clash ? "ring-2 ring-danger/60" : ""}`}
-                    >
-                      <span className="block truncate text-xs font-semibold leading-tight">
-                        {event.title}
-                      </span>
-                      {h > 34 && (
-                        <span className="block truncate text-[11px] leading-tight opacity-80">
-                          {fmtTime(event.start)}
-                          {event.location ? ` · ${event.location}` : ""}
-                        </span>
-                      )}
-                      {clash && <span className="sr-only">Overlaps another block.</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ------------------------------------------------ the week (mobile) */}
-      <section aria-label="Weekly schedule by day" className="space-y-3 md:hidden">
-        {DAYS.map((d, i) => {
-          const list = eventsForDay(state, d.key);
-          const mins = list.reduce((n, e) => n + duration(e), 0);
-          return (
-            <div
-              key={d.key}
-              className="anim-rise overflow-hidden rounded-2xl border border-line bg-surface"
-              style={{ animationDelay: `${i * 40}ms` }}
+          {(
+            [
+              ["week", "Week"],
+              ["month", "Month"],
+              ["year", "Year"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              role="tab"
+              type="button"
+              aria-selected={view === key}
+              onClick={() => setView(key)}
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                view === key
+                  ? "bg-navy-900 text-white"
+                  : "text-muted hover:bg-accent-soft hover:text-accent"
+              }`}
             >
-              <div className="flex items-center justify-between border-b border-line bg-sunken px-4 py-2.5">
-                <h3 className="text-sm font-semibold tracking-tight">{d.long}</h3>
-                <span className="text-xs tabular-nums text-muted">
-                  {mins > 0 ? hoursLabel(mins) : "Free"}
-                </span>
-              </div>
-              {list.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={() => openNew(d.key, 9 * 60)}
-                  className="w-full px-4 py-3 text-left text-sm text-muted"
-                >
-                  + Add something
-                </button>
-              ) : (
-                <ul className="divide-y divide-line">
-                  {list.map((e) => (
-                    <li key={e.id}>
-                      <button
-                        type="button"
-                        onClick={() => openExisting(e)}
-                        className="flex w-full items-start gap-3 px-4 py-3 text-left"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${CAT_DOT[e.category]}`}
-                        />
-                        <span className="min-w-0 flex-1">
-                          <span className="block truncate font-medium">
-                            {e.title}
-                          </span>
-                          <span className="block text-sm text-muted">
-                            {fmtTime(e.start)} – {fmtTime(e.end)} ·{" "}
-                            {categoryLabel(e.category)}
-                            {conflicts.has(e.id) ? " · overlaps" : ""}
-                          </span>
-                        </span>
-                        <span className="shrink-0 text-sm tabular-nums text-muted">
-                          {fmtDuration(duration(e))}
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          );
-        })}
-      </section>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => goBy(-1)}
+            aria-label="Previous"
+            className="rounded-lg border border-line-strong px-2.5 py-1.5 text-sm font-semibold hover:border-accent hover:text-accent"
+          >
+            &larr;
+          </button>
+          <button
+            type="button"
+            onClick={goToday}
+            className="rounded-lg border border-line-strong px-3 py-1.5 text-sm font-semibold hover:border-accent hover:text-accent"
+          >
+            Today
+          </button>
+          <button
+            type="button"
+            onClick={() => goBy(1)}
+            aria-label="Next"
+            className="rounded-lg border border-line-strong px-2.5 py-1.5 text-sm font-semibold hover:border-accent hover:text-accent"
+          >
+            &rarr;
+          </button>
+        </div>
+      </div>
+
+      {view === "week" && (
+        <WeekView
+          state={state}
+          anchor={anchor}
+          conflicts={conflicts}
+          onEmptyClick={openNew}
+          onEventClick={openExisting}
+        />
+      )}
+      {view === "month" && (
+        <MonthView
+          state={state}
+          anchor={anchor}
+          conflicts={conflicts}
+          onDayClick={(d) => openNew(d, 9 * 60)}
+          onEventClick={openExisting}
+        />
+      )}
+      {view === "year" && (
+        <YearView
+          state={state}
+          anchor={anchor}
+          onPickMonth={(dateIso) => {
+            setAnchor(dateIso);
+            setView("month");
+          }}
+        />
+      )}
 
       {/* ------------------------------------------------- hours breakdown -- */}
       {!empty && (
@@ -437,10 +406,11 @@ export function PlannerBoard() {
                 id="breakdown-heading"
                 className="text-lg font-semibold tracking-tight"
               >
-                Where your week goes
+                Where your time goes
               </h2>
               <p className="mt-1 text-sm text-muted">
-                Per week, if you do everything you have scheduled.
+                Average hours per week, accounting for how often each block
+                repeats.
               </p>
             </div>
             <Link
@@ -451,8 +421,6 @@ export function PlannerBoard() {
             </Link>
           </div>
 
-          {/* One proportional bar rather than a chart: the only question here
-              is "how is my week split", and a stacked bar answers it faster. */}
           <div className="mt-5 flex h-3 overflow-hidden rounded-full bg-sunken">
             {PLANNER_CATEGORIES.map((c) => {
               const m = totals.byCategory.get(c.key) ?? 0;
@@ -496,6 +464,18 @@ export function PlannerBoard() {
         </section>
       )}
 
+      {/* --------------------------------------------- export to calendar -- */}
+      {!empty && (
+        <CalendarExportPanel
+          events={state.events}
+          selected={selected}
+          onToggle={toggleSelected}
+          onSelectAll={() => setSelected(new Set(state.events.map((e) => e.id)))}
+          onSelectNone={() => setSelected(new Set())}
+          onExportSelected={exportSelectedIcs}
+        />
+      )}
+
       {/* ----------------------------------------------------------- editor */}
       {draft && (
         <EventEditor
@@ -505,6 +485,11 @@ export function PlannerBoard() {
           onSave={save}
           onCancel={() => setDraft(null)}
           onDelete={() => remove(draft.id)}
+          onExportIcs={() => downloadFile(
+            `md-atlas-${draft.title.trim().slice(0, 40) || "event"}.ics`,
+            icsForEvents([draft]),
+            "text/calendar",
+          )}
         />
       )}
     </div>
@@ -553,6 +538,497 @@ function Stat({
   );
 }
 
+/* ------------------------------------------------------------- week view -- */
+
+function WeekView({
+  state,
+  anchor,
+  conflicts,
+  onEmptyClick,
+  onEventClick,
+}: {
+  state: ReturnType<typeof getPlannerSnapshot>;
+  anchor: string;
+  conflicts: Set<string>;
+  onEmptyClick: (dateIso: string, startMin: number) => void;
+  onEventClick: (e: PlannerEvent) => void;
+}) {
+  const dates = useMemo(() => weekDates(anchor), [anchor]);
+  const today = todayIso();
+
+  const firstHour = Math.floor(state.dayStart / 60);
+  const lastHour = Math.ceil(state.dayEnd / 60);
+  const hours = useMemo(
+    () => Array.from({ length: lastHour - firstHour }, (_, i) => firstHour + i),
+    [firstHour, lastHour],
+  );
+  const gridHeight = (lastHour - firstHour) * HOUR;
+
+  const onColumnClick = (dateIso: string) => (ev: React.MouseEvent<HTMLDivElement>) => {
+    if (ev.target !== ev.currentTarget) return;
+    const rect = ev.currentTarget.getBoundingClientRect();
+    const mins = firstHour * 60 + (ev.clientY - rect.top) / PPM;
+    onEmptyClick(dateIso, mins);
+  };
+
+  return (
+    <>
+      <p className="text-sm font-medium text-muted">
+        {fmtDateShort(dates[0])} – {fmtDateShort(dates[6])}
+      </p>
+
+      {/* desktop */}
+      <section
+        aria-label="Weekly calendar"
+        className="hidden overflow-hidden rounded-2xl border border-line bg-surface md:block"
+      >
+        <div className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))] border-b border-line bg-sunken">
+          <div />
+          {dates.map((dateIso) => {
+            const mins = eventsOnDate(state, dateIso).reduce(
+              (n, e) => n + duration(e),
+              0,
+            );
+            const isToday = dateIso === today;
+            return (
+              <div
+                key={dateIso}
+                className={`border-l border-line px-2 py-2.5 text-center ${isToday ? "bg-accent-soft" : ""}`}
+              >
+                <span className="block text-sm font-semibold tracking-tight">
+                  {DAYS[weekdayOfIso(dateIso)].short} {fromIsoDate(dateIso)}
+                </span>
+                <span className="block text-xs tabular-nums text-muted">
+                  {mins > 0 ? hoursLabel(mins) : "—"}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-[56px_repeat(7,minmax(0,1fr))]">
+          <div className="relative" style={{ height: gridHeight }}>
+            {hours.map((h, i) => (
+              <div
+                key={h}
+                className={`absolute right-2 text-xs tabular-nums text-muted ${
+                  i === 0 ? "translate-y-0.5" : "-translate-y-1/2"
+                }`}
+                style={{ top: i * HOUR }}
+              >
+                {fmtTime(h * 60).replace(":00", "")}
+              </div>
+            ))}
+          </div>
+
+          {dates.map((dateIso) => {
+            const laid = layoutForDate(state, dateIso);
+            return (
+              <div
+                key={dateIso}
+                onClick={onColumnClick(dateIso)}
+                className="relative border-l border-line"
+                style={{ height: gridHeight }}
+              >
+                {hours.map((h, i) => (
+                  <div
+                    key={h}
+                    className="pointer-events-none absolute inset-x-0 border-t border-line/70"
+                    style={{ top: i * HOUR }}
+                  />
+                ))}
+
+                {laid.map(({ event, lane, lanes }, idx) => {
+                  const top = (event.startTime - firstHour * 60) * PPM;
+                  const h = Math.max(18, duration(event) * PPM - 2);
+                  const clash = conflicts.has(event.id);
+                  return (
+                    <button
+                      key={event.id}
+                      type="button"
+                      onClick={() => onEventClick(event)}
+                      style={{
+                        top,
+                        height: h,
+                        left: `calc(${(lane / lanes) * 100}% + 2px)`,
+                        width: `calc(${100 / lanes}% - 4px)`,
+                        animationDelay: `${Math.min(idx, 12) * 30}ms`,
+                      }}
+                      className={`anim-pop lift absolute overflow-hidden rounded-lg border px-2 py-1 text-left ${CAT_CLASS[event.category]} ${clash ? "ring-2 ring-danger/60" : ""}`}
+                    >
+                      <span className="block truncate text-xs font-semibold leading-tight">
+                        {event.title}
+                      </span>
+                      {h > 34 && (
+                        <span className="block truncate text-[11px] leading-tight opacity-80">
+                          {fmtTime(event.startTime)}
+                          {event.location ? ` · ${event.location}` : ""}
+                        </span>
+                      )}
+                      {clash && <span className="sr-only">Overlaps another block.</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* mobile */}
+      <section aria-label="Weekly schedule by day" className="space-y-3 md:hidden">
+        {dates.map((dateIso, i) => {
+          const list = eventsOnDate(state, dateIso);
+          const mins = list.reduce((n, e) => n + duration(e), 0);
+          const isToday = dateIso === today;
+          return (
+            <div
+              key={dateIso}
+              className="anim-rise overflow-hidden rounded-2xl border border-line bg-surface"
+              style={{ animationDelay: `${i * 40}ms` }}
+            >
+              <div
+                className={`flex items-center justify-between border-b border-line px-4 py-2.5 ${isToday ? "bg-accent-soft" : "bg-sunken"}`}
+              >
+                <h3 className="text-sm font-semibold tracking-tight">
+                  {DAYS[weekdayOfIso(dateIso)].long}, {fmtDateShort(dateIso)}
+                </h3>
+                <span className="text-xs tabular-nums text-muted">
+                  {mins > 0 ? hoursLabel(mins) : "Free"}
+                </span>
+              </div>
+              {list.length === 0 ? (
+                <button
+                  type="button"
+                  onClick={() => onEmptyClick(dateIso, 9 * 60)}
+                  className="w-full px-4 py-3 text-left text-sm text-muted"
+                >
+                  + Add something
+                </button>
+              ) : (
+                <ul className="divide-y divide-line">
+                  {list.map((e) => (
+                    <li key={e.id}>
+                      <button
+                        type="button"
+                        onClick={() => onEventClick(e)}
+                        className="flex w-full items-start gap-3 px-4 py-3 text-left"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${CAT_DOT[e.category]}`}
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-medium">
+                            {e.title}
+                          </span>
+                          <span className="block text-sm text-muted">
+                            {fmtTime(e.startTime)} – {fmtTime(e.endTime)} ·{" "}
+                            {categoryLabel(e.category)}
+                            {conflicts.has(e.id) ? " · overlaps" : ""}
+                          </span>
+                        </span>
+                        <span className="shrink-0 text-sm tabular-nums text-muted">
+                          {fmtDuration(duration(e))}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          );
+        })}
+      </section>
+    </>
+  );
+}
+
+function fromIsoDate(iso: string): number {
+  return Number(iso.slice(8, 10));
+}
+
+/* ------------------------------------------------------------ month view -- */
+
+function MonthView({
+  state,
+  anchor,
+  conflicts,
+  onDayClick,
+  onEventClick,
+}: {
+  state: ReturnType<typeof getPlannerSnapshot>;
+  anchor: string;
+  conflicts: Set<string>;
+  onDayClick: (dateIso: string) => void;
+  onEventClick: (e: PlannerEvent) => void;
+}) {
+  const [y, m] = anchor.split("-").map(Number);
+  const dates = useMemo(() => monthGridDates(y, m - 1), [y, m]);
+  const today = todayIso();
+  const monthLabel = fromIso(anchor).toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+  const MAX_CHIPS = 3;
+
+  return (
+    <section aria-label="Monthly calendar" className="space-y-2">
+      <p className="text-sm font-medium text-muted">{monthLabel}</p>
+      <div className="overflow-hidden rounded-2xl border border-line bg-surface">
+        <div className="grid grid-cols-7 border-b border-line bg-sunken">
+          {DAYS.map((d) => (
+            <div
+              key={d.key}
+              className="px-2 py-2 text-center text-xs font-semibold tracking-widest text-muted uppercase"
+            >
+              {d.short}
+            </div>
+          ))}
+        </div>
+        <div className="grid grid-cols-7">
+          {dates.map((dateIso) => {
+            const inMonth = Number(dateIso.slice(5, 7)) === m;
+            const list = eventsOnDate(state, dateIso);
+            const isToday = dateIso === today;
+            return (
+              <div
+                key={dateIso}
+                className={`min-h-[92px] border-b border-l border-line p-1.5 first:border-l-0 sm:min-h-[110px] ${
+                  inMonth ? "bg-surface" : "bg-sunken/60"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => onDayClick(dateIso)}
+                  className={`mb-1 flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
+                    isToday
+                      ? "bg-navy-900 text-white"
+                      : inMonth
+                        ? "text-foreground hover:bg-accent-soft hover:text-accent"
+                        : "text-muted"
+                  }`}
+                >
+                  {fromIsoDate(dateIso)}
+                </button>
+                <div className="space-y-1">
+                  {list.slice(0, MAX_CHIPS).map((e) => (
+                    <button
+                      key={e.id}
+                      type="button"
+                      onClick={() => onEventClick(e)}
+                      className={`block w-full truncate rounded border px-1.5 py-0.5 text-left text-[11px] font-medium leading-tight ${CAT_CLASS[e.category]} ${conflicts.has(e.id) ? "ring-1 ring-danger/60" : ""}`}
+                      title={`${e.title} · ${fmtTime(e.startTime)}`}
+                    >
+                      {e.title}
+                    </button>
+                  ))}
+                  {list.length > MAX_CHIPS && (
+                    <p className="px-1 text-[11px] font-medium text-muted">
+                      +{list.length - MAX_CHIPS} more
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------- year view -- */
+
+function YearView({
+  state,
+  anchor,
+  onPickMonth,
+}: {
+  state: ReturnType<typeof getPlannerSnapshot>;
+  anchor: string;
+  onPickMonth: (dateIso: string) => void;
+}) {
+  const year = Number(anchor.slice(0, 4));
+  const today = todayIso();
+
+  return (
+    <section aria-label="Yearly overview" className="space-y-2">
+      <p className="text-sm font-medium text-muted">{year}</p>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 12 }, (_, month) => {
+          const dates = monthGridDates(year, month);
+          const monthStartIso = `${year}-${String(month + 1).padStart(2, "0")}-01`;
+          const label = fromIso(monthStartIso).toLocaleDateString("en-US", {
+            month: "long",
+          });
+          let monthMinutes = 0;
+          for (const d of dates) {
+            if (Number(d.slice(5, 7)) !== month + 1) continue;
+            monthMinutes += eventsOnDate(state, d).reduce((n, e) => n + duration(e), 0);
+          }
+          return (
+            <button
+              key={month}
+              type="button"
+              onClick={() => onPickMonth(monthStartIso)}
+              className="lift rounded-2xl border border-line bg-surface p-3 text-left hover:border-accent"
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold tracking-tight">{label}</h3>
+                <span className="text-xs tabular-nums text-muted">
+                  {monthMinutes > 0 ? hoursLabel(monthMinutes) : ""}
+                </span>
+              </div>
+              <div className="mt-2 grid grid-cols-7 gap-0.5">
+                {DAYS.map((d) => (
+                  <span
+                    key={`h-${d.key}`}
+                    className="text-center text-[9px] font-medium text-muted"
+                  >
+                    {d.short[0]}
+                  </span>
+                ))}
+                {dates.map((dateIso) => {
+                  const inMonth = Number(dateIso.slice(5, 7)) === month + 1;
+                  const has = inMonth && eventsOnDate(state, dateIso).length > 0;
+                  const isToday = dateIso === today;
+                  return (
+                    <span
+                      key={dateIso}
+                      className={`relative flex h-5 items-center justify-center rounded text-[10px] tabular-nums ${
+                        isToday
+                          ? "bg-navy-900 font-semibold text-white"
+                          : inMonth
+                            ? "text-foreground"
+                            : "text-muted/50"
+                      }`}
+                    >
+                      {inMonth ? fromIsoDate(dateIso) : ""}
+                      {has && !isToday && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute bottom-0 left-1/2 h-1 w-1 -translate-x-1/2 translate-y-1/2 rounded-full bg-accent"
+                        />
+                      )}
+                    </span>
+                  );
+                })}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------------------------------------- export section -- */
+
+function CalendarExportPanel({
+  events,
+  selected,
+  onToggle,
+  onSelectAll,
+  onSelectNone,
+  onExportSelected,
+}: {
+  events: PlannerEvent[];
+  selected: Set<string>;
+  onToggle: (id: string) => void;
+  onSelectAll: () => void;
+  onSelectNone: () => void;
+  onExportSelected: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <section className="anim-rise rounded-2xl border border-line bg-surface p-6">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <span>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Send to Google Calendar (or any calendar app)
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            Pick which of your saved blocks to export as a standard .ics
+            file. Every calendar app can import one, including Google
+            Calendar — nothing here requires connecting an account, and
+            nothing here is required to use the planner.
+          </p>
+        </span>
+        <span className="ml-3 shrink-0 text-sm font-medium text-accent">
+          {open ? "Hide" : "Choose events"}
+        </span>
+      </button>
+
+      {open && (
+        <div className="mt-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={onSelectAll}
+              className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium hover:border-accent hover:text-accent"
+            >
+              Select all
+            </button>
+            <button
+              type="button"
+              onClick={onSelectNone}
+              className="rounded-lg border border-line-strong px-3 py-1.5 text-xs font-medium hover:border-accent hover:text-accent"
+            >
+              Select none
+            </button>
+            <button
+              type="button"
+              onClick={onExportSelected}
+              disabled={selected.size === 0}
+              className="ml-auto rounded-lg bg-accent px-3.5 py-1.5 text-xs font-semibold text-on-accent hover:bg-accent-hover disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              Export {selected.size > 0 ? selected.size : ""} selected (.ics)
+            </button>
+          </div>
+
+          <ul className="divide-y divide-line rounded-xl border border-line">
+            {events.map((e) => (
+              <li key={e.id}>
+                <label className="flex cursor-pointer items-start gap-3 px-3.5 py-2.5 hover:bg-sunken">
+                  <input
+                    type="checkbox"
+                    checked={selected.has(e.id)}
+                    onChange={() => onToggle(e.id)}
+                    className="mt-1 h-4 w-4 rounded border-line-strong"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${CAT_DOT[e.category]}`}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">
+                      {e.title || "Untitled"}
+                    </span>
+                    <span className="block text-xs text-muted">
+                      {fmtTime(e.startTime)}–{fmtTime(e.endTime)} ·{" "}
+                      {recurrenceSummary(e)}
+                    </span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------- editor */
+
+const WEEKDAY_TOGGLES = DAYS;
+
 function EventEditor({
   draft,
   isNew,
@@ -560,6 +1036,7 @@ function EventEditor({
   onSave,
   onCancel,
   onDelete,
+  onExportIcs,
 }: {
   draft: PlannerEvent;
   isNew: boolean;
@@ -567,22 +1044,28 @@ function EventEditor({
   onSave: () => void;
   onCancel: () => void;
   onDelete: () => void;
+  onExportIcs: () => void;
 }) {
   const set = <K extends keyof PlannerEvent>(k: K, v: PlannerEvent[K]) =>
     onChange({ ...draft, [k]: v });
 
-  const invalid = draft.end <= draft.start;
+  const invalid = draft.endTime <= draft.startTime;
+
+  const toggleRecurDay = (day: number) => {
+    const cur = new Set(draft.recurDays ?? []);
+    if (cur.has(day)) cur.delete(day);
+    else cur.add(day);
+    set("recurDays", [...cur].sort((a, b) => a - b));
+  };
 
   return (
-    /* Not a <dialog>: this sits inline under the grid so the week stays visible
-       while you edit, which is the whole point of editing a schedule. */
     <section
-      aria-label={isNew ? "Add to your week" : "Edit block"}
+      aria-label={isNew ? "Add to your calendar" : "Edit block"}
       className="anim-rise sticky bottom-4 z-10 rounded-2xl border border-accent/30 bg-surface p-5 shadow-[0_12px_40px_-16px_rgb(10_28_61/0.4)] sm:p-6"
     >
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-lg font-semibold tracking-tight">
-          {isNew ? "Add to your week" : "Edit block"}
+          {isNew ? "Add to your calendar" : "Edit block"}
         </h2>
         <button
           type="button"
@@ -604,24 +1087,21 @@ function EventEditor({
               if (e.key === "Enter" && !invalid) onSave();
               if (e.key === "Escape") onCancel();
             }}
-            placeholder="Orgo II lecture, ED scribe shift, Dr. Patel's lab"
+            placeholder="Orgo II lecture, ED scribe shift, Dr. Patel's lab, MCAT test date"
             className="mt-1.5 w-full rounded-xl border border-line-strong bg-surface px-3.5 py-2.5 focus:border-accent focus:outline-none"
           />
         </label>
 
         <label>
-          <span className="text-sm font-medium">Day</span>
-          <select
-            value={draft.day}
-            onChange={(e) => set("day", Number(e.target.value))}
+          <span className="text-sm font-medium">
+            {draft.recurrence === "none" ? "Date" : "Starts"}
+          </span>
+          <input
+            type="date"
+            value={draft.startDate}
+            onChange={(e) => e.target.value && set("startDate", e.target.value)}
             className="mt-1.5 w-full rounded-xl border border-line-strong bg-surface px-3.5 py-2.5 focus:border-accent focus:outline-none"
-          >
-            {DAYS.map((d) => (
-              <option key={d.key} value={d.key}>
-                {d.long}
-              </option>
-            ))}
-          </select>
+          />
         </label>
 
         <label>
@@ -640,32 +1120,30 @@ function EventEditor({
         </label>
 
         <label>
-          <span className="text-sm font-medium">Starts</span>
+          <span className="text-sm font-medium">Starts at</span>
           <input
             type="time"
             step={300}
-            value={toTimeInput(draft.start)}
+            value={toTimeInput(draft.startTime)}
             onChange={(e) => {
               const m = fromTimeInput(e.target.value);
               if (m === null) return;
-              // Drag the end along so the block keeps its length instead of
-              // silently inverting when you push the start past the end.
-              const len = Math.max(15, draft.end - draft.start);
-              onChange({ ...draft, start: m, end: m + len });
+              const len = Math.max(15, draft.endTime - draft.startTime);
+              onChange({ ...draft, startTime: m, endTime: m + len });
             }}
             className="mt-1.5 w-full rounded-xl border border-line-strong bg-surface px-3.5 py-2.5 focus:border-accent focus:outline-none"
           />
         </label>
 
         <label>
-          <span className="text-sm font-medium">Ends</span>
+          <span className="text-sm font-medium">Ends at</span>
           <input
             type="time"
             step={300}
-            value={toTimeInput(draft.end)}
+            value={toTimeInput(draft.endTime)}
             onChange={(e) => {
               const m = fromTimeInput(e.target.value);
-              if (m !== null) set("end", m);
+              if (m !== null) set("endTime", m);
             }}
             aria-invalid={invalid}
             className={`mt-1.5 w-full rounded-xl border bg-surface px-3.5 py-2.5 focus:outline-none ${
@@ -675,6 +1153,63 @@ function EventEditor({
             }`}
           />
         </label>
+
+        <label>
+          <span className="text-sm font-medium">Repeats</span>
+          <select
+            value={draft.recurrence}
+            onChange={(e) => set("recurrence", e.target.value as RecurrenceType)}
+            className="mt-1.5 w-full rounded-xl border border-line-strong bg-surface px-3.5 py-2.5 focus:border-accent focus:outline-none"
+          >
+            {RECURRENCE_TYPES.map((r) => (
+              <option key={r.key} value={r.key}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {draft.recurrence !== "none" && (
+          <label>
+            <span className="text-sm font-medium">
+              Repeat until{" "}
+              <span className="font-normal text-muted">(optional)</span>
+            </span>
+            <input
+              type="date"
+              value={draft.endDate ?? ""}
+              min={draft.startDate}
+              onChange={(e) => set("endDate", e.target.value || undefined)}
+              className="mt-1.5 w-full rounded-xl border border-line-strong bg-surface px-3.5 py-2.5 focus:border-accent focus:outline-none"
+            />
+          </label>
+        )}
+
+        {draft.recurrence === "custom_days" && (
+          <div className="sm:col-span-2">
+            <span className="text-sm font-medium">Which days</span>
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {WEEKDAY_TOGGLES.map((d) => {
+                const active = (draft.recurDays ?? []).includes(d.key);
+                return (
+                  <button
+                    key={d.key}
+                    type="button"
+                    onClick={() => toggleRecurDay(d.key)}
+                    aria-pressed={active}
+                    className={`rounded-lg border px-3 py-1.5 text-sm font-medium ${
+                      active
+                        ? "border-accent bg-accent-soft text-accent"
+                        : "border-line-strong text-muted hover:border-accent hover:text-accent"
+                    }`}
+                  >
+                    {d.short}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <label>
           <span className="text-sm font-medium">
@@ -720,6 +1255,15 @@ function EventEditor({
         {!isNew && (
           <button
             type="button"
+            onClick={onExportIcs}
+            className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
+          >
+            Add to calendar (.ics)
+          </button>
+        )}
+        {!isNew && (
+          <button
+            type="button"
             onClick={onDelete}
             className="ml-auto rounded-xl px-3 py-2.5 text-sm font-semibold text-danger hover:bg-danger-soft"
           >
@@ -733,8 +1277,8 @@ function EventEditor({
         )}
         {!invalid && draft.title.trim() && (
           <p className="w-full text-sm text-muted sm:w-auto">
-            {fmtDuration(draft.end - draft.start)} ·{" "}
-            {categoryLabel(draft.category)}
+            {fmtDuration(draft.endTime - draft.startTime)} ·{" "}
+            {categoryLabel(draft.category)} · {recurrenceSummary(draft)}
           </p>
         )}
       </div>
