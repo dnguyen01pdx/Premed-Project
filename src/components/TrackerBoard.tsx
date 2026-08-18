@@ -1,9 +1,15 @@
 "use client";
 
 import { useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { EssayMapPanel } from "./EssayMapPanel";
 import { InterviewBoard } from "./InterviewBoard";
 import { MyOverlap } from "./MyOverlap";
 import { SchoolTrackerCard, type SchoolPrompt } from "./SchoolTrackerCard";
+import {
+  getEntitlementsServerSnapshot,
+  getEntitlementsSnapshot,
+  subscribeToEntitlements,
+} from "@/lib/entitlements";
 import {
   STATUSES,
   STATUS_META,
@@ -73,10 +79,18 @@ export function TrackerBoard({
     () => false,
   );
 
+  const entitlements = useSyncExternalStore(
+    subscribeToEntitlements,
+    getEntitlementsSnapshot,
+    getEntitlementsServerSnapshot,
+  );
+
   const [storageOk, setStorageOk] = useState(true);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
-  const [tab, setTab] = useState<"list" | "overlap" | "interviews">("list");
+  const [tab, setTab] = useState<"list" | "overlap" | "map" | "interviews">(
+    "list",
+  );
   const importRef = useRef<HTMLInputElement>(null);
 
   function update(next: TrackerState) {
@@ -296,6 +310,7 @@ export function TrackerBoard({
               [
                 ["list", "My schools"],
                 ["overlap", "What overlaps"],
+                ["map", "Essay Map"],
                 ...(showInterviews
                   ? ([["interviews", "Interviews"]] as const)
                   : []),
@@ -337,7 +352,15 @@ export function TrackerBoard({
               )}
             </section>
           ) : tab === "overlap" ? (
-            <MyOverlap schools={tracked} />
+            <MyOverlap schools={tracked} pro={entitlements.pro} />
+          ) : tab === "map" ? (
+            <EssayMapPanel
+              catalog={schools}
+              tracked={tracked}
+              today={today}
+              pro={entitlements.pro}
+              onPatch={patch}
+            />
           ) : showInterviews ? (
             <InterviewBoard schools={tracked} today={today} onPatch={patch} />
           ) : null}
