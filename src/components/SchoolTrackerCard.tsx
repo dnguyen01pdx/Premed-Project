@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Badge, OutlineBadge } from "./Badge";
+import promptTypesData from "../../data/prompt-types.json";
+import { guessPromptType } from "@/lib/promptTypeGuess";
 import {
   STATUSES,
   STATUS_META,
@@ -31,6 +33,8 @@ function limitText(
   return `${value.toLocaleString()} ${unit === "words" ? "words" : "characters"}`;
 }
 
+const PROMPT_TYPES = promptTypesData as Array<{ key: string; label: string }>;
+
 export function SchoolTrackerCard({
   school,
   prompts,
@@ -47,6 +51,21 @@ export function SchoolTrackerCard({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
+  const [draftOpenId, setDraftOpenId] = useState<string | null>(null);
+
+  // Phase 2: optional detail captured at the moment a custom prompt is added,
+  // instead of only after the fact. Collapsed by default so quick-adding a
+  // prompt stays a one-line action; the fields below are exactly what makes a
+  // custom prompt fully participate in the Master Essay Map, overlap, Essay
+  // Coverage, and Smart Prioritization the same as an imported one.
+  const [addMoreOpen, setAddMoreOpen] = useState(false);
+  const [addTypeKey, setAddTypeKey] = useState("");
+  const [addLimitValue, setAddLimitValue] = useState("");
+  const [addLimitUnit, setAddLimitUnit] = useState<"words" | "characters">("words");
+  const [addDueOn, setAddDueOn] = useState("");
+  const [addNotes, setAddNotes] = useState("");
+
+  const liveGuess = draft.trim() ? guessPromptType(draft.trim()) : null;
 
   const essays = school.essays ?? [];
   const rolled = rollUpStatus(school);
@@ -85,11 +104,42 @@ export function SchoolTrackerCard({
   function addManual() {
     const label = draft.trim();
     if (!label) return;
+    // A guessed category beats none: it's what lets a essay someone typed
+    // by hand join the Master Essay Map instead of landing in
+    // "Uncategorized" forever. Marked "auto" so the UI can say it's a guess,
+    // and the essay row always lets it be corrected in Phase 2's category
+    // picker below (or later, per-essay).
+    const guess = guessPromptType(label);
+    const manualType = addTypeKey
+      ? PROMPT_TYPES.find((t) => t.key === addTypeKey)
+      : undefined;
+    const limitValue = addLimitValue.trim() ? Number(addLimitValue) : undefined;
+    const validLimit =
+      typeof limitValue === "number" && Number.isFinite(limitValue) && limitValue > 0
+        ? limitValue
+        : undefined;
+
     setEssays([
       ...essays,
-      { id: newId(), label, status: "not_started" },
+      {
+        id: newId(),
+        label,
+        status: "not_started",
+        typeKey: manualType?.key ?? guess?.key,
+        typeLabel: manualType?.label ?? guess?.label,
+        typeSource: manualType ? "manual" : guess ? "auto" : undefined,
+        limitValue: validLimit,
+        limitUnit: validLimit ? addLimitUnit : undefined,
+        dueOn: addDueOn || undefined,
+        notes: addNotes.trim() || undefined,
+      },
     ]);
     setDraft("");
+    setAddTypeKey("");
+    setAddLimitValue("");
+    setAddDueOn("");
+    setAddNotes("");
+    setAddMoreOpen(false);
     setOpen(true);
   }
 
@@ -250,7 +300,10 @@ export function SchoolTrackerCard({
                       <p className="text-sm leading-relaxed">{essay.label}</p>
                       <div className="mt-2 flex flex-wrap items-center gap-2">
                         {essay.typeLabel && (
-                          <Badge tone="accent">{essay.typeLabel}</Badge>
+                          <Badge tone="accent">
+                            {essay.typeLabel}
+                            {essay.typeSource === "auto" && " (guessed)"}
+                          </Badge>
                         )}
                         {limitText(essay.limitValue, essay.limitUnit) && (
                           <OutlineBadge>
@@ -296,6 +349,222 @@ export function SchoolTrackerCard({
                       </button>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setDraftOpenId(draftOpenId === essay.id ? null : essay.id)
+                    }
+                    className="mt-2.5 text-xs font-medium text-accent underline underline-offset-2 hover:no-underline"
+                  >
+                    {draftOpenId === essay.id
+                      ? "Hide details"
+                      : essay.draftText ||
+                          essay.experienceTags?.length ||
+                          essay.notes ||
+                          essay.dueOn ||
+                          essay.limitValue
+                        ? "Details"
+                        : "+ Add details (draft, limit, deadline, notes)"}
+                  </button>
+
+                  {draftOpenId === essay.id && (
+                    <div className="mt-2.5 space-y-2.5 rounded-lg border border-line bg-sunken p-3">
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted">
+                          Category (used for the Master Essay Map — override
+                          our guess any time)
+                        </span>
+                        <select
+                          value={essay.typeKey ?? ""}
+                          onChange={(e) => {
+                            const key = e.target.value || undefined;
+                            const match = PROMPT_TYPES.find((t) => t.key === key);
+                            setEssays(
+                              essays.map((x) =>
+                                x.id === essay.id
+                                  ? {
+                                      ...x,
+                                      typeKey: key,
+                                      typeLabel: match?.label,
+                                      typeSource: key ? "manual" : undefined,
+                                    }
+                                  : x,
+                              ),
+                            );
+                          }}
+                          className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
+                        >
+                          <option value="">Uncategorized</option>
+                          {PROMPT_TYPES.map((t) => (
+                            <option key={t.key} value={t.key}>
+                              {t.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                        <label className="col-span-1 block text-xs">
+                          <span className="mb-1 block font-medium text-muted">
+                            Limit
+                          </span>
+                          <input
+                            type="number"
+                            min={1}
+                            inputMode="numeric"
+                            value={essay.limitValue ?? ""}
+                            onChange={(e) => {
+                              const raw = e.target.value.trim();
+                              const n = raw ? Number(raw) : undefined;
+                              const valid =
+                                typeof n === "number" && Number.isFinite(n) && n > 0
+                                  ? n
+                                  : undefined;
+                              setEssays(
+                                essays.map((x) =>
+                                  x.id === essay.id
+                                    ? {
+                                        ...x,
+                                        limitValue: valid,
+                                        limitUnit: valid
+                                          ? x.limitUnit && x.limitUnit !== "none"
+                                            ? x.limitUnit
+                                            : "words"
+                                          : undefined,
+                                      }
+                                    : x,
+                                ),
+                              );
+                            }}
+                            placeholder="e.g. 250"
+                            className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                          />
+                        </label>
+                        <label className="col-span-1 block text-xs">
+                          <span className="mb-1 block font-medium text-muted">
+                            Unit
+                          </span>
+                          <select
+                            value={essay.limitUnit && essay.limitUnit !== "none" ? essay.limitUnit : "words"}
+                            onChange={(e) =>
+                              setEssays(
+                                essays.map((x) =>
+                                  x.id === essay.id
+                                    ? {
+                                        ...x,
+                                        limitUnit: e.target.value as "words" | "characters",
+                                      }
+                                    : x,
+                                ),
+                              )
+                            }
+                            className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
+                          >
+                            <option value="words">Words</option>
+                            <option value="characters">Characters</option>
+                          </select>
+                        </label>
+                        <label className="col-span-2 block text-xs sm:col-span-2">
+                          <span className="mb-1 block font-medium text-muted">
+                            Deadline (if different from the school&apos;s)
+                          </span>
+                          <input
+                            type="date"
+                            value={essay.dueOn ?? ""}
+                            onChange={(e) =>
+                              setEssays(
+                                essays.map((x) =>
+                                  x.id === essay.id
+                                    ? { ...x, dueOn: e.target.value || undefined }
+                                    : x,
+                                ),
+                              )
+                            }
+                            className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
+                          />
+                        </label>
+                      </div>
+
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted">
+                          Notes (optional, just for you)
+                        </span>
+                        <input
+                          value={essay.notes ?? ""}
+                          onChange={(e) =>
+                            setEssays(
+                              essays.map((x) =>
+                                x.id === essay.id
+                                  ? { ...x, notes: e.target.value || undefined }
+                                  : x,
+                              ),
+                            )
+                          }
+                          placeholder="Anything you want to remember about this one"
+                          className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                        />
+                      </label>
+
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted">
+                          Your draft (stays in this browser only — used for the
+                          school-name safety check and the Essay Map)
+                        </span>
+                        <textarea
+                          value={essay.draftText ?? ""}
+                          onChange={(e) =>
+                            setEssays(
+                              essays.map((x) =>
+                                x.id === essay.id
+                                  ? {
+                                      ...x,
+                                      draftText: e.target.value,
+                                      // Typing a draft here means they are no
+                                      // longer purely reusing someone else's —
+                                      // it is now this essay's own text.
+                                      linkedToId: e.target.value.trim()
+                                        ? undefined
+                                        : x.linkedToId,
+                                    }
+                                  : x,
+                              ),
+                            )
+                          }
+                          rows={4}
+                          placeholder="Paste your answer here, whenever you have one"
+                          className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                        />
+                      </label>
+                      <label className="block text-xs">
+                        <span className="mb-1 block font-medium text-muted">
+                          Experiences this draws on (comma separated — e.g. Free
+                          clinic, Research)
+                        </span>
+                        <input
+                          value={(essay.experienceTags ?? []).join(", ")}
+                          onChange={(e) =>
+                            setEssays(
+                              essays.map((x) =>
+                                x.id === essay.id
+                                  ? {
+                                      ...x,
+                                      experienceTags: e.target.value
+                                        .split(",")
+                                        .map((t) => t.trim())
+                                        .filter(Boolean)
+                                        .slice(0, 20),
+                                    }
+                                  : x,
+                              ),
+                            )
+                          }
+                          placeholder="Free clinic, Research, Music"
+                          className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                        />
+                      </label>
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -310,7 +579,7 @@ export function SchoolTrackerCard({
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !addMoreOpen) {
                   e.preventDefault();
                   addManual();
                 }
@@ -327,6 +596,94 @@ export function SchoolTrackerCard({
               + Add
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setAddMoreOpen((v) => !v)}
+            className="mt-2 text-xs font-medium text-accent underline underline-offset-2 hover:no-underline"
+          >
+            {addMoreOpen
+              ? "Hide word limit, deadline, category & notes"
+              : "+ Set word limit, deadline, category or notes"}
+          </button>
+
+          {addMoreOpen && (
+            <div className="mt-2.5 grid gap-2.5 rounded-lg border border-line bg-sunken p-3 sm:grid-cols-2">
+              <label className="block text-xs">
+                <span className="mb-1 block font-medium text-muted">
+                  Category
+                  {!addTypeKey && liveGuess ? ` (guessing: ${liveGuess.label})` : ""}
+                </span>
+                <select
+                  value={addTypeKey}
+                  onChange={(e) => setAddTypeKey(e.target.value)}
+                  className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
+                >
+                  <option value="">
+                    {liveGuess ? `Use our guess (${liveGuess.label})` : "Uncategorized"}
+                  </option>
+                  {PROMPT_TYPES.map((t) => (
+                    <option key={t.key} value={t.key}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <div className="grid grid-cols-2 gap-2.5">
+                <label className="block text-xs">
+                  <span className="mb-1 block font-medium text-muted">Limit</span>
+                  <input
+                    type="number"
+                    min={1}
+                    inputMode="numeric"
+                    value={addLimitValue}
+                    onChange={(e) => setAddLimitValue(e.target.value)}
+                    placeholder="e.g. 250"
+                    className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                  />
+                </label>
+                <label className="block text-xs">
+                  <span className="mb-1 block font-medium text-muted">Unit</span>
+                  <select
+                    value={addLimitUnit}
+                    onChange={(e) =>
+                      setAddLimitUnit(e.target.value as "words" | "characters")
+                    }
+                    className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
+                  >
+                    <option value="words">Words</option>
+                    <option value="characters">Characters</option>
+                  </select>
+                </label>
+              </div>
+
+              <label className="block text-xs">
+                <span className="mb-1 block font-medium text-muted">
+                  Deadline (only if this prompt has its own, separate from the
+                  school&apos;s)
+                </span>
+                <input
+                  type="date"
+                  value={addDueOn}
+                  onChange={(e) => setAddDueOn(e.target.value)}
+                  className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm"
+                />
+              </label>
+
+              <label className="block text-xs">
+                <span className="mb-1 block font-medium text-muted">
+                  Notes (optional)
+                </span>
+                <input
+                  value={addNotes}
+                  onChange={(e) => setAddNotes(e.target.value)}
+                  placeholder="Anything you want to remember about this one"
+                  className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                />
+              </label>
+            </div>
+          )}
         </div>
       )}
     </article>
