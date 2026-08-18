@@ -3,20 +3,20 @@ import { PlannerBoard } from "@/components/PlannerBoard";
 import { SyncPanel } from "@/components/SyncPanel";
 
 export const metadata: Metadata = {
-  title: "Weekly planner",
+  title: "Planner",
   description:
-    "Lay out your recurring week — classes, shifts, lab hours, volunteering — and see exactly how many hours a week each commitment actually takes.",
+    "A real calendar for your premed timeline — recurring classes and shifts alongside one-time dates like your MCAT, with week, month, and year views and exactly how many hours each commitment takes.",
 };
 
 export default function PlannerPage() {
   return (
     <div className="space-y-8">
       <header className="anim-rise">
-        <h1 className="text-4xl font-semibold tracking-tight">My week</h1>
+        <h1 className="text-4xl font-semibold tracking-tight">Planner</h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Your week repeats. Put it in once — lectures, shifts, lab, standing
-          meetings, the gym — and the planner keeps a running total of where
-          your time actually goes.
+          Put in what repeats — lectures, shifts, lab, standing meetings — and
+          what doesn&apos;t, like your MCAT date or an application deadline.
+          Both live on the same calendar, in week, month, or year view.
         </p>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
           The totals are not decoration. Hours per week is the number your
