@@ -10,6 +10,8 @@
  * it. Hence the export/import buttons, which are not optional polish.
  */
 
+import type { ExportTable } from "./xlsxExport";
+
 export const TRACKER_STORAGE_KEY = "spl.tracker.v1";
 
 export const STATUSES = [
@@ -521,9 +523,13 @@ export function daysUntil(dueOn: string | undefined, today: Date): number | null
   return Math.round((due.getTime() - now.getTime()) / 86_400_000);
 }
 
-export function toCsv(schools: TrackedSchool[]): string {
-  const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
-  const header = [
+/**
+ * The tracker as a plain table: one row per essay, or one row per school when
+ * it has none broken out yet. Shared by the CSV export and the .xlsx export
+ * so "what a row looks like" is defined exactly once.
+ */
+export function trackerExportTable(schools: TrackedSchool[]): ExportTable {
+  const headers = [
     "School",
     "School status",
     "Secondary received",
@@ -534,40 +540,47 @@ export function toCsv(schools: TrackedSchool[]): string {
     "Question type",
     "Notes",
   ];
-  const lines = [header.join(",")];
+  const rows: string[][] = [];
 
   for (const s of schools) {
     const base = [
-      esc(s.name),
-      esc(STATUS_META[rollUpStatus(s)].label),
-      esc(s.receivedOn ?? ""),
-      esc(s.dueOn ?? ""),
+      s.name,
+      STATUS_META[rollUpStatus(s)].label,
+      s.receivedOn ?? "",
+      s.dueOn ?? "",
     ];
     const essays = s.essays ?? [];
 
     if (essays.length === 0) {
-      lines.push([...base, "", "", "", "", esc(s.notes ?? "")].join(","));
+      // One row per essay, so the export opens in a spreadsheet as a work
+      // list — a school with nothing broken out yet still gets a row.
+      rows.push([...base, "", "", "", "", s.notes ?? ""]);
       continue;
     }
-    // One row per essay, so the export opens in a spreadsheet as a work list.
     for (const e of essays) {
       const limit =
         e.limitUnit && e.limitUnit !== "none" && typeof e.limitValue === "number"
           ? `${e.limitValue} ${e.limitUnit}`
           : "";
-      lines.push(
-        [
-          ...base,
-          esc(e.label),
-          esc(STATUS_META[e.status].label),
-          esc(limit),
-          esc(e.typeLabel ?? ""),
-          esc(s.notes ?? ""),
-        ].join(","),
-      );
+      rows.push([
+        ...base,
+        e.label,
+        STATUS_META[e.status].label,
+        limit,
+        e.typeLabel ?? "",
+        s.notes ?? "",
+      ]);
     }
   }
-  return lines.join("\n");
+  return { headers, rows };
+}
+
+/** CSV form of {@link trackerExportTable}, for anyone who wants raw text over
+ *  a real workbook (the "Export spreadsheet" button uses .xlsx instead). */
+export function toCsv(schools: TrackedSchool[]): string {
+  const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const { headers, rows } = trackerExportTable(schools);
+  return [headers, ...rows].map((r) => r.map(esc).join(",")).join("\n");
 }
 
 /* ---------------------------------------------------------------------------

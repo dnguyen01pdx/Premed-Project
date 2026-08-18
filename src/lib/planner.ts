@@ -15,6 +15,7 @@
  * no longer the only way, or the only thing the data can represent.
  */
 import { createId } from "./id";
+import type { ExportTable } from "./xlsxExport";
 
 const KEY = "mda.planner.v1";
 
@@ -592,8 +593,12 @@ export function replacePlanner(raw: unknown): void {
 
 /* --------------------------------------------------------------- export -- */
 
-export function plannerToCsv(state: PlannerState): string {
-  const head = [
+/**
+ * The planner as a plain table, soonest-first. Shared by the CSV export and
+ * the .xlsx export so "what a row looks like" is defined exactly once.
+ */
+export function plannerExportTable(state: PlannerState): ExportTable {
+  const headers = [
     "Title",
     "Category",
     "First date",
@@ -619,8 +624,15 @@ export function plannerToCsv(state: PlannerState): string {
       e.location ?? "",
       e.notes ?? "",
     ]);
-  return [head, ...rows]
-    .map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","))
+  return { headers, rows };
+}
+
+/** CSV form of {@link plannerExportTable}, for anyone who wants raw text over
+ *  a real workbook (the "Export spreadsheet" button uses .xlsx instead). */
+export function plannerToCsv(state: PlannerState): string {
+  const { headers, rows } = plannerExportTable(state);
+  return [headers, ...rows]
+    .map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(","))
     .join("\n");
 }
 

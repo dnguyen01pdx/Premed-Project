@@ -26,8 +26,9 @@ import {
   rollUpStatus,
   subscribeNever,
   subscribeToTracker,
-  toCsv,
+  trackerExportTable,
 } from "@/lib/tracker";
+import { downloadXlsx } from "@/lib/xlsxExport";
 
 type SchoolOption = {
   slug: string;
@@ -86,6 +87,7 @@ export function TrackerBoard({
   );
 
   const [storageOk, setStorageOk] = useState(true);
+  const [exportFailed, setExportFailed] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
   const [tab, setTab] = useState<"list" | "overlap" | "map" | "interviews">(
@@ -170,6 +172,21 @@ export function TrackerBoard({
         setStorageOk(false);
       }
     });
+  }
+
+  async function exportSpreadsheet() {
+    const { headers, rows } = trackerExportTable(tracked);
+    try {
+      setExportFailed(false);
+      await downloadXlsx(
+        "secondary-tracker.xlsx",
+        "Secondaries",
+        headers.map((header) => ({ header })),
+        rows,
+      );
+    } catch {
+      setExportFailed(true);
+    }
   }
 
   if (!hydrated) {
@@ -385,6 +402,14 @@ export function TrackerBoard({
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
+            onClick={exportSpreadsheet}
+            disabled={tracked.length === 0}
+            className="rounded-lg border border-line-strong bg-surface px-3.5 py-2 text-sm font-medium hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:border-line-strong disabled:hover:text-foreground"
+          >
+            Export spreadsheet
+          </button>
+          <button
+            type="button"
             onClick={() =>
               download(
                 "secondary-tracker.json",
@@ -396,16 +421,6 @@ export function TrackerBoard({
             className="rounded-lg border border-line-strong bg-surface px-3.5 py-2 text-sm font-medium hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:border-line-strong disabled:hover:text-foreground"
           >
             Export backup
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              download("secondary-tracker.csv", toCsv(tracked), "text/csv")
-            }
-            disabled={tracked.length === 0}
-            className="rounded-lg border border-line-strong bg-surface px-3.5 py-2 text-sm font-medium hover:border-accent hover:text-accent disabled:opacity-50 disabled:hover:border-line-strong disabled:hover:text-foreground"
-          >
-            Export spreadsheet
           </button>
           <button
             type="button"
@@ -435,6 +450,12 @@ export function TrackerBoard({
             </button>
           )}
         </div>
+        {exportFailed && (
+          <p className="mt-3 text-sm text-danger">
+            Could not build the spreadsheet. Try again, or use Export backup
+            instead.
+          </p>
+        )}
       </section>
     </div>
   );

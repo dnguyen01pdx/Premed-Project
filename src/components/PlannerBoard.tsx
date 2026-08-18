@@ -23,7 +23,7 @@ import {
   icsForEvents,
   layoutForDate,
   monthGridDates,
-  plannerToCsv,
+  plannerExportTable,
   recurrenceSummary,
   todayIso,
   toTimeInput,
@@ -37,6 +37,7 @@ import {
 } from "@/lib/planner";
 import { subscribeToPlanner } from "@/lib/planner";
 import { subscribeNever } from "@/lib/tracker";
+import { downloadXlsx } from "@/lib/xlsxExport";
 
 /** One hour of grid height, in pixels. Everything else is derived from this. */
 const HOUR = 56;
@@ -102,6 +103,7 @@ export function PlannerBoard() {
   const [draft, setDraft] = useState<PlannerEvent | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [exportFailed, setExportFailed] = useState(false);
 
   const totals = useMemo(() => weeklyTotals(state), [state]);
   const conflicts = useMemo(() => conflictIds(state), [state]);
@@ -157,8 +159,15 @@ export function PlannerBoard() {
     setDraft(null);
   }, []);
 
-  const exportCsv = useCallback(() => {
-    downloadFile("md-atlas-planner.csv", plannerToCsv(state), "text/csv");
+  const exportSpreadsheet = useCallback(() => {
+    const { headers, rows } = plannerExportTable(state);
+    setExportFailed(false);
+    downloadXlsx(
+      "md-atlas-planner.xlsx",
+      "Planner",
+      headers.map((header) => ({ header })),
+      rows,
+    ).catch(() => setExportFailed(true));
   }, [state]);
 
   const exportAllIcs = useCallback(() => {
@@ -260,21 +269,26 @@ export function PlannerBoard() {
         </button>
         <button
           type="button"
-          onClick={exportCsv}
-          disabled={empty}
-          className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          Export CSV
-        </button>
-        <button
-          type="button"
           onClick={exportAllIcs}
           disabled={empty}
           className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
         >
           Export all to calendar (.ics)
         </button>
+        <button
+          type="button"
+          onClick={exportSpreadsheet}
+          disabled={empty}
+          className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+        >
+          Export spreadsheet
+        </button>
       </div>
+      {exportFailed && (
+        <p className="text-sm text-danger">
+          Could not build the spreadsheet. Try again in a moment.
+        </p>
+      )}
 
       {empty && (
         <section className="anim-pop rounded-2xl border border-dashed border-line-strong bg-surface p-8 text-center">
