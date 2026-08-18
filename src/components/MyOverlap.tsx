@@ -1,6 +1,8 @@
 "use client";
 
 import { Badge, OutlineBadge } from "./Badge";
+import { UpgradeCallout } from "./UpgradeCallout";
+import { FREE_PREVIEW_LIMIT } from "@/lib/entitlements";
 import {
   STATUS_META,
   overlapClusters,
@@ -14,8 +16,18 @@ import {
  * answers the question that actually matters while you are writing: "which of
  * the schools I applied to ask it, and what is the shortest one I have to fit
  * inside". Write to that limit once, then expand for the rest.
+ *
+ * Free accounts see that the overlap exists and get a couple of full
+ * examples; the full cross-school map with reuse tools lives in the Essay Map
+ * tab, which is Pro.
  */
-export function MyOverlap({ schools }: { schools: TrackedSchool[] }) {
+export function MyOverlap({
+  schools,
+  pro,
+}: {
+  schools: TrackedSchool[];
+  pro: boolean;
+}) {
   const clusters = overlapClusters(schools);
   const essayCount = schools.reduce((n, s) => n + (s.essays?.length ?? 0), 0);
 
@@ -46,6 +58,11 @@ export function MyOverlap({ schools }: { schools: TrackedSchool[] }) {
   }
 
   const reusable = clusters.reduce((n, c) => n + c.essays.length - 1, 0);
+  const visible = pro ? clusters : clusters.slice(0, FREE_PREVIEW_LIMIT);
+  const locked = pro ? [] : clusters.slice(FREE_PREVIEW_LIMIT);
+  const lockedSchools = new Set(
+    locked.flatMap((c) => c.essays.map((e) => e.schoolSlug)),
+  ).size;
 
   return (
     <section className="space-y-4">
@@ -61,7 +78,7 @@ export function MyOverlap({ schools }: { schools: TrackedSchool[] }) {
         </p>
       </div>
 
-      {clusters.map((c) => (
+      {visible.map((c) => (
         <article
           key={c.typeKey}
           className="overflow-hidden rounded-2xl border border-line bg-surface"
@@ -114,6 +131,30 @@ export function MyOverlap({ schools }: { schools: TrackedSchool[] }) {
           </ul>
         </article>
       ))}
+
+      {!pro && locked.length > 0 && (
+        <>
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-sunken">
+            {locked.map((c) => (
+              <li
+                key={c.typeKey}
+                className="flex items-center justify-between gap-3 px-5 py-3.5 text-sm text-muted"
+              >
+                <span className="font-medium text-foreground/70">
+                  {c.typeLabel}
+                </span>
+                <span>{c.schoolCount} of your schools · locked</span>
+              </li>
+            ))}
+          </ul>
+          <UpgradeCallout>
+            You have {locked.length} additional prompt overlap
+            {locked.length === 1 ? "" : "s"} across {lockedSchools} more{" "}
+            {lockedSchools === 1 ? "school" : "schools"}. Unlock your full
+            Essay Map with MD Atlas Pro.
+          </UpgradeCallout>
+        </>
+      )}
     </section>
   );
 }
