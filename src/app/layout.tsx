@@ -50,78 +50,71 @@ export default function RootLayout({
                 <p className="mt-3 text-sm leading-relaxed">{SITE_TAGLINE}</p>
               </div>
 
-              <nav aria-label="Footer">
-                <ul className="space-y-2 text-sm">
-                  <li>
-                    <Link href="/primary" className="hover:text-white">
-                      Primary application
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/prompts" className="hover:text-white">
-                      Browse prompts
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/dashboard" className="hover:text-white">
-                      Dashboard
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/planner" className="hover:text-white">
-                      Weekly planner
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/secondaries" className="hover:text-white">
-                      Secondaries
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/interviews" className="hover:text-white">
-                      Interviews
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/submit" className="hover:text-white">
-                      Submit a prompt
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/pricing" className="hover:text-white">
-                      What&apos;s free
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/how-feedback-works" className="hover:text-white">
-                      Our feedback policy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/account" className="hover:text-white">
-                      Your account
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/privacy" className="hover:text-white">
-                      Privacy
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href="/about" className="hover:text-white">
-                      About
-                    </Link>
-                  </li>
-                  <li>
-                    <a
-                      href={`mailto:${CONTACT_EMAIL}`}
-                      className="hover:text-white"
-                    >
-                      Contact
-                    </a>
-                  </li>
-                </ul>
-              </nav>
+              {/*
+                The header nav now covers Dashboard, Planner, Primary,
+                Secondaries, Interviews, and About — repeating all six here was
+                what made this footer a wall of links. What's left is only the
+                pages that live outside that nav, split into two short columns
+                instead of one long stack.
+              */}
+              <div className="flex flex-wrap gap-x-10 gap-y-6">
+                <nav aria-label="More">
+                  <h2 className="text-xs font-semibold tracking-widest text-navy-100">
+                    MORE
+                  </h2>
+                  <ul className="mt-3 space-y-2 text-sm">
+                    <li>
+                      <Link href="/prompts" className="hover:text-white">
+                        Browse prompts
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/submit" className="hover:text-white">
+                        Submit a prompt
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/pricing" className="hover:text-white">
+                        What&apos;s free
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/how-feedback-works"
+                        className="hover:text-white"
+                      >
+                        Feedback policy
+                      </Link>
+                    </li>
+                  </ul>
+                </nav>
+
+                <nav aria-label="Account">
+                  <h2 className="text-xs font-semibold tracking-widest text-navy-100">
+                    ACCOUNT
+                  </h2>
+                  <ul className="mt-3 space-y-2 text-sm">
+                    <li>
+                      <Link href="/account" className="hover:text-white">
+                        Your account
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/privacy" className="hover:text-white">
+                        Privacy
+                      </Link>
+                    </li>
+                    <li>
+                      <a
+                        href={`mailto:${CONTACT_EMAIL}`}
+                        className="hover:text-white"
+                      >
+                        Contact
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              </div>
             </div>
 
             <div className="mt-10 space-y-3 border-t border-white/10 pt-6 text-xs leading-relaxed">
