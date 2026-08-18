@@ -75,11 +75,11 @@ export function HomeSnapshot() {
   const stages = [
     {
       href: "/planner",
-      label: "This week",
+      label: "Planner",
       headline:
         wk.events > 0
-          ? `${Math.round(wk.total / 60)} hours booked`
-          : "Empty week",
+          ? `${Math.round(wk.total / 60)} hours/wk booked`
+          : "Nothing scheduled",
       detail:
         wk.events > 0
           ? `${Math.round(wk.reportable / 60)} count on AMCAS`
