@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Metadata } from "next";
 import { deleteAccount, getCurrentUser, signOutCurrentSession } from "@/lib/auth";
-import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
+import { SITE_NAME } from "@/lib/config";
+import { ProPreviewToggle } from "@/components/ProPreviewToggle";
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ async function doDelete(formData: FormData) {
     return;
   }
   await deleteAccount(user.id);
-  redirect("/my-schools?deleted=1");
+  redirect("/secondaries?deleted=1");
 }
 
 export default async function AccountPage({
@@ -66,6 +67,8 @@ export default async function AccountPage({
         >
           Go to my dashboard
         </Link>
+
+        <ProPreviewToggle />
       </div>
     );
   }
@@ -99,6 +102,8 @@ export default async function AccountPage({
           .
         </p>
       </section>
+
+      <ProPreviewToggle />
 
       <form action={doSignOut}>
         <button
@@ -136,13 +141,14 @@ export default async function AccountPage({
       </section>
 
       <p className="text-sm text-muted">
-        Questions:{" "}
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
+        Questions?{" "}
+        <Link
+          href="/contact"
           className="text-accent underline underline-offset-2 hover:no-underline"
         >
-          {CONTACT_EMAIL}
-        </a>
+          Get in touch
+        </Link>
+        .
       </p>
     </div>
   );
