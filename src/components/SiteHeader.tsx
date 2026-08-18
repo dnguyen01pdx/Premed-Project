@@ -6,12 +6,14 @@ import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
 /**
- * Five items, in the order the year happens.
+ * The stages, in the order the year happens, plus About at the end.
  *
  * "Prompts" and "Schools" used to sit up here as peers of the stages, which is
  * what made the site read as a prompt library wearing a dashboard costume. They
  * are reference material for exactly one stage, so they now live inside
- * Secondaries and in the footer, and the top nav only holds places you *work*.
+ * Secondaries and in the footer, and the top nav only holds places you *work* —
+ * with About kept alongside them rather than buried in the footer, since "who
+ * built this and why" is one click a new visitor reasonably wants.
  */
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -19,6 +21,7 @@ const NAV = [
   { href: "/primary", label: "Primary" },
   { href: "/secondaries", label: "Secondaries" },
   { href: "/interviews", label: "Interviews" },
+  { href: "/about", label: "About" },
 ];
 
 /**
