@@ -6,6 +6,9 @@ import { db } from "@/db";
 import { authTokens, sessions, users } from "@/db/schema";
 
 export const SESSION_COOKIE = "mda_session";
+/** CSRF state cookie for the Google OAuth round trip. Short-lived on
+ * purpose — it only needs to survive the redirect to Google and back. */
+export const GOOGLE_OAUTH_STATE_COOKIE = "mda_g_state";
 
 const TOKEN_TTL_MS = 15 * 60 * 1000; // sign-in links: short on purpose
 const SESSION_TTL_MS = 60 * 24 * 60 * 60 * 1000; // 60 days
@@ -58,6 +61,47 @@ export async function createSignInToken(email: string): Promise<string> {
 }
 
 /**
+ * Finds or creates the user for this email and opens a new session for them.
+ *
+ * Shared by every sign-in method (magic link, Google) so "what happens once
+ * we trust an email address" only has one implementation. Callers are
+ * responsible for having verified the email first — this function trusts it.
+ */
+export async function startSessionForEmail(email: string): Promise<{
+  userId: string;
+  sessionToken: string;
+}> {
+  const [existing] = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+
+  let userId = existing?.id;
+  if (!userId) {
+    const [created] = await db
+      .insert(users)
+      .values({ email })
+      .returning({ id: users.id });
+    userId = created.id;
+  } else {
+    await db
+      .update(users)
+      .set({ lastSeenAt: new Date() })
+      .where(eq(users.id, userId));
+  }
+
+  const sessionToken = newToken();
+  await db.insert(sessions).values({
+    userId,
+    tokenHash: hashToken(sessionToken),
+    expiresAt: new Date(Date.now() + SESSION_TTL_MS),
+  });
+
+  return { userId, sessionToken };
+}
+
+/**
  * Redeems a sign-in token and starts a session.
  *
  * Single use: the token is marked consumed in the same statement that checks
@@ -82,32 +126,7 @@ export async function consumeSignInToken(
 
   if (!claimed) return { ok: false };
 
-  const [existing] = await db
-    .select({ id: users.id })
-    .from(users)
-    .where(eq(users.email, claimed.email))
-    .limit(1);
-
-  let userId = existing?.id;
-  if (!userId) {
-    const [created] = await db
-      .insert(users)
-      .values({ email: claimed.email })
-      .returning({ id: users.id });
-    userId = created.id;
-  } else {
-    await db
-      .update(users)
-      .set({ lastSeenAt: new Date() })
-      .where(eq(users.id, userId));
-  }
-
-  const sessionToken = newToken();
-  await db.insert(sessions).values({
-    userId,
-    tokenHash: hashToken(sessionToken),
-    expiresAt: new Date(Date.now() + SESSION_TTL_MS),
-  });
+  const { userId, sessionToken } = await startSessionForEmail(claimed.email);
 
   // Opportunistic cleanup; cheap and keeps the table from growing forever.
   await db.delete(authTokens).where(lt(authTokens.expiresAt, new Date()));

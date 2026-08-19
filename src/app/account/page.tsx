@@ -4,9 +4,10 @@ import { revalidatePath } from "next/cache";
 import type { Metadata } from "next";
 import { deleteAccount, getCurrentUser, signOutCurrentSession } from "@/lib/auth";
 import { SITE_NAME } from "@/lib/config";
+import { CompassMark } from "@/components/Logo";
 import { ProPreviewToggle } from "@/components/ProPreviewToggle";
 import { ExportDataButtons } from "@/components/ExportDataButtons";
-import { SignInForm } from "@/components/SignInForm";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
 export const dynamic = "force-dynamic";
 
@@ -46,39 +47,96 @@ export default async function AccountPage({
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-lg space-y-6">
-        <h1 className="text-3xl font-semibold tracking-tight">Your account</h1>
-        {error === "invalid" && (
-          <p className="rounded-xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
-            That sign-in link has already been used or has expired. Links work
-            once and last 15 minutes. Request a fresh one from your dashboard.
-          </p>
-        )}
-        {error === "missing" && (
-          <p className="rounded-xl border border-danger/30 bg-danger-soft p-4 text-sm text-danger">
-            That link was incomplete. Try requesting a new one.
-          </p>
-        )}
-        <p className="leading-relaxed text-muted">
-          You are not signed in. You do not need to be — the dashboard works
-          without an account. Signing in adds syncing so your work follows
-          you between devices.
-        </p>
+      <div className="space-y-10">
+        {/* Its own navy hero, the same negative-margin pattern the homepage
+            uses — a dedicated sign-in screen reads as an event, not just
+            another settings page, and this is the one place in the product
+            where that is the right amount of ceremony. */}
+        <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-14 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-16">
+          <div className="mx-auto max-w-sm text-center">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2.5 text-white"
+            >
+              <CompassMark className="h-8 w-8" />
+              <span className="text-lg font-semibold tracking-tight">
+                {SITE_NAME}
+              </span>
+            </Link>
+            <p className="mt-2 text-sm text-navy-100">
+              Your medical school application, organized.
+            </p>
 
-        <section className="rounded-2xl border border-line bg-surface p-6">
-          <SignInForm />
+            <div className="mt-8 rounded-2xl bg-surface p-6 text-left text-foreground shadow-2xl sm:p-7">
+              <h1 className="text-xl font-semibold tracking-tight">
+                Welcome back
+              </h1>
+              <p className="mt-1 text-sm text-muted">
+                Sign in to sync your dashboard
+              </p>
+
+              {error === "invalid" && (
+                <p className="mt-4 rounded-xl border border-danger/30 bg-danger-soft p-3.5 text-sm text-danger">
+                  That sign-in link has already been used or has expired.
+                  Links work once and last 15 minutes. Try signing in again
+                  below.
+                </p>
+              )}
+              {error === "missing" && (
+                <p className="mt-4 rounded-xl border border-danger/30 bg-danger-soft p-3.5 text-sm text-danger">
+                  That link was incomplete. Try signing in again below.
+                </p>
+              )}
+              {error === "google" && (
+                <p className="mt-4 rounded-xl border border-danger/30 bg-danger-soft p-3.5 text-sm text-danger">
+                  Google sign-in didn&apos;t go through. Nothing was saved or
+                  changed — try again below.
+                </p>
+              )}
+
+              <div className="mt-6">
+                <GoogleSignInButton />
+              </div>
+              <p className="mt-4 text-xs leading-relaxed text-muted">
+                No password, just your Google account. We use your email for
+                sign-in and to tell you when essay feedback launches. Nothing
+                else.{" "}
+                <Link
+                  href="/privacy"
+                  className="text-accent underline underline-offset-2 hover:no-underline"
+                >
+                  Privacy
+                </Link>
+              </p>
+            </div>
+
+            <Link
+              href="/"
+              className="mt-6 inline-flex items-center gap-1.5 text-sm text-navy-100 hover:text-white"
+            >
+              <span aria-hidden="true">&larr;</span> Back to home
+            </Link>
+          </div>
         </section>
 
-        <Link
-          href="/secondaries"
-          className="inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
-        >
-          Go to my dashboard without signing in
-        </Link>
+        <div className="mx-auto max-w-lg space-y-6">
+          <p className="leading-relaxed text-muted">
+            You do not need an account — the dashboard works fully without
+            one. Signing in only adds syncing, so your work follows you
+            between devices.
+          </p>
 
-        <ExportDataButtons />
+          <Link
+            href="/secondaries"
+            className="inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
+          >
+            Go to my dashboard without signing in
+          </Link>
 
-        <ProPreviewToggle />
+          <ExportDataButtons />
+
+          <ProPreviewToggle />
+        </div>
       </div>
     );
   }

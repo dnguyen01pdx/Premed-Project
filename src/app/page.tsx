@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CompassMark } from "@/components/Logo";
@@ -205,60 +206,92 @@ export default async function HomePage() {
 
         <ol className="mt-10 space-y-5">
           {STAGES.map((s, i) => (
-            <Reveal key={s.title} delay={i * 70}>
-              <li className="overflow-hidden rounded-2xl border border-line bg-surface">
-                <div className="grid gap-0 md:grid-cols-[minmax(0,260px)_1fr]">
-                  <div className="border-b border-line bg-navy-900 p-6 text-white md:border-r md:border-b-0">
-                    <span className="text-xs font-semibold tracking-widest text-navy-100">
-                      {s.n}
-                    </span>
-                    <h3 className="mt-2 text-2xl font-semibold tracking-tight">
-                      {s.title}
-                    </h3>
-                    <p className="mt-1.5 text-sm text-navy-100">{s.when}</p>
-                    <Link
-                      href={s.href}
-                      className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy-900 hover:bg-navy-100"
-                    >
-                      {s.cta}
-                      <span aria-hidden="true">&rarr;</span>
-                    </Link>
-                  </div>
+            <Fragment key={s.title}>
+              <Reveal delay={i * 70}>
+                <li className="overflow-hidden rounded-2xl border border-line bg-surface">
+                  <div className="grid gap-0 md:grid-cols-[minmax(0,260px)_1fr]">
+                    <div className="border-b border-line bg-navy-900 p-6 text-white md:border-r md:border-b-0">
+                      <span className="text-xs font-semibold tracking-widest text-navy-100">
+                        {s.n}
+                      </span>
+                      <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+                        {s.title}
+                      </h3>
+                      <p className="mt-1.5 text-sm text-navy-100">{s.when}</p>
+                      <Link
+                        href={s.href}
+                        className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+                      >
+                        {s.cta}
+                        <span aria-hidden="true">&rarr;</span>
+                      </Link>
+                    </div>
 
-                  <div className="p-6 sm:p-7">
-                    <p className="text-lg font-medium tracking-tight">
-                      {s.lead}
-                    </p>
-                    <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
-                    <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                      {s.points.map((p) => (
-                        <li
-                          key={p}
-                          className="flex gap-2 text-sm leading-relaxed text-muted"
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
-                          />
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
+                    <div className="p-6 sm:p-7">
+                      <p className="text-lg font-medium tracking-tight">
+                        {s.lead}
+                      </p>
+                      <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
+                      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
+                        {s.points.map((p) => (
+                          <li
+                            key={p}
+                            className="flex gap-2 text-sm leading-relaxed text-muted"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
+                            />
+                            {p}
+                          </li>
+                        ))}
+                      </ul>
 
-                    <div className="mt-5 overflow-hidden rounded-xl border border-line">
-                      <Image
-                        src={s.img}
-                        alt={s.imgAlt}
-                        width={1120}
-                        height={699}
-                        sizes="(max-width: 768px) 100vw, 640px"
-                        className="h-auto w-full"
-                      />
+                      <div className="mt-5 overflow-hidden rounded-xl border border-line">
+                        <Image
+                          src={s.img}
+                          alt={s.imgAlt}
+                          width={1120}
+                          height={699}
+                          sizes="(max-width: 768px) 100vw, 640px"
+                          className="h-auto w-full"
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </li>
-            </Reveal>
+                </li>
+              </Reveal>
+
+              {/* Not a fifth stage — MD Atlas doesn't do MCAT prep, and
+                  giving this the same numbered-card treatment as Planner or
+                  Primary would wrongly imply it does. It sits here, between
+                  Planner and Primary, purely because that is chronologically
+                  where it happens; visually it reads as connective tissue,
+                  not a peer feature, and links out clearly rather than
+                  living inside the product. */}
+              {i === 0 && (
+                <li className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-dashed border-line-strong bg-sunken px-5 py-3.5 text-sm">
+                  <span className="font-medium text-foreground">
+                    Somewhere in here: the MCAT.
+                  </span>
+                  <span className="text-muted">
+                    MD Atlas doesn&apos;t do MCAT prep — for that,{" "}
+                    <a
+                      href="https://mcatpulse.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+                    >
+                      MCAT Pulse
+                      <span aria-hidden="true" className="text-xs">
+                        &#8599;
+                      </span>
+                    </a>{" "}
+                    is a separate tool worth a look, not part of MD Atlas.
+                  </span>
+                </li>
+              )}
+            </Fragment>
           ))}
         </ol>
       </section>

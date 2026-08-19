@@ -100,24 +100,40 @@ already in the app when their application year arrives.
 - Deleting an account must not touch their local data.
 - `/api/sync` stores opaque JSON. The server never interprets the shape, which
   is what keeps client model changes out of the sync path.
-- Magic-link auth is custom-built (`src/lib/auth.ts`, `src/lib/mailer.ts`), not
-  a third-party provider — hashed single-use tokens, 60-day sessions, rate
-  limiting, and a conflict UI when local and server disagree. It's already
-  solid; do not replace it with Supabase/Clerk without checking with Dylan
-  first, since that would mean throwing away working code for a rebuild.
-- `RESEND_API_KEY` must be set in the deploy environment for sign-in emails to
-  actually send. Without it, `sendSignInEmail` hard-fails in production (by
-  design — see the comment in `mailer.ts`) rather than pretending to work. In
-  dev, the sign-in link is returned in the response instead of emailed.
+- The only sign-in entry point is "Continue with Google"
+  (`GoogleSignInButton.tsx` on `/account`), backed by a hand-rolled OAuth
+  Authorization Code flow (`/api/auth/google/start`, `/api/auth/google/callback`)
+  — not next-auth or a third-party auth provider. `start` sets a short-lived
+  CSRF state cookie (`GOOGLE_OAUTH_STATE_COOKIE` in `auth.ts`) and redirects to
+  Google; `callback` checks that state, exchanges the code, confirms
+  `email_verified`, then calls `startSessionForEmail()` — the same
+  find-or-create-user-and-open-a-session helper in `auth.ts` that the original
+  magic-link flow used, so Google is just a second way of proving you own an
+  email address, not a second notion of what a user is.
+- The magic-link code (`createSignInToken`, `consumeSignInToken`,
+  `/api/auth/request`, `/auth/verify`, `mailer.ts`, `SignInForm.tsx`) is still
+  in the repo but intentionally unlinked from any page — Dylan chose Google-only
+  over running both, so nothing routes to it anymore. It's dead code kept as a
+  rollback path, not a second live sign-in method; don't wire it back into the
+  UI without checking with Dylan first, and don't delete it reflexively either.
+- `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` must be set in every
+  environment sign-in needs to work in (Vercel and local `.env.local`). Without
+  them, `/api/auth/google/start` logs an error and redirects to
+  `/account?error=google` instead of pretending to work — same posture as the
+  old `RESEND_API_KEY` check. The OAuth client lives in the "MD Atlas" Google
+  Cloud project under `mdatlas.help@gmail.com`; its authorized redirect URIs
+  are the production and localhost `/api/auth/google/callback` URLs, both of
+  which must stay registered there if either origin changes.
 - When adding a field to any store that syncs (tracker, prep, primary,
   planner), add it to `trackerSnapshots` in `src/db/schema.ts` too, and to
   both the GET response and the PUT/POST body in `src/app/api/sync/route.ts`.
   Planner went unsynced for a while this way: the client already sent it, the
   column didn't exist, and the route silently dropped it before the insert —
   no error anywhere, just data that looked backed up and was not.
-- `SyncPanel` no longer offers to add an email — that form (`SignInForm.tsx`)
-  now lives only on `/account`, reached through the "Sign in" link in
-  `SiteHeader`. `SyncPanel` still renders on every tracking page, but only to
+- `SyncPanel` no longer offers to add an email — signing in
+  (`GoogleSignInButton.tsx`) lives only on `/account`, reached through the
+  "Sign in" link in `SiteHeader`. `SyncPanel` still renders on every tracking
+  page, but only to
   reflect state produced elsewhere: nothing when signed out, the synced/saving
   badge or the conflict prompt when signed in. It pushes edits within ~400ms
   plus a `visibilitychange` → `sendBeacon` flush on tab close/hide, so the
