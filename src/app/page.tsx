@@ -178,7 +178,7 @@ export default async function HomePage() {
               href="/about"
               className="whitespace-nowrap font-medium text-accent underline underline-offset-4 hover:no-underline"
             >
-              More about why
+              More
             </Link>
           </p>
         </div>
