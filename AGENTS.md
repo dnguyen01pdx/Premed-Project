@@ -115,10 +115,18 @@ already in the app when their application year arrives.
   Planner went unsynced for a while this way: the client already sent it, the
   column didn't exist, and the route silently dropped it before the insert —
   no error anywhere, just data that looked backed up and was not.
-- `SyncPanel`'s invite to add an email only renders once the browser holds
-  real data (see `hasRealData` in that file) and pushes edits within ~400ms
+- `SyncPanel` no longer offers to add an email — that form (`SignInForm.tsx`)
+  now lives only on `/account`, reached through the "Sign in" link in
+  `SiteHeader`. `SyncPanel` still renders on every tracking page, but only to
+  reflect state produced elsewhere: nothing when signed out, the synced/saving
+  badge or the conflict prompt when signed in. It pushes edits within ~400ms
   plus a `visibilitychange` → `sendBeacon` flush on tab close/hide, so the
   window in which an edit exists only in this browser stays small.
+- The header's "Sign in" link always points at `/account` regardless of auth
+  state — signed out that page is the sign-in form, signed in it's account
+  management. `SiteHeader` deliberately doesn't fetch auth state itself to
+  decide the label; if that starts to read as wrong once actually signed in,
+  revisit it then rather than adding a client-side auth check to every page.
 
 ## Design
 - Colors are defined once in `src/app/globals.css` and mirrored in

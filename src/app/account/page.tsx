@@ -6,6 +6,7 @@ import { deleteAccount, getCurrentUser, signOutCurrentSession } from "@/lib/auth
 import { SITE_NAME } from "@/lib/config";
 import { ProPreviewToggle } from "@/components/ProPreviewToggle";
 import { ExportDataButtons } from "@/components/ExportDataButtons";
+import { SignInForm } from "@/components/SignInForm";
 
 export const dynamic = "force-dynamic";
 
@@ -60,13 +61,19 @@ export default async function AccountPage({
         )}
         <p className="leading-relaxed text-muted">
           You are not signed in. You do not need to be — the dashboard works
-          without an account. Signing in only adds syncing across devices.
+          without an account. Signing in adds syncing so your work follows
+          you between devices.
         </p>
+
+        <section className="rounded-2xl border border-line bg-surface p-6">
+          <SignInForm />
+        </section>
+
         <Link
           href="/secondaries"
-          className="inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+          className="inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
         >
-          Go to my dashboard
+          Go to my dashboard without signing in
         </Link>
 
         <ExportDataButtons />

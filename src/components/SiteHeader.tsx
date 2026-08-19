@@ -33,6 +33,13 @@ const NAV = [
 const PRICING = { href: "/pricing", label: "Pricing" };
 
 /**
+ * Links to /account either way. Signed out, that page is the sign-in form;
+ * signed in, it's account management — so one link covers both without this
+ * component needing to know the auth state itself.
+ */
+const ACCOUNT = { href: "/account", label: "Sign in" };
+
+/**
  * Sticky header that gains a shadow and a reading-progress bar once you scroll.
  *
  * The scroll listener is passive and only ever flips a boolean plus a CSS
@@ -109,17 +116,30 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <Link
-          href={PRICING.href}
-          aria-current={pathname === PRICING.href ? "page" : undefined}
-          className={`hidden rounded-lg px-3 py-1.5 text-sm transition-colors md:block ${
-            pathname === PRICING.href
-              ? "bg-white/15 font-medium text-white"
-              : "text-navy-100/80 hover:bg-white/10 hover:text-white"
-          }`}
-        >
-          {PRICING.label}
-        </Link>
+        <div className="hidden items-center gap-2 md:flex">
+          <Link
+            href={PRICING.href}
+            aria-current={pathname === PRICING.href ? "page" : undefined}
+            className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+              pathname === PRICING.href
+                ? "bg-white/15 font-medium text-white"
+                : "text-navy-100/80 hover:bg-white/10 hover:text-white"
+            }`}
+          >
+            {PRICING.label}
+          </Link>
+          <Link
+            href={ACCOUNT.href}
+            aria-current={pathname === ACCOUNT.href ? "page" : undefined}
+            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+              pathname === ACCOUNT.href
+                ? "border-white/40 bg-white/15 text-white"
+                : "border-white/30 text-white hover:bg-white/10"
+            }`}
+          >
+            {ACCOUNT.label}
+          </Link>
+        </div>
 
         <button
           type="button"
@@ -157,6 +177,15 @@ export function SiteHeader() {
                 className="block rounded-lg px-2 py-2.5 text-sm text-navy-100/80 hover:bg-white/10 hover:text-white"
               >
                 {PRICING.label}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href={ACCOUNT.href}
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-lg px-2 py-2.5 text-sm font-medium text-white hover:bg-white/10"
+              >
+                {ACCOUNT.label}
               </Link>
             </li>
           </ul>

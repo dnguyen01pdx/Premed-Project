@@ -103,38 +103,7 @@ export default async function HomePage() {
               The operating system for your medical school application.
             </h1>
 
-            {/* Founder line: who built this and why, in Dylan's own words —
-                not marketing copy. An anonymous tool converts worse than one
-                with a name and a face attached to the prompt data it claims
-                to be honest about. */}
-            <div className="mt-6 flex items-center gap-3">
-              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-white/20">
-                <Image
-                  src="/img/dylan-480.webp"
-                  alt="Dylan Nguyen"
-                  width={480}
-                  height={600}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <p className="max-w-xl text-sm leading-relaxed text-navy-100">
-                <span className="font-semibold text-white">
-                  Hi, I&apos;m Dylan.
-                </span>{" "}
-                I went through this exact cycle myself — I&apos;m starting at
-                the Warren Alpert Medical School of Brown University this
-                year — and I built MD Atlas because I wanted this tracker and
-                it didn&apos;t exist.{" "}
-                <Link
-                  href="/about"
-                  className="whitespace-nowrap font-medium text-white underline underline-offset-4 hover:no-underline"
-                >
-                  More about why
-                </Link>
-              </p>
-            </div>
-
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
+            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
               Four years of work with no system attached to it. MD Atlas is
               the one place it all lives — the week you are actually living,
               the hours it adds up to, the twenty secondaries in August, the
@@ -158,6 +127,36 @@ export default async function HomePage() {
             <p className="mt-6 text-sm text-navy-100">
               Free. No account needed to start.
             </p>
+
+            {/* Founder line: who built this and why, in Dylan's own words —
+                not marketing copy. Kept as a quiet byline under the pitch
+                rather than stacked between the H1 and the paragraph, where it
+                was competing with the headline for the first thing anyone
+                reads. Full story lives at /about. */}
+            <div className="mt-10 flex items-center gap-3 border-t border-white/10 pt-7">
+              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/20">
+                <Image
+                  src="/img/dylan-480.webp"
+                  alt="Dylan Nguyen"
+                  width={480}
+                  height={600}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <p className="max-w-xl text-sm leading-relaxed text-navy-100">
+                <span className="font-semibold text-white">
+                  Built by Dylan
+                </span>{" "}
+                — a premed who wanted this tracker during his own cycle and
+                it didn&apos;t exist.{" "}
+                <Link
+                  href="/about"
+                  className="whitespace-nowrap font-medium text-white underline underline-offset-4 hover:no-underline"
+                >
+                  More about why
+                </Link>
+              </p>
+            </div>
           </div>
 
           {/* Hidden below lg: a screenshot competing with the pitch on a
@@ -338,14 +337,17 @@ export default async function HomePage() {
 
       {/* FAQ */}
       <Reveal>
-        <section aria-labelledby="faq-heading" className="max-w-2xl">
+        <section
+          aria-labelledby="faq-heading"
+          className="mx-auto max-w-2xl text-center"
+        >
           <h2
             id="faq-heading"
             className="text-3xl font-semibold tracking-tight sm:text-4xl"
           >
-            Questions people actually ask
+            Frequently asked questions
           </h2>
-          <div className="mt-6 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+          <div className="mt-6 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface text-left">
             <details className="group p-5 sm:p-6">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 Is this really free?

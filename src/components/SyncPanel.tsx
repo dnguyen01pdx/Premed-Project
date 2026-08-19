@@ -9,7 +9,6 @@ import { getPlannerSnapshot, replacePlanner } from "@/lib/planner";
 type Status =
   | { kind: "loading" }
   | { kind: "signedOut" }
-  | { kind: "linkSent"; email: string; devLink?: string }
   | { kind: "conflict"; email: string; server: Remote }
   | { kind: "signedIn"; email: string; saving: boolean; savedAt: string | null };
 
@@ -26,27 +25,6 @@ function countSchools(t: unknown): number {
 }
 
 /**
- * Whether this browser holds anything worth losing. The invite to add an
- * email only appears once this is true — an empty dashboard has nothing to
- * protect, and showing a "don't lose your work" pitch before there is any
- * work is exactly the kind of always-on nagging AGENTS.md rules out.
- */
-function hasRealData(): boolean {
-  const tracker = getTrackerSnapshot();
-  const primary = getPrimarySnapshot();
-  const planner = getPlannerSnapshot();
-  const prep = getPrepSnapshot();
-  return (
-    tracker.schools.length > 0 ||
-    primary.experiences.length > 0 ||
-    primary.personalStatement.trim().length > 0 ||
-    primary.letters.length > 0 ||
-    planner.events.length > 0 ||
-    Object.keys(prep.notes).length > 0
-  );
-}
-
-/**
  * Optional sign-in, and the sync it buys.
  *
  * Two rules this follows:
@@ -58,12 +36,15 @@ function hasRealData(): boolean {
  * 2. When both sides have data, ASK. Silently picking a winner is how sync
  *    features eat people's work, and an applicant losing their school list in
  *    August is not a recoverable error for them.
+ *
+ * The "add an email" pitch used to live inline here, on every tracking page.
+ * It now lives only on /account, reached through the "Sign in" link in the
+ * header — this component just reflects whatever state that produced:
+ * nothing when signed out, the synced/saving badge or a conflict prompt when
+ * signed in.
  */
 export function SyncPanel() {
   const [status, setStatus] = useState<Status>({ kind: "loading" });
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
 
   // Debounce handle for pushing local changes up.
   const pushTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -207,29 +188,6 @@ export function SyncPanel() {
     };
   }, [signedIn]);
 
-  async function requestLink(e: React.FormEvent) {
-    e.preventDefault();
-    setSending(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/auth/request", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setError(data.error ?? "Could not send the link.");
-        return;
-      }
-      setStatus({ kind: "linkSent", email, devLink: data.devLink });
-    } catch {
-      setError("Could not reach the server.");
-    } finally {
-      setSending(false);
-    }
-  }
-
   async function signOut() {
     await fetch("/api/auth/signout", { method: "POST" });
     setStatus({ kind: "signedOut" });
@@ -312,82 +270,7 @@ export function SyncPanel() {
     );
   }
 
-  if (status.kind === "linkSent") {
-    return (
-      <section className="rounded-2xl border border-ok/30 bg-ok-soft p-5">
-        <h2 className="font-semibold text-ok">Check your email</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-ok">
-          A sign-in link is on its way to <strong>{status.email}</strong>. It
-          works once and expires in 15 minutes. Your list stays right here in the
-          meantime.
-        </p>
-        {status.devLink && (
-          <p className="mt-3 break-all text-xs text-ok">
-            Dev mode, no email service configured:{" "}
-            <a className="underline" href={status.devLink}>
-              {status.devLink}
-            </a>
-          </p>
-        )}
-      </section>
-    );
-  }
-
-  // Nothing entered yet: there is nothing to lose, so there is nothing to
-  // pitch. The prompt shows up the moment there is real data at stake, not
-  // before and not on every page regardless of whether it applies.
-  if (!hasRealData()) return null;
-
-  return (
-    <section className="rounded-2xl border border-line bg-sunken p-5 sm:p-6">
-      <h2 className="font-semibold">Save your work.</h2>
-      <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
-        Add an email so four years of logging doesn&apos;t disappear with your
-        browser history. Everything above already works without it — this
-        just makes sure clearing your browser, breaking your laptop, or
-        switching devices can&apos;t take it with it. No password, we just
-        email you a link.
-      </p>
-
-      <form onSubmit={requestLink} className="mt-4 flex flex-wrap gap-2">
-        <label htmlFor="sync-email" className="sr-only">
-          Email address
-        </label>
-        <input
-          id="sync-email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
-          autoComplete="email"
-          className="min-w-0 flex-1 rounded-lg border border-line-strong bg-surface px-3.5 py-2.5 text-sm placeholder:text-muted"
-        />
-        <button
-          type="submit"
-          disabled={sending}
-          className="rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover disabled:opacity-60"
-        >
-          {sending ? "Sending..." : "Email me a link"}
-        </button>
-      </form>
-
-      {error && (
-        <p role="alert" className="mt-2 text-sm text-danger">
-          {error}
-        </p>
-      )}
-
-      <p className="mt-3 text-xs text-muted">
-        We use your email for sign-in and to tell you when essay feedback
-        launches. Nothing else.{" "}
-        <a
-          href="/privacy"
-          className="text-accent underline underline-offset-2 hover:no-underline"
-        >
-          Privacy
-        </a>
-      </p>
-    </section>
-  );
+  // Signed out: nothing to show here. Signing in happens on /account, via
+  // the "Sign in" link in the header, not as a pitch inline on this page.
+  return null;
 }
