@@ -2,10 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { CompassMark } from "@/components/Logo";
 import { HomeSnapshot } from "@/components/HomeSnapshot";
-import { JourneyTimeline } from "@/components/JourneyTimeline";
 import { Reveal } from "@/components/Reveal";
 import { getStats, listSchools } from "@/lib/queries";
-import { CURRENT_CYCLE } from "@/lib/config";
 
 export const revalidate = 3600;
 
@@ -33,10 +31,8 @@ export default async function HomePage() {
       lead: "Your week, entered once.",
       body: "Classes, shifts, lab hours, volunteering, standing meetings. The planner totals them by category every week, which means the hours question on your application is already answered before anyone asks it.",
       points: [
-        "A repeating week, not 52 copies of the same entry",
         "Hours per category, split into what counts on AMCAS and what does not",
         "Double-booked blocks flagged before you commit to both",
-        "Export the whole week to a spreadsheet",
       ],
       cta: "Lay out my week",
       img: "/img/screenshots/planner.webp",
@@ -53,8 +49,6 @@ export default async function HomePage() {
       points: [
         "18 AMCAS categories, hours done and hours planned kept separate",
         "Verifier contact per entry, with a nag until you have one",
-        "Personal statement at 5,300 characters",
-        "Letters of recommendation, from asked to submitted",
       ],
       cta: "Start logging",
       img: "/img/screenshots/primary.webp",
@@ -69,10 +63,8 @@ export default async function HomePage() {
       lead: "Twenty applications, eight actual questions.",
       body: "Every prompt we have, per school, broken into individual essays you track one at a time. The overlap view groups your own schools by question type, so you write once and adapt instead of starting over twenty times.",
       points: [
-        `${stats.prompts.toLocaleString()} prompts across ${stats.schools} of ${schools.length} MD programs`,
         "Each essay tracked: not started, drafting, done, submitted",
         "Overlap across your list, with the tightest limit to write to",
-        "Deadlines closing in float to the top",
       ],
       cta: "Track secondaries",
       img: "/img/screenshots/secondaries.webp",
@@ -87,8 +79,6 @@ export default async function HomePage() {
       lead: "The part that is pure logistics.",
       body: "Invites, dates, formats, and the thank-you notes everybody forgets. Plus a question bank that tells you what each question is actually testing, rather than handing you an answer to memorize.",
       points: [
-        "Invited, scheduled, interviewed, decision",
-        "Traditional, MMI, panel, mixed",
         "Loud reminders for unsent thank-you notes",
         "27 questions with what the interviewer is listening for",
       ],
@@ -116,7 +106,8 @@ export default async function HomePage() {
               Four years of work with no system attached to it. MD Atlas is
               the one place it all lives — the week you are actually living,
               the hours it adds up to, the twenty secondaries in August, the
-              interview invites in November.
+              interview invites in November. Start anywhere. Nothing has to
+              be filled in for the rest to work.
             </p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Link
@@ -153,11 +144,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* The application, as one timeline */}
-      <Reveal>
-        <JourneyTimeline />
-      </Reveal>
 
       {/* The three stages, as one timeline */}
       <section aria-labelledby="stages-heading">
@@ -315,51 +301,6 @@ export default async function HomePage() {
           >
             Got a secondary? Send us the prompts
           </Link>
-        </section>
-      </Reveal>
-
-      {/* Closing */}
-      <Reveal>
-        <section className="rounded-2xl bg-navy-900 p-8 text-center text-white sm:p-12">
-          <CompassMark className="mx-auto h-10 w-10 text-white/70" />
-          <h2 className="mx-auto mt-5 max-w-xl text-2xl font-semibold tracking-tight sm:text-3xl">
-            Start wherever you actually are.
-          </h2>
-          <p className="mx-auto mt-3 max-w-xl leading-relaxed text-navy-100">
-            Sophomore with a chaotic schedule? Start at the planner. Two years
-            out and just want somewhere to put your hours? Primary. Secondaries
-            already piling up? Start there. Nothing has to be filled in for the
-            rest to work.
-          </p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link
-              href="/planner"
-              className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
-            >
-              Planner
-            </Link>
-            <Link
-              href="/primary"
-              className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              Primary
-            </Link>
-            <Link
-              href="/secondaries"
-              className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              Secondaries
-            </Link>
-            <Link
-              href="/interviews"
-              className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:bg-white/10"
-            >
-              Interviews
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-navy-100">
-            {CURRENT_CYCLE} cycle · free · no account required
-          </p>
         </section>
       </Reveal>
     </div>

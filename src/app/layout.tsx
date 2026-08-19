@@ -48,12 +48,26 @@ export default function RootLayout({
                   </span>
                 </span>
                 <p className="mt-3 text-sm leading-relaxed">{SITE_TAGLINE}</p>
+                <p className="mt-4 text-sm leading-relaxed">
+                  Studying for the MCAT?{" "}
+                  <a
+                    href="https://mcatpulse.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-white underline underline-offset-4 hover:no-underline"
+                  >
+                    MCAT Pulse
+                  </a>{" "}
+                  <span aria-hidden="true" className="text-xs">
+                    &#8599;
+                  </span>
+                </p>
               </div>
 
               {/*
-                The header nav now covers Dashboard, Planner, Primary,
-                Secondaries, Interviews, and About — repeating all six here was
-                what made this footer a wall of links. What's left is only the
+                The header nav covers Dashboard, Planner, Primary,
+                Secondaries, and Interviews — repeating those here was what
+                made this footer a wall of links. What's left is only the
                 pages that live outside that nav, split into two short columns
                 instead of one long stack.
               */}
@@ -63,6 +77,11 @@ export default function RootLayout({
                     MORE
                   </h2>
                   <ul className="mt-3 space-y-2 text-sm">
+                    <li>
+                      <Link href="/about" className="hover:text-white">
+                        About
+                      </Link>
+                    </li>
                     <li>
                       <Link href="/prompts" className="hover:text-white">
                         Browse prompts
