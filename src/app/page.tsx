@@ -12,11 +12,17 @@ export const revalidate = 3600;
  *
  * A returning applicant gets their own status first (HomeSnapshot), because
  * for them this is a headquarters, not a pitch. A first-time visitor never
- * sees that block and gets the hero instead.
+ * sees that block and gets the hero instead — kept short enough to fit one
+ * screen, since a scroll before the pitch even starts loses people.
  *
- * The three stages are presented as one timeline rather than a feature grid.
- * The product's argument is that these are one continuous job, and a grid of
- * equal cards quietly says the opposite.
+ * The four stages are presented as one timeline rather than a feature grid.
+ * The product's argument is that these are one connected process, and a grid
+ * of equal cards quietly says the opposite.
+ *
+ * Everything below the stages used to also cover "is this free," "where do
+ * prompts come from," and "do you write essays" as full standalone sections.
+ * The FAQ says the same things in less space, so it is the only place that
+ * ground gets covered now.
  */
 export default async function HomePage() {
   const [stats, schools] = await Promise.all([getStats(), listSchools()]);
@@ -94,87 +100,88 @@ export default async function HomePage() {
       {/* Returning users see their status here instead of the pitch. */}
       <HomeSnapshot />
 
-      {/* Hero */}
-      <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-16 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-20">
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
-          <div>
-            <CompassMark className="h-12 w-12 text-white/70" />
-            <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
-              The operating system for your medical school application.
-            </h1>
+      {/* Hero. Kept short enough to fit one screen on arrival — the pitch,
+          not a scroll, is the first thing a new visitor should have to do. */}
+      <div className="space-y-5">
+        <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-10 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-14">
+          <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
+            <div>
+              <CompassMark className="h-11 w-11 text-white/70" />
+              <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl sm:leading-[1.1]">
+                The operating system for your medical school application.
+              </h1>
 
-            <p className="mt-7 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
-              Four years of work with no system attached to it. MD Atlas is
-              the one place it all lives — the week you are actually living,
-              the hours it adds up to, the twenty secondaries in August, the
-              interview invites in November. Start anywhere. Nothing has to
-              be filled in for the rest to work.
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <Link
-                href="/dashboard"
-                className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
-              >
-                Open my dashboard
-              </Link>
-              <Link
-                href="/prompts"
-                className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-              >
-                Just browse the prompts
-              </Link>
-            </div>
-            <p className="mt-6 text-sm text-navy-100">
-              Free. No account needed to start.
-            </p>
-
-            {/* Founder line: who built this and why, in Dylan's own words —
-                not marketing copy. Kept as a quiet byline under the pitch
-                rather than stacked between the H1 and the paragraph, where it
-                was competing with the headline for the first thing anyone
-                reads. Full story lives at /about. */}
-            <div className="mt-10 flex items-center gap-3 border-t border-white/10 pt-7">
-              <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border-2 border-white/20">
-                <Image
-                  src="/img/dylan-480.webp"
-                  alt="Dylan Nguyen"
-                  width={480}
-                  height={600}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <p className="max-w-xl text-sm leading-relaxed text-navy-100">
-                <span className="font-semibold text-white">
-                  Built by Dylan
-                </span>{" "}
-                — a medical student who wanted this tracker during his own
-                application cycle and it didn&apos;t exist.{" "}
+              <p className="mt-5 max-w-2xl text-lg leading-relaxed text-navy-100">
+                MD Atlas is the one place four years of work actually lives
+                — the hours, the activities, the secondaries, the
+                interviews. Start anywhere. Nothing has to be filled in for
+                the rest to work.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
                 <Link
-                  href="/about"
-                  className="whitespace-nowrap font-medium text-white underline underline-offset-4 hover:no-underline"
+                  href="/dashboard"
+                  className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
                 >
-                  More about why
+                  Open my dashboard
                 </Link>
+                <Link
+                  href="/prompts"
+                  className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                >
+                  Just browse the prompts
+                </Link>
+              </div>
+              <p className="mt-4 text-sm text-navy-100">
+                Free. No account needed to start.
               </p>
             </div>
-          </div>
 
-          {/* Hidden below lg: a screenshot competing with the pitch on a
-              phone screen loses every time, and the hero still works as pure
-              text there. */}
-          <div className="hidden overflow-hidden rounded-2xl border border-white/10 shadow-2xl lg:block">
+            {/* Hidden below lg: a screenshot competing with the pitch on a
+                phone screen loses every time, and the hero still works as
+                pure text there. */}
+            <div className="hidden overflow-hidden rounded-2xl border border-white/10 shadow-2xl lg:block">
+              <Image
+                src="/img/screenshots/dashboard.webp"
+                alt="The MD Atlas dashboard, showing progress across the planner, primary application, secondaries, and interviews, plus a next-up list of what needs attention"
+                width={1120}
+                height={699}
+                sizes="460px"
+                priority
+                className="h-auto w-full"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Founder line: who built this and why, in Dylan's own words — not
+            marketing copy. Lives just outside the hero card, not inside it,
+            so the card itself stays short enough to fit one screen. Full
+            story lives at /about. */}
+        <div className="flex items-center gap-3 px-1">
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full border border-line">
             <Image
-              src="/img/screenshots/dashboard.webp"
-              alt="The MD Atlas dashboard, showing progress across the planner, primary application, secondaries, and interviews, plus a next-up list of what needs attention"
-              width={1120}
-              height={699}
-              sizes="460px"
-              priority
-              className="h-auto w-full"
+              src="/img/dylan-480.webp"
+              alt="Dylan Nguyen"
+              width={480}
+              height={600}
+              className="h-full w-full object-cover"
             />
           </div>
+          <p className="max-w-xl text-sm leading-relaxed text-muted">
+            <span className="font-semibold text-foreground">
+              Built by Dylan
+            </span>{" "}
+            — a medical student who wanted this tracker during his own
+            application cycle and it didn&apos;t exist.{" "}
+            <Link
+              href="/about"
+              className="whitespace-nowrap font-medium text-accent underline underline-offset-4 hover:no-underline"
+            >
+              More about why
+            </Link>
+          </p>
         </div>
-      </section>
+      </div>
 
       {/* The three stages, as one timeline */}
       <section aria-labelledby="stages-heading">
@@ -184,13 +191,13 @@ export default async function HomePage() {
               id="stages-heading"
               className="text-3xl font-semibold tracking-tight sm:text-4xl"
             >
-              One application. Four very different jobs.
+              One application. Four connected stages.
             </h2>
             <p className="mt-3 leading-relaxed text-muted">
-              Most tools pick one of these. The point of MD Atlas is that they
-              feed each other: the hours in your week become the hours on your
-              application, and what you did there is what they ask about in the
-              interview.
+              Most tools handle one of these and stop there. MD Atlas
+              connects them: the hours in your week become the hours on
+              your application, and what you did there is what they ask
+              about in the interview.
             </p>
           </div>
         </Reveal>
@@ -255,85 +262,12 @@ export default async function HomePage() {
         </ol>
       </section>
 
-      {/* Why it is free */}
-      <Reveal>
-        <section className="max-w-2xl rounded-2xl border border-line bg-surface p-7">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Yours, and portable
-          </h2>
-          <div className="mt-3 space-y-3 leading-relaxed text-muted">
-            <p>
-              Everything works with no account. What you track stays in your
-              browser, and you can export all of it whenever you like.
-            </p>
-            <p>
-              Add an email only if you want your dashboard on your phone as
-              well as your laptop. No password, just a link.
-            </p>
-          </div>
-          <Link
-            href="/privacy"
-            className="mt-5 inline-block font-medium text-accent underline underline-offset-4 hover:no-underline"
-          >
-            How your data is handled
-          </Link>
-        </section>
-      </Reveal>
-
-      {/* The essay-writing policy used to live here as its own full card. It is
-          still stated plainly, just no longer competing with the pitch above
-          for the same attention — the full version lives at
-          /how-feedback-works, where anyone actually deciding whether to pay
-          for feedback will look for it. */}
-      <Reveal>
-        <p className="text-sm leading-relaxed text-muted">
-          Feedback, when it ships, will never write your essay for you — no
-          rewritten paragraphs, no suggested sentences.{" "}
-          <Link
-            href="/how-feedback-works"
-            className="font-medium text-accent underline underline-offset-4 hover:no-underline"
-          >
-            Read the full policy
-          </Link>
-          .
-        </p>
-      </Reveal>
-
-      {/* Honesty about the data */}
-      <Reveal>
-        <section className="rounded-2xl border border-warn/30 bg-warn-soft p-7 sm:p-10">
-          <h2 className="text-xl font-semibold tracking-tight text-warn">
-            Where the prompt data stands
-          </h2>
-          <div className="mt-3 max-w-2xl space-y-3 leading-relaxed text-warn">
-            <p>
-              We hold {stats.prompts.toLocaleString()} prompts covering{" "}
-              {stats.schools} of the {schools.length} MD programs listed. Every
-              one carries the source it was read from and the cycle it was
-              reported for.
-            </p>
-            <p>
-              Almost all of it was compiled from aggregators and applicant
-              reports, not read off the school&apos;s own secondary, so treat it
-              as a head start rather than gospel. Schools change prompts without
-              notice and most do not publish them until they send you the
-              secondary. Confirm against the real thing before you write.
-            </p>
-            {withoutPrompts > 0 && (
-              <p>
-                {withoutPrompts} programs still have nothing collected. Their
-                pages say so plainly instead of guessing.
-              </p>
-            )}
-          </div>
-          <Link
-            href="/submit"
-            className="lift mt-5 inline-block rounded-xl bg-warn px-5 py-2.5 text-sm font-semibold text-white"
-          >
-            Got a secondary? Send us the prompts
-          </Link>
-        </section>
-      </Reveal>
+      {/* The "yours and portable" / feedback-policy / prompt-honesty content
+          that used to live here as three separate cards was saying the same
+          things the FAQ says right below, just at greater length and with
+          more visual weight than a first-time visitor needs. Their unique
+          bits — the live prompt count and the submit-a-prompt CTA — moved
+          into the FAQ's prompts answer instead of disappearing. */}
 
       {/* FAQ */}
       <Reveal>
@@ -391,7 +325,20 @@ export default async function HomePage() {
                 start, not gospel. Every prompt shows the source it came from
                 and the cycle it was reported for, and schools change prompts
                 without notice. Confirm against your actual secondary before
-                you write a word.
+                you write a word. We currently hold{" "}
+                {stats.prompts.toLocaleString()} prompts across{" "}
+                {stats.schools} of {schools.length} programs
+                {withoutPrompts > 0
+                  ? ` — ${withoutPrompts} still have nothing collected, and their pages say so plainly`
+                  : ""}
+                .{" "}
+                <Link
+                  href="/submit"
+                  className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+                >
+                  Got a secondary? Send us the prompts
+                </Link>
+                .
               </div>
             </details>
 
