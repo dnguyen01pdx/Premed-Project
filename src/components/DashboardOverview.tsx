@@ -25,6 +25,14 @@ import {
   subscribeToPlanner,
   weeklyTotals,
 } from "@/lib/planner";
+import {
+  getPhaseServerSnapshot,
+  getPhaseSnapshot,
+  PHASES,
+  setPhase,
+  subscribeToPhase,
+  type Phase,
+} from "@/lib/dashboardPhase";
 
 /**
  * The hub.
@@ -123,11 +131,45 @@ function StageCard({
   );
 }
 
+type Category = "planner" | "primary" | "secondaries" | "interviews";
+
 type Item = {
   href: string;
   label: string;
   hint: string;
   tone: "warn" | "info";
+  category: Category;
+};
+
+/**
+ * Which categories show at all, and which sort ahead of everything else,
+ * per phase. Building is the one acceptance criterion given by name — a
+ * sophomore's dashboard must not show secondary deadlines — everything past
+ * that is the same idea applied consistently: each phase sees the stages
+ * that are actually live for someone at that point in the cycle, with the
+ * stage that IS their current focus leading the list rather than just being
+ * sorted in alongside it.
+ */
+const PHASE_CATEGORIES: Record<
+  Phase,
+  { visible: Category[]; leads: Category[] }
+> = {
+  building: {
+    visible: ["planner", "primary"],
+    leads: ["primary", "planner"],
+  },
+  applying: {
+    visible: ["planner", "primary", "secondaries"],
+    leads: ["primary"],
+  },
+  secondaries: {
+    visible: ["planner", "primary", "secondaries"],
+    leads: ["secondaries"],
+  },
+  interviewing: {
+    visible: ["primary", "secondaries", "interviews"],
+    leads: ["interviews"],
+  },
 };
 
 export function DashboardOverview() {
@@ -151,7 +193,13 @@ export function DashboardOverview() {
     () => true,
     () => false,
   );
+  const phase = useSyncExternalStore(
+    subscribeToPhase,
+    getPhaseSnapshot,
+    getPhaseServerSnapshot,
+  );
   const [exportFailed, setExportFailed] = useState(false);
+  const [choosingPhase, setChoosingPhase] = useState(false);
 
   async function exportEverything() {
     try {
@@ -199,6 +247,7 @@ export function DashboardOverview() {
         label: `${s.name} is past its deadline`,
         hint: `Was due ${Math.abs(d)} day${Math.abs(d) === 1 ? "" : "s"} ago`,
         tone: "warn",
+        category: "secondaries",
       });
     } else if (d <= 10) {
       items.push({
@@ -206,6 +255,7 @@ export function DashboardOverview() {
         label: `${s.name} is due in ${d} day${d === 1 ? "" : "s"}`,
         hint: `${(s.essays ?? []).filter((e) => e.status !== "done" && e.status !== "submitted").length} essays still open`,
         tone: d <= 3 ? "warn" : "info",
+        category: "secondaries",
       });
     }
   }
@@ -216,6 +266,7 @@ export function DashboardOverview() {
       label: `${iv.thankYouOwed} thank-you note${iv.thankYouOwed === 1 ? "" : "s"} unsent`,
       hint: "These stop counting after about 48 hours",
       tone: "warn",
+      category: "interviews",
     });
   }
 
@@ -225,6 +276,7 @@ export function DashboardOverview() {
       label: `${pt.missingSupervisor} ${pt.missingSupervisor === 1 ? "activity has" : "activities have"} no verifier contact`,
       hint: "Far easier to get now than the year you apply",
       tone: "info",
+      category: "primary",
     });
   }
 
@@ -234,6 +286,7 @@ export function DashboardOverview() {
       label: `${wk.conflicts} blocks in your week overlap`,
       hint: "Two things booked at the same time",
       tone: "info",
+      category: "planner",
     });
   }
 
@@ -243,6 +296,7 @@ export function DashboardOverview() {
       label: `${iv.invited} invite${iv.invited === 1 ? "" : "s"} not scheduled yet`,
       hint: "Dates go fast once they open",
       tone: "warn",
+      category: "interviews",
     });
   }
 
@@ -252,10 +306,28 @@ export function DashboardOverview() {
       label: `${pt.entries - pt.described} ${pt.entries - pt.described === 1 ? "activity" : "activities"} still ${pt.entries - pt.described === 1 ? "has" : "have"} no description`,
       hint: "700 characters each on AMCAS",
       tone: "info",
+      category: "primary",
     });
   }
 
   items.sort((a, b) => (a.tone === b.tone ? 0 : a.tone === "warn" ? -1 : 1));
+
+  // Phase-aware view: only categories live for this phase show at all, and
+  // whichever stage IS the phase leads the list ahead of everything else —
+  // "secondaries in flight" means the dashboard leads with secondaries, not
+  // whatever else happens to have a warn-tone item this week.
+  const phaseRules = phase ? PHASE_CATEGORIES[phase] : null;
+  const visibleItems = phaseRules
+    ? items.filter((it) => phaseRules.visible.includes(it.category))
+    : items;
+  const rankedItems = phaseRules
+    ? [...visibleItems].sort((a, b) => {
+        const aLeads = phaseRules.leads.includes(a.category);
+        const bLeads = phaseRules.leads.includes(b.category);
+        if (aLeads !== bLeads) return aLeads ? -1 : 1;
+        return 0; // stable: keep the tone-based order within each group
+      })
+    : visibleItems;
 
   /* ------------------------------------------------------------ render -- */
 
@@ -307,78 +379,82 @@ export function DashboardOverview() {
     );
   }
 
+  const activePhase = phase ? PHASES.find((p) => p.key === phase) : null;
+  const showPhasePrompt = !phase || choosingPhase;
+
   return (
     <div className="space-y-8">
+      {/* "Where are you right now?" — asked once, changeable any time. This
+          is what "next up" filters and leads by, so it comes first: everything
+          below it depends on the answer. */}
       <section
-        aria-label="Progress by stage"
-        className="anim-stagger grid gap-4 sm:grid-cols-2"
+        aria-labelledby="phase-heading"
+        className={
+          showPhasePrompt
+            ? "anim-pop rounded-2xl border border-navy-100 bg-accent-soft p-5 sm:p-6"
+            : ""
+        }
       >
-        <StageCard
-          index={0}
-          href="/planner"
-          eyebrow="Planner"
-          headline={
-            wk.total > 0 ? `${Math.round(wk.total / 60)} hours/wk booked` : "Nothing scheduled"
-          }
-          detail={
-            wk.reportable > 0
-              ? `${Math.round(wk.reportable / 60)} of them count on AMCAS`
-              : "Add your classes and shifts"
-          }
-          value={wk.reportable}
-          total={Math.max(wk.total, 1)}
-          tone="accent"
-        />
-        <StageCard
-          index={1}
-          href="/primary"
-          eyebrow="Primary"
-          headline={`${pt.entries} of 15 activities`}
-          detail={
-            pt.entries === 0
-              ? "Nothing logged yet"
-              : `${pt.described} written · ${Math.round(pt.completed).toLocaleString()} hours`
-          }
-          value={pt.described}
-          total={Math.max(pt.entries, 1)}
-          tone={pt.missingSupervisor > 0 ? "warn" : "ok"}
-        />
-        <StageCard
-          index={2}
-          href="/secondaries"
-          eyebrow="Secondaries"
-          headline={
-            essays.total > 0
-              ? `${essays.done} of ${essays.total} essays done`
-              : `${tracker.schools.length} schools`
-          }
-          detail={
-            essays.total > 0
-              ? `${essays.remaining} still open`
-              : tracker.schools.length > 0
-                ? "No essays added yet"
-                : "Add the schools you applied to"
-          }
-          value={essays.done}
-          total={Math.max(essays.total, 1)}
-          tone={essays.total > 0 && essays.remaining === 0 ? "ok" : "accent"}
-        />
-        <StageCard
-          index={3}
-          href="/interviews"
-          eyebrow="Interviews"
-          headline={iv.total > 0 ? `${iv.total} in flight` : "No invites yet"}
-          detail={
-            iv.total > 0
-              ? `${iv.completed} done · ${iv.scheduled} scheduled · ${iv.invited} to book`
-              : "They start arriving in the fall"
-          }
-          value={iv.completed}
-          total={Math.max(iv.total, 1)}
-          tone={iv.thankYouOwed > 0 ? "warn" : "accent"}
-        />
+        {showPhasePrompt ? (
+          <>
+            <h2 id="phase-heading" className="font-semibold">
+              Where are you right now?
+            </h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">
+              This decides what leads below — you can change it any time.
+            </p>
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {PHASES.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  onClick={() => {
+                    setPhase(p.key);
+                    setChoosingPhase(false);
+                  }}
+                  className={`lift rounded-xl border p-3.5 text-left ${
+                    phase === p.key
+                      ? "border-accent bg-surface"
+                      : "border-line bg-surface hover:border-accent/50"
+                  }`}
+                >
+                  <span className="block font-medium">{p.label}</span>
+                  <span className="mt-0.5 block text-sm text-muted">
+                    {p.sub}
+                  </span>
+                </button>
+              ))}
+            </div>
+            {phase && (
+              <button
+                type="button"
+                onClick={() => setChoosingPhase(false)}
+                className="mt-3 text-sm font-medium text-accent underline underline-offset-2 hover:no-underline"
+              >
+                Cancel
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
+            Right now:{" "}
+            <span className="font-medium text-foreground">
+              {activePhase?.label}
+            </span>
+            <button
+              type="button"
+              onClick={() => setChoosingPhase(true)}
+              className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+            >
+              Change
+            </button>
+          </p>
+        )}
       </section>
 
+      {/* Next up dominates the page — it is the one thing that should not
+          need a click to see. Everything else is detail on a decision this
+          list already made for you. */}
       <section aria-labelledby="next-heading">
         <h2
           id="next-heading"
@@ -386,14 +462,14 @@ export function DashboardOverview() {
         >
           Next up
         </h2>
-        {items.length === 0 ? (
+        {rankedItems.length === 0 ? (
           <p className="anim-rise mt-3 rounded-2xl border border-ok/30 bg-ok-soft p-5 leading-relaxed text-ok">
             Nothing needs you right now. No deadlines inside ten days, no unsent
             thank-you notes, no activities missing a verifier.
           </p>
         ) : (
           <ul className="anim-stagger mt-3 space-y-2.5">
-            {items.slice(0, 7).map((it, i) => (
+            {rankedItems.slice(0, 7).map((it, i) => (
               <li key={`${it.href}-${it.label}`} style={{ ["--i" as string]: i }}>
                 <Link
                   href={it.href}
@@ -431,6 +507,88 @@ export function DashboardOverview() {
           </ul>
         )}
       </section>
+
+      {/* Everything else: the four-panel view this page used to open with,
+          now a click away instead of competing with Next up for attention. */}
+      <details className="group rounded-2xl border border-line">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 marker:content-none [&::-webkit-details-marker]:hidden">
+          <span className="font-semibold tracking-tight">
+            Full progress, all four stages
+          </span>
+          <span
+            aria-hidden="true"
+            className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+          >
+            +
+          </span>
+        </summary>
+        <div className="anim-stagger grid gap-4 border-t border-line p-5 sm:grid-cols-2">
+          <StageCard
+            index={0}
+            href="/planner"
+            eyebrow="Planner"
+            headline={
+              wk.total > 0 ? `${Math.round(wk.total / 60)} hours/wk booked` : "Nothing scheduled"
+            }
+            detail={
+              wk.reportable > 0
+                ? `${Math.round(wk.reportable / 60)} of them count on AMCAS`
+                : "Add your classes and shifts"
+            }
+            value={wk.reportable}
+            total={Math.max(wk.total, 1)}
+            tone="accent"
+          />
+          <StageCard
+            index={1}
+            href="/primary"
+            eyebrow="Primary"
+            headline={`${pt.entries} of 15 activities`}
+            detail={
+              pt.entries === 0
+                ? "Nothing logged yet"
+                : `${pt.described} written · ${Math.round(pt.completed).toLocaleString()} hours`
+            }
+            value={pt.described}
+            total={Math.max(pt.entries, 1)}
+            tone={pt.missingSupervisor > 0 ? "warn" : "ok"}
+          />
+          <StageCard
+            index={2}
+            href="/secondaries"
+            eyebrow="Secondaries"
+            headline={
+              essays.total > 0
+                ? `${essays.done} of ${essays.total} essays done`
+                : `${tracker.schools.length} schools`
+            }
+            detail={
+              essays.total > 0
+                ? `${essays.remaining} still open`
+                : tracker.schools.length > 0
+                  ? "No essays added yet"
+                  : "Add the schools you applied to"
+            }
+            value={essays.done}
+            total={Math.max(essays.total, 1)}
+            tone={essays.total > 0 && essays.remaining === 0 ? "ok" : "accent"}
+          />
+          <StageCard
+            index={3}
+            href="/interviews"
+            eyebrow="Interviews"
+            headline={iv.total > 0 ? `${iv.total} in flight` : "No invites yet"}
+            detail={
+              iv.total > 0
+                ? `${iv.completed} done · ${iv.scheduled} scheduled · ${iv.invited} to book`
+                : "They start arriving in the fall"
+            }
+            value={iv.completed}
+            total={Math.max(iv.total, 1)}
+            tone={iv.thankYouOwed > 0 ? "warn" : "accent"}
+          />
+        </div>
+      </details>
 
       <section className="rounded-2xl border border-line bg-surface p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">

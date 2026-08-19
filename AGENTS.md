@@ -31,6 +31,12 @@ Reference material is NOT top-level nav. `/prompts` (search) and `/schools`
 `/secondaries` and from the footer. Putting them back in the nav is what made
 the site read as a prompt library wearing a dashboard costume.
 
+`/pricing` sits in the header too, but deliberately outside the five-item
+`NAV` array in `SiteHeader.tsx` — it's not a place you work, so it renders
+dimmer and to the side rather than as a sixth peer. It used to live only in
+the footer, which meant a visitor deciding whether to bother signing up had
+to scroll to the bottom of the page to find out the product is free.
+
 Redirects in `next.config.ts` cover the old URLs: `/my-schools` and `/overlap`
 to `/secondaries`, `/interview-prep` to `/interviews`. Applicants bookmark
 these in July and return in December, so those redirects are permanent and

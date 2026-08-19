@@ -44,12 +44,17 @@ const ROWS: Array<{ feature: string; free: string; paid: string }> = [
   { feature: "Export your tracker", free: "Yes", paid: "Yes" },
   { feature: "Interview tracking and prep questions", free: "Yes", paid: "Yes" },
   {
+    feature: "Structured feedback on your drafts",
+    free: "Not built yet",
+    paid: "Not built yet — first Pro feature once it ships",
+  },
+  {
     feature: "Your overlap: which of your own schools share a question",
     free: `First ${FREE_PREVIEW_LIMIT} groups`,
     paid: "Every group",
   },
   {
-    feature: "Master Essay Map — reuse a draft across schools",
+    feature: "Essay Map — reuse a draft across schools",
     free: `First ${FREE_PREVIEW_LIMIT} groups`,
     paid: "Every group, with reuse tools",
   },
@@ -63,11 +68,6 @@ const ROWS: Array<{ feature: string; free: string; paid: string }> = [
     free: "1 insight",
     paid: "All insights",
   },
-  {
-    feature: "Structured feedback on your drafts",
-    free: "Not built yet",
-    paid: "Not built yet — first Pro feature once it ships",
-  },
 ];
 
 export default function PricingPage() {
@@ -80,9 +80,9 @@ export default function PricingPage() {
         <p className="mt-5 text-lg leading-relaxed text-muted">
           Every school, essay, hour, and interview you enter is yours, free,
           with no cap — that data is never the thing you pay for. Pro is the
-          full cross-school analysis built on top of it: your complete Master
-          Essay Map, every prioritized suggestion, every insight, instead of
-          the first {FREE_PREVIEW_LIMIT}.
+          full cross-school analysis built on top of it: your complete Essay
+          Map, every prioritized suggestion, every insight, instead of the
+          first {FREE_PREVIEW_LIMIT}.
         </p>
       </header>
 
@@ -132,8 +132,8 @@ export default function PricingPage() {
             <p className="mt-4 leading-relaxed text-muted">
               The planner, the primary log, the prompt atlas, and the whole
               secondaries and interviews tracker — every school and essay you
-              add, no cap. Plus a first look at the Master Essay Map: your
-              top {FREE_PREVIEW_LIMIT} reusable groups, one prioritized
+              add, no cap. Plus a first look at the Essay Map: your top{" "}
+              {FREE_PREVIEW_LIMIT} reusable groups, one prioritized
               suggestion, one application insight. No account required, no
               credit card, no trial that expires.
             </p>
@@ -163,14 +163,7 @@ export default function PricingPage() {
             <p className="mt-4 leading-relaxed">
               Not a subscription — one flat payment that covers your whole
               application cycle, because your need for this ends the day you
-              submit your last secondary and nobody should have to remember
-              to cancel.
-            </p>
-            <p className="mt-3 leading-relaxed">
-              Your complete Master Essay Map, the full ranked list of what to
-              write next, and every application insight — not just the first
-              few. Checkout is not connected yet, so there is nothing to buy
-              today; this is what it will cost when it is.
+              submit your last secondary. No auto-renew, nothing to cancel.
             </p>
             <p className="mt-3 leading-relaxed">
               Structured feedback on your drafts is planned as the first
@@ -184,6 +177,16 @@ export default function PricingPage() {
                 Read the policy
               </Link>
               .
+            </p>
+            <p className="mt-3 leading-relaxed">
+              Beyond that: your complete Essay Map, the full ranked list of
+              what to write next, and every application insight — not just
+              the first few. Checkout is not connected yet, so there is
+              nothing to buy today; this is what it will cost when it is.
+            </p>
+            <p className="mt-3 text-sm text-muted">
+              Once checkout exists: full refund within 14 days, no questions
+              asked.
             </p>
           </div>
         </section>
@@ -203,11 +206,11 @@ export default function PricingPage() {
               matter how many schools or essays they add.
             </p>
             <p>
-              The full Master Essay Map is different. Past a first look, going
-              deeper into cross-school reuse, ranked priorities, and pattern
-              insights across everything you have entered is the part that
-              costs something. Later, structured feedback on your drafts will
-              join Pro too, once it exists.
+              Structured feedback on your drafts is the part that will
+              actually cost something, once it exists — and it is the first
+              thing being built for Pro. Past a first look, going deeper into
+              cross-school reuse, ranked priorities, and pattern insights
+              across everything you have entered will join it there too.
             </p>
           </div>
         </section>

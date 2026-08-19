@@ -102,6 +102,38 @@ export default async function HomePage() {
             <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
               The operating system for your medical school application.
             </h1>
+
+            {/* Founder line: who built this and why, in Dylan's own words —
+                not marketing copy. An anonymous tool converts worse than one
+                with a name and a face attached to the prompt data it claims
+                to be honest about. */}
+            <div className="mt-6 flex items-center gap-3">
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full border-2 border-white/20">
+                <Image
+                  src="/img/dylan-480.webp"
+                  alt="Dylan Nguyen"
+                  width={480}
+                  height={600}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <p className="max-w-xl text-sm leading-relaxed text-navy-100">
+                <span className="font-semibold text-white">
+                  Hi, I&apos;m Dylan.
+                </span>{" "}
+                I went through this exact cycle myself — I&apos;m starting at
+                the Warren Alpert Medical School of Brown University this
+                year — and I built MD Atlas because I wanted this tracker and
+                it didn&apos;t exist.{" "}
+                <Link
+                  href="/about"
+                  className="whitespace-nowrap font-medium text-white underline underline-offset-4 hover:no-underline"
+                >
+                  More about why
+                </Link>
+              </p>
+            </div>
+
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
               Four years of work with no system attached to it. MD Atlas is
               the one place it all lives — the week you are actually living,
@@ -301,6 +333,134 @@ export default async function HomePage() {
           >
             Got a secondary? Send us the prompts
           </Link>
+        </section>
+      </Reveal>
+
+      {/* FAQ */}
+      <Reveal>
+        <section aria-labelledby="faq-heading" className="max-w-2xl">
+          <h2
+            id="faq-heading"
+            className="text-3xl font-semibold tracking-tight sm:text-4xl"
+          >
+            Questions people actually ask
+          </h2>
+          <div className="mt-6 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface">
+            <details className="group p-5 sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                Is this really free?
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 leading-relaxed text-muted">
+                Yes. The planner, the primary log, the full prompt database,
+                and the whole secondaries and interviews tracker are free
+                forever, with no cap on schools or essays and no account
+                required. The only thing that will ever cost anything is
+                going deeper than a first look at the Essay Map, and,
+                eventually, structured feedback on your drafts.{" "}
+                <Link
+                  href="/pricing"
+                  className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+                >
+                  See the full breakdown
+                </Link>
+                .
+              </div>
+            </details>
+
+            <details className="group p-5 sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                Where do the prompts come from, and how current are they?
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 leading-relaxed text-muted">
+                Mostly aggregators and past applicants&apos; reports, not
+                schools&apos; own admissions pages — so treat them as a head
+                start, not gospel. Every prompt shows the source it came from
+                and the cycle it was reported for, and schools change prompts
+                without notice. Confirm against your actual secondary before
+                you write a word.
+              </div>
+            </details>
+
+            <details className="group p-5 sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                What happens to my data after my cycle ends?
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 leading-relaxed text-muted">
+                Nothing, automatically — it just stays there, yours, for as
+                long as you want it. Export everything as JSON or CSV from
+                your account page, or a full spreadsheet from the dashboard,
+                whenever you like. Delete your account and its synced copy is
+                gone immediately; what is saved in your own browser is never
+                touched unless you clear it yourself.
+              </div>
+            </details>
+
+            <details className="group p-5 sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                Do you write essays for me?
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 leading-relaxed text-muted">
+                No. Never a rewritten paragraph, a suggested sentence, or a
+                fill-in-the-blank outline — not for free accounts, not for
+                paying ones, not once feedback ships.{" "}
+                <Link
+                  href="/how-feedback-works"
+                  className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+                >
+                  Read the full policy
+                </Link>
+                .
+              </div>
+            </details>
+
+            <details className="group p-5 sm:p-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                Who made this?
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 leading-relaxed text-muted">
+                One person — Dylan, an incoming medical student who applied
+                in the most recent cycle and built the tracker he wanted and
+                didn&apos;t have.{" "}
+                <Link
+                  href="/about"
+                  className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+                >
+                  Read more
+                </Link>
+                .
+              </div>
+            </details>
+          </div>
         </section>
       </Reveal>
     </div>

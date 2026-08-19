@@ -25,6 +25,14 @@ const NAV = [
 ];
 
 /**
+ * Pricing is not a place you work, so it stays out of NAV above — it sits to
+ * the side, dimmer, on both the desktop bar and the mobile menu. Living only
+ * in the footer buried it; a visitor deciding whether to bother signing up
+ * should not have to scroll to the bottom of the page to find out it's free.
+ */
+const PRICING = { href: "/pricing", label: "Pricing" };
+
+/**
  * Sticky header that gains a shadow and a reading-progress bar once you scroll.
  *
  * The scroll listener is passive and only ever flips a boolean plus a CSS
@@ -101,6 +109,18 @@ export function SiteHeader() {
           </ul>
         </nav>
 
+        <Link
+          href={PRICING.href}
+          aria-current={pathname === PRICING.href ? "page" : undefined}
+          className={`hidden rounded-lg px-3 py-1.5 text-sm transition-colors md:block ${
+            pathname === PRICING.href
+              ? "bg-white/15 font-medium text-white"
+              : "text-navy-100/80 hover:bg-white/10 hover:text-white"
+          }`}
+        >
+          {PRICING.label}
+        </Link>
+
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
@@ -130,6 +150,15 @@ export function SiteHeader() {
                 </Link>
               </li>
             ))}
+            <li className="mt-1 border-t border-white/10 pt-1">
+              <Link
+                href={PRICING.href}
+                onClick={() => setMenuOpen(false)}
+                className="block rounded-lg px-2 py-2.5 text-sm text-navy-100/80 hover:bg-white/10 hover:text-white"
+              >
+                {PRICING.label}
+              </Link>
+            </li>
           </ul>
         </nav>
       )}

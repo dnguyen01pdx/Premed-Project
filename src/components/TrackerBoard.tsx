@@ -343,7 +343,7 @@ export function TrackerBoard({
                   onClick={() => setTab("map")}
                   className="font-medium text-accent underline underline-offset-2 hover:no-underline"
                 >
-                  Master Essay Map
+                  Essay Map
                 </button>
                 .
               </p>
