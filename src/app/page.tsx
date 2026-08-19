@@ -1,7 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CompassMark } from "@/components/Logo";
-import { CountUp } from "@/components/CountUp";
 import { HomeSnapshot } from "@/components/HomeSnapshot";
+import { JourneyTimeline } from "@/components/JourneyTimeline";
 import { Reveal } from "@/components/Reveal";
 import { getStats, listSchools } from "@/lib/queries";
 import { CURRENT_CYCLE } from "@/lib/config";
@@ -38,6 +39,9 @@ export default async function HomePage() {
         "Export the whole week to a spreadsheet",
       ],
       cta: "Lay out my week",
+      img: "/img/screenshots/planner.webp",
+      imgAlt:
+        "The MD Atlas planner showing a week's scheduled hours, application hours, and double-booked blocks",
     },
     {
       n: "02",
@@ -53,6 +57,9 @@ export default async function HomePage() {
         "Letters of recommendation, from asked to submitted",
       ],
       cta: "Start logging",
+      img: "/img/screenshots/primary.webp",
+      imgAlt:
+        "The MD Atlas primary application page showing activity counts, hours logged, and a Work & Activities entry",
     },
     {
       n: "03",
@@ -68,6 +75,9 @@ export default async function HomePage() {
         "Deadlines closing in float to the top",
       ],
       cta: "Track secondaries",
+      img: "/img/screenshots/secondaries.webp",
+      imgAlt:
+        "The MD Atlas secondaries tracker showing schools by status, with prompts collected across programs",
     },
     {
       n: "04",
@@ -83,6 +93,9 @@ export default async function HomePage() {
         "27 questions with what the interviewer is listening for",
       ],
       cta: "Prep interviews",
+      img: "/img/screenshots/interviews.webp",
+      imgAlt:
+        "The MD Atlas interviews page showing an interview pipeline with dates, formats, and decisions",
     },
   ];
 
@@ -93,57 +106,57 @@ export default async function HomePage() {
 
       {/* Hero */}
       <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-16 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-20">
-        <CompassMark className="h-12 w-12 text-white/70" />
-        <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
-          Navigate your way through the application cycle.
-        </h1>
-        <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
-          Four years of work with no system attached to it. MD Atlas is the one
-          place it all lives — the week you are actually living, the hours it
-          adds up to, the twenty secondaries in August, the interview invites in
-          November.
-        </p>
-        <div className="mt-9 flex flex-wrap gap-3">
-          <Link
-            href="/dashboard"
-            className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
-          >
-            Open my dashboard
-          </Link>
-          <Link
-            href="/prompts"
-            className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-          >
-            Just browse the prompts
-          </Link>
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
+          <div>
+            <CompassMark className="h-12 w-12 text-white/70" />
+            <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
+              The operating system for your medical school application.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-navy-100 sm:text-xl">
+              Four years of work with no system attached to it. MD Atlas is
+              the one place it all lives — the week you are actually living,
+              the hours it adds up to, the twenty secondaries in August, the
+              interview invites in November.
+            </p>
+            <div className="mt-9 flex flex-wrap gap-3">
+              <Link
+                href="/dashboard"
+                className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+              >
+                Open my dashboard
+              </Link>
+              <Link
+                href="/prompts"
+                className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+              >
+                Just browse the prompts
+              </Link>
+            </div>
+            <p className="mt-6 text-sm text-navy-100">
+              Free. No account needed to start.
+            </p>
+          </div>
+
+          {/* Hidden below lg: a screenshot competing with the pitch on a
+              phone screen loses every time, and the hero still works as pure
+              text there. */}
+          <div className="hidden overflow-hidden rounded-2xl border border-white/10 shadow-2xl lg:block">
+            <Image
+              src="/img/screenshots/dashboard.webp"
+              alt="The MD Atlas dashboard, showing progress across the planner, primary application, secondaries, and interviews, plus a next-up list of what needs attention"
+              width={1120}
+              height={699}
+              sizes="460px"
+              priority
+              className="h-auto w-full"
+            />
+          </div>
         </div>
-        <p className="mt-6 text-sm text-navy-100">
-          Free. No account needed to start.
-        </p>
       </section>
 
-      {/* Stats */}
+      {/* The application, as one timeline */}
       <Reveal>
-        <section aria-labelledby="stats-heading">
-          <h2 id="stats-heading" className="sr-only">
-            By the numbers
-          </h2>
-          <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
-            {[
-              { n: schools.length, label: "MD programs" },
-              { n: stats.prompts, label: "Secondary prompts" },
-              { n: stats.schools, label: "Programs with prompts" },
-              { n: 0, label: "Dollars to use it", literal: "$0" },
-            ].map((s) => (
-              <div key={s.label}>
-                <dd className="text-4xl font-semibold tracking-tight tabular-nums sm:text-5xl">
-                  {s.literal ?? <CountUp to={s.n} />}
-                </dd>
-                <dt className="mt-1.5 text-sm text-muted">{s.label}</dt>
-              </div>
-            ))}
-          </dl>
-        </section>
+        <JourneyTimeline />
       </Reveal>
 
       {/* The three stages, as one timeline */}
@@ -206,6 +219,17 @@ export default async function HomePage() {
                         </li>
                       ))}
                     </ul>
+
+                    <div className="mt-5 overflow-hidden rounded-xl border border-line">
+                      <Image
+                        src={s.img}
+                        alt={s.imgAlt}
+                        width={1120}
+                        height={699}
+                        sizes="(max-width: 768px) 100vw, 640px"
+                        className="h-auto w-full"
+                      />
+                    </div>
                   </div>
                 </div>
               </li>
@@ -214,56 +238,48 @@ export default async function HomePage() {
         </ol>
       </section>
 
-      {/* Why it is free, and what is not */}
+      {/* Why it is free */}
       <Reveal>
-        <section className="grid gap-5 sm:grid-cols-2">
-          <div className="rounded-2xl border border-line bg-surface p-7">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              Yours, and portable
-            </h2>
-            <div className="mt-3 space-y-3 leading-relaxed text-muted">
-              <p>
-                Everything works with no account. What you track stays in your
-                browser, and you can export all of it whenever you like.
-              </p>
-              <p>
-                Add an email only if you want your dashboard on your phone as
-                well as your laptop. No password, just a link.
-              </p>
-            </div>
-            <Link
-              href="/privacy"
-              className="mt-5 inline-block font-medium text-accent underline underline-offset-4 hover:no-underline"
-            >
-              How your data is handled
-            </Link>
+        <section className="max-w-2xl rounded-2xl border border-line bg-surface p-7">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Yours, and portable
+          </h2>
+          <div className="mt-3 space-y-3 leading-relaxed text-muted">
+            <p>
+              Everything works with no account. What you track stays in your
+              browser, and you can export all of it whenever you like.
+            </p>
+            <p>
+              Add an email only if you want your dashboard on your phone as
+              well as your laptop. No password, just a link.
+            </p>
           </div>
-
-          {/* This is a marketing asset, not fine print. Premed communities are
-              hostile to ghostwriting tools; drawing the line loudly is the point. */}
-          <div className="rounded-2xl border border-navy-100 bg-accent-soft p-7">
-            <h2 className="text-2xl font-semibold tracking-tight">
-              We will never write your essay
-            </h2>
-            <div className="mt-3 space-y-3 leading-relaxed">
-              <p>
-                When essay feedback launches it will be diagnostic only: it
-                points at the sentences that are not working and tells you why.
-              </p>
-              <p>
-                No rewritten paragraphs, no suggested sentences, no
-                fill-in-the-blank outlines. If our output ever contains text you
-                could paste into an application, we have built the wrong thing.
-              </p>
-            </div>
-            <Link
-              href="/how-feedback-works"
-              className="mt-5 inline-block font-medium text-accent underline underline-offset-4 hover:no-underline"
-            >
-              Read the full policy
-            </Link>
-          </div>
+          <Link
+            href="/privacy"
+            className="mt-5 inline-block font-medium text-accent underline underline-offset-4 hover:no-underline"
+          >
+            How your data is handled
+          </Link>
         </section>
+      </Reveal>
+
+      {/* The essay-writing policy used to live here as its own full card. It is
+          still stated plainly, just no longer competing with the pitch above
+          for the same attention — the full version lives at
+          /how-feedback-works, where anyone actually deciding whether to pay
+          for feedback will look for it. */}
+      <Reveal>
+        <p className="text-sm leading-relaxed text-muted">
+          Feedback, when it ships, will never write your essay for you — no
+          rewritten paragraphs, no suggested sentences.{" "}
+          <Link
+            href="/how-feedback-works"
+            className="font-medium text-accent underline underline-offset-4 hover:no-underline"
+          >
+            Read the full policy
+          </Link>
+          .
+        </p>
       </Reveal>
 
       {/* Honesty about the data */}

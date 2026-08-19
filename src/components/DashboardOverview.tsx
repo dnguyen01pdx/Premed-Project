@@ -249,7 +249,7 @@ export function DashboardOverview() {
   if (pt.entries > 0 && pt.described < pt.entries) {
     items.push({
       href: "/primary",
-      label: `${pt.entries - pt.described} activities still have no description`,
+      label: `${pt.entries - pt.described} ${pt.entries - pt.described === 1 ? "activity" : "activities"} still ${pt.entries - pt.described === 1 ? "has" : "have"} no description`,
       hint: "700 characters each on AMCAS",
       tone: "info",
     });

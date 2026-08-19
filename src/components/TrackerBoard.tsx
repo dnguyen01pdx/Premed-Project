@@ -19,6 +19,7 @@ import {
   commitTracker,
   countByStatus,
   countEssays,
+  daysUntil,
   emptyTracker,
   getTrackerServerSnapshot,
   getTrackerSnapshot,
@@ -29,6 +30,12 @@ import {
   trackerExportTable,
 } from "@/lib/tracker";
 import { downloadXlsx } from "@/lib/xlsxExport";
+import {
+  buildMasterEssayMap,
+  coreEssaysNeeded,
+  essayCoverage,
+  smartPriorities,
+} from "@/lib/essayMap";
 
 type SchoolOption = {
   slug: string;
@@ -201,6 +208,25 @@ export function TrackerBoard({
   // cannot cause a server/client mismatch.
   const today = new Date();
 
+  // Derived once per render from the same tracked schools everything else on
+  // this page reads — no separate store, nothing that can drift from the list
+  // below it.
+  const schoolsRemaining = tracked.length - counts.submitted;
+  const essayGroups = buildMasterEssayMap(tracked);
+  const coverage = essayCoverage(tracked);
+  const coveragePct =
+    coverage.total > 0
+      ? Math.round((coverage.coveredByExisting / coverage.total) * 100)
+      : null;
+  const nextUp = smartPriorities(tracked, essayGroups, today)[0] ?? null;
+  const nextDeadline = tracked
+    .map((s) => ({ school: s, days: daysUntil(s.dueOn, today) }))
+    .filter(
+      (x): x is { school: TrackedSchool; days: number } =>
+        x.days !== null && x.days >= 0 && rollUpStatus(x.school) !== "submitted",
+    )
+    .sort((a, b) => a.days - b.days)[0];
+
   return (
     <div className="space-y-8">
       {!storageOk && (
@@ -266,6 +292,114 @@ export function TrackerBoard({
         </p>
       ) : (
         <>
+          {/* Secondary Season summary — the one card meant to answer "where do
+              I actually stand" without opening a tab. Everything in it links
+              to the tab that can act on it. */}
+          <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
+            <p className="text-xs font-semibold tracking-widest text-muted">
+              SECONDARY SEASON
+            </p>
+            <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div>
+                <span className="block text-2xl font-semibold tabular-nums">
+                  {schoolsRemaining}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {schoolsRemaining === 1 ? "school" : "schools"} left to submit
+                </span>
+              </div>
+              <div>
+                <span className="block text-2xl font-semibold tabular-nums">
+                  {essayTotals.remaining}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  unfinished prompts
+                </span>
+              </div>
+              <div>
+                <span className="block text-2xl font-semibold tabular-nums">
+                  {coreEssaysNeeded(essayGroups)}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  core essays needed
+                </span>
+              </div>
+              <div>
+                <span className="block text-2xl font-semibold tabular-nums">
+                  {coveragePct === null ? "—" : `${coveragePct}%`}
+                </span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  essay coverage
+                </span>
+              </div>
+            </div>
+
+            {essayTotals.total > coreEssaysNeeded(essayGroups) && (
+              <p className="mt-4 text-sm text-muted">
+                {essayTotals.total} prompts across your schools consolidate
+                into {coreEssaysNeeded(essayGroups)} core essays via the{" "}
+                <button
+                  type="button"
+                  onClick={() => setTab("map")}
+                  className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+                >
+                  Master Essay Map
+                </button>
+                .
+              </p>
+            )}
+
+            {(nextUp || nextDeadline) && (
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {nextDeadline && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter("all");
+                      setTab("list");
+                    }}
+                    className={`rounded-xl border p-4 text-left ${
+                      nextDeadline.days <= 3
+                        ? "border-warn/30 bg-warn-soft"
+                        : "border-line bg-sunken"
+                    }`}
+                  >
+                    <span className="block text-xs font-semibold uppercase tracking-widest text-muted">
+                      Next deadline
+                    </span>
+                    <span className="mt-1 block font-medium">
+                      {nextDeadline.school.name}
+                      {" — "}
+                      {nextDeadline.days === 0
+                        ? "due today"
+                        : `due in ${nextDeadline.days} day${nextDeadline.days === 1 ? "" : "s"}`}
+                    </span>
+                  </button>
+                )}
+                {nextUp && (
+                  <button
+                    type="button"
+                    onClick={() => setTab("map")}
+                    className="rounded-xl border border-line bg-sunken p-4 text-left"
+                  >
+                    <span className="block text-xs font-semibold uppercase tracking-widest text-muted">
+                      Recommended next essay
+                    </span>
+                    <span className="mt-1 block font-medium">
+                      {nextUp.typeLabel}
+                      {nextUp.schoolCount > 1
+                        ? ` — covers ${nextUp.schoolCount} schools`
+                        : ""}
+                      {nextUp.soonestSchoolName
+                        ? `, starting with ${nextUp.soonestSchoolName}`
+                        : ""}
+                    </span>
+                  </button>
+                )}
+              </div>
+            )}
+          </section>
+
           {/* Progress summary */}
           <section aria-labelledby="progress-heading">
             <h2 id="progress-heading" className="sr-only">

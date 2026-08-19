@@ -2,8 +2,10 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { PromptCard } from "@/components/PromptCard";
 import { PromptFilters } from "@/components/PromptFilters";
+import { CountUp } from "@/components/CountUp";
 import {
   countPrompts,
+  getStats,
   listPromptTypes,
   listSchools,
   listStates,
@@ -82,10 +84,11 @@ export default async function PromptsPage({
   const sp = await searchParams;
   const filters = parseFilters(sp);
 
-  const [types, schools, states] = await Promise.all([
+  const [types, schools, states, stats] = await Promise.all([
     listPromptTypes(),
     listSchools(),
     listStates(),
+    getStats(),
   ]);
 
   // Serialized filters key the Suspense boundary so the results area shows a
@@ -102,6 +105,24 @@ export default async function PromptsPage({
           Filters update the URL, so you can bookmark or share any view.
         </p>
       </div>
+
+      {/* Used to live on the homepage as a marketing stat block. It belongs
+          here instead — this is the page where these numbers are actually
+          the thing you came for. */}
+      <dl className="grid grid-cols-3 gap-6 border-y border-line py-6">
+        {[
+          { n: schools.length, label: "MD programs" },
+          { n: stats.prompts, label: "Secondary prompts" },
+          { n: stats.schools, label: "Programs with prompts" },
+        ].map((s) => (
+          <div key={s.label}>
+            <dd className="text-3xl font-semibold tracking-tight tabular-nums sm:text-4xl">
+              <CountUp to={s.n} />
+            </dd>
+            <dt className="mt-1 text-sm text-muted">{s.label}</dt>
+          </div>
+        ))}
+      </dl>
 
       <Suspense fallback={null}>
         <PromptFilters
