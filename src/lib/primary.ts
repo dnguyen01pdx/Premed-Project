@@ -18,6 +18,8 @@
  * the account sync when signed in.
  */
 
+import type { ExportTable } from "./xlsxExport";
+
 export const PRIMARY_STORAGE_KEY = "mda.primary.v1";
 
 /** AMCAS caps the Work & Activities section at 15 entries. */
@@ -216,6 +218,121 @@ export function primaryTotals(state: PrimaryState) {
  */
 export function charCount(text: string | undefined): number {
   return (text ?? "").length;
+}
+
+/* ------------------------------- export ---------------------------------- */
+
+/**
+ * One row per experience — the "Activities" sheet in the "export everything"
+ * workbook. Long-form text (the 700-character description, the most
+ * meaningful essay) is left out here and lives on the "Essays" sheet instead,
+ * so this sheet stays a scannable activity list rather than a wall of text.
+ */
+export function activitiesExportTable(state: PrimaryState): ExportTable {
+  const headers = [
+    "Experience name",
+    "Organization",
+    "Experience type",
+    "Start",
+    "End",
+    "Ongoing",
+    "Completed hours",
+    "Anticipated hours",
+    "Contact name",
+    "Contact title",
+    "Contact email",
+    "Contact phone",
+    "Most meaningful",
+    "My notes",
+  ];
+  const rows = state.experiences.map((e) => {
+    const h = experienceHours(e);
+    return [
+      e.title,
+      e.organization ?? "",
+      e.type,
+      e.start ?? "",
+      e.ongoing ? "Ongoing" : (e.end ?? ""),
+      e.ongoing ? "Yes" : "No",
+      String(h.completed),
+      String(h.anticipated),
+      e.supervisorName ?? "",
+      e.supervisorTitle ?? "",
+      e.supervisorEmail ?? "",
+      e.supervisorPhone ?? "",
+      e.mostMeaningful ? "Yes" : "No",
+      e.notes ?? "",
+    ];
+  });
+  return { headers, rows };
+}
+
+/**
+ * The written work itself — personal statement plus every most-meaningful
+ * essay and W&A description — as opposed to Activities, which is the
+ * structured data around each experience. Kept separate so the long text
+ * doesn't crowd out the at-a-glance activity list.
+ */
+export function essaysExportTable(state: PrimaryState): ExportTable {
+  const headers = ["Essay", "Limit", "Characters used", "Text"];
+  const rows: string[][] = [];
+
+  if (state.personalStatement.trim()) {
+    rows.push([
+      "Personal statement",
+      `${PERSONAL_STATEMENT_LIMIT} characters`,
+      String(charCount(state.personalStatement)),
+      state.personalStatement,
+    ]);
+  }
+
+  for (const e of state.experiences) {
+    const label = e.title.trim() || "(untitled experience)";
+    const description = e.description ?? "";
+    const mostMeaningfulEssay = e.mostMeaningfulEssay ?? "";
+    if (description.trim()) {
+      rows.push([
+        `${label} — description`,
+        `${DESCRIPTION_LIMIT} characters`,
+        String(charCount(description)),
+        description,
+      ]);
+    }
+    if (e.mostMeaningful && mostMeaningfulEssay.trim()) {
+      rows.push([
+        `${label} — most meaningful`,
+        `${MOST_MEANINGFUL_LIMIT} characters`,
+        String(charCount(mostMeaningfulEssay)),
+        mostMeaningfulEssay,
+      ]);
+    }
+  }
+  return { headers, rows };
+}
+
+/** One row per letter writer — the "Letters" sheet. */
+export function lettersExportTable(state: PrimaryState): ExportTable {
+  const headers = [
+    "Writer",
+    "Role",
+    "Relationship",
+    "Asked on",
+    "Agreed",
+    "Submitted",
+    "Thank-you sent",
+    "Notes",
+  ];
+  const rows = state.letters.map((l) => [
+    l.name,
+    l.role ?? "",
+    l.relationship ?? "",
+    l.askedOn ?? "",
+    l.agreed ? "Yes" : "No",
+    l.submitted ? "Yes" : "No",
+    l.thankYouSent ? "Yes" : "No",
+    l.notes ?? "",
+  ]);
+  return { headers, rows };
 }
 
 /* ------------------------------ parsing ---------------------------------- */

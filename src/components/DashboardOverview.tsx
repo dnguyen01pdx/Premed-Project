@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { downloadFullWorkbook } from "@/lib/exportWorkbook";
 import {
   countEssays,
   daysUntil,
@@ -150,6 +151,16 @@ export function DashboardOverview() {
     () => true,
     () => false,
   );
+  const [exportFailed, setExportFailed] = useState(false);
+
+  async function exportEverything() {
+    try {
+      setExportFailed(false);
+      await downloadFullWorkbook();
+    } catch {
+      setExportFailed(true);
+    }
+  }
 
   if (!hydrated) {
     return (
@@ -418,6 +429,33 @@ export function DashboardOverview() {
               </li>
             ))}
           </ul>
+        )}
+      </section>
+
+      <section className="rounded-2xl border border-line bg-surface p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span>
+            <span className="block font-semibold tracking-tight">
+              Export everything
+            </span>
+            <span className="mt-0.5 block text-sm text-muted">
+              Activities, hours, schools, secondaries, essays, interviews, and
+              letters — one workbook, one download.
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={exportEverything}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+          >
+            Download .xlsx
+          </button>
+        </div>
+        {exportFailed && (
+          <p className="mt-3 text-sm text-danger">
+            Could not build the workbook. Try again, or export each page
+            individually from Secondaries and Planner.
+          </p>
         )}
       </section>
     </div>

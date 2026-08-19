@@ -575,6 +575,74 @@ export function trackerExportTable(schools: TrackedSchool[]): ExportTable {
   return { headers, rows };
 }
 
+/**
+ * One row per school — the summary view, as opposed to {@link
+ * trackerExportTable}'s one-row-per-essay detail. Used by the "export
+ * everything" workbook's "Schools" sheet.
+ */
+export function schoolsExportTable(schools: TrackedSchool[]): ExportTable {
+  const headers = [
+    "School",
+    "Status",
+    "Secondary received",
+    "Deadline",
+    "Essays tracked",
+    "Essays done",
+    "Notes",
+  ];
+  const rows = schools.map((s) => {
+    const essays = s.essays ?? [];
+    const done = essays.filter(
+      (e) => e.status === "done" || e.status === "submitted",
+    ).length;
+    return [
+      s.name,
+      STATUS_META[rollUpStatus(s)].label,
+      s.receivedOn ?? "",
+      s.dueOn ?? "",
+      String(essays.length),
+      String(done),
+      s.notes ?? "",
+    ];
+  });
+  return { headers, rows };
+}
+
+/**
+ * One row per school that has reached the interview pipeline. Schools with
+ * no interview activity yet are left out rather than padded with blanks.
+ */
+export function interviewsExportTable(schools: TrackedSchool[]): ExportTable {
+  const headers = [
+    "School",
+    "Stage",
+    "Format",
+    "Invited",
+    "Interview date",
+    "Location",
+    "Thank-you sent",
+    "Decision",
+    "Notes",
+  ];
+  const rows = schools
+    .filter((s) => s.interview && s.interview.stage !== "none")
+    .map((s) => {
+      const i = s.interview as TrackedInterview;
+      return [
+        s.name,
+        INTERVIEW_STAGE_META[i.stage].label,
+        INTERVIEW_FORMAT_LABEL[i.format],
+        i.invitedOn ?? "",
+        i.interviewOn ?? "",
+        i.location ?? "",
+        i.thankYouSent ? "Yes" : "No",
+        DECISION_META[i.decision].label,
+        i.notes ?? "",
+      ];
+    });
+  return { headers, rows };
+}
+
 /** CSV form of {@link trackerExportTable}, for anyone who wants raw text over
  *  a real workbook (the "Export spreadsheet" button uses .xlsx instead). */
 export function toCsv(schools: TrackedSchool[]): string {

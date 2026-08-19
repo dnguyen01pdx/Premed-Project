@@ -30,6 +30,25 @@ export type XlsxColumn = {
   width?: number;
 };
 
+export type XlsxSheet = {
+  name: string;
+  columns: XlsxColumn[];
+  rows: string[][];
+};
+
+/** Header row (bold) + body rows (forced to text), shared by the single- and
+ *  multi-sheet writers so "what a sheet looks like" is defined once. */
+function sheetRows(columns: XlsxColumn[], rows: string[][]) {
+  const header = columns.map((c) => ({
+    value: c.header,
+    fontWeight: "bold" as const,
+  }));
+  const body = rows.map((row) =>
+    row.map((value) => ({ value, type: String, format: "@" })),
+  );
+  return [header, ...body];
+}
+
 /**
  * Downloads `rows` as a single-sheet .xlsx workbook: a bold header row, sized
  * columns, and every cell forced to text (`format: "@"`) so Excel displays
@@ -43,16 +62,31 @@ export async function downloadXlsx(
 ): Promise<void> {
   const { default: writeXlsxFile } = await import("write-excel-file/browser");
 
-  const header = columns.map((c) => ({
-    value: c.header,
-    fontWeight: "bold" as const,
-  }));
-  const body = rows.map((row) =>
-    row.map((value) => ({ value, type: String, format: "@" })),
-  );
-
-  await writeXlsxFile([header, ...body], {
+  await writeXlsxFile(sheetRows(columns, rows), {
     sheet: sheetName,
     columns: columns.map((c) => ({ width: c.width ?? 18 })),
   }).toFile(filename);
+}
+
+/**
+ * Downloads a single .xlsx workbook containing multiple sheets — the "export
+ * everything" action. Empty sheets are skipped: an empty tab with just a
+ * header row reads as broken, not as "you have nothing here yet".
+ */
+export async function downloadXlsxWorkbook(
+  filename: string,
+  sheets: XlsxSheet[],
+): Promise<void> {
+  const { default: writeXlsxFile } = await import("write-excel-file/browser");
+
+  const nonEmpty = sheets.filter((s) => s.rows.length > 0);
+  const toWrite = nonEmpty.length > 0 ? nonEmpty : sheets.slice(0, 1);
+
+  await writeXlsxFile(
+    toWrite.map((s) => ({
+      sheet: s.name,
+      columns: s.columns.map((c) => ({ width: c.width ?? 18 })),
+      data: sheetRows(s.columns, s.rows),
+    })),
+  ).toFile(filename);
 }

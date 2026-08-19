@@ -627,6 +627,30 @@ export function plannerExportTable(state: PlannerState): ExportTable {
   return { headers, rows };
 }
 
+/**
+ * Average weekly hours by category — the "Hours" sheet in the "export
+ * everything" workbook. This is the planner's own weekly-totals view
+ * ({@link weeklyTotals}) as a table, not a second copy of the raw schedule
+ * ({@link plannerExportTable} already covers that at the event level).
+ */
+export function hoursExportTable(state: PlannerState): ExportTable {
+  const headers = ["Category", "Avg hours/week", "Reportable on application"];
+  const totals = weeklyTotals(state);
+  const rows = PLANNER_CATEGORIES.map((c) => {
+    const minutes = totals.byCategory.get(c.key) ?? 0;
+    return [
+      c.label,
+      (minutes / 60).toFixed(2),
+      REPORTABLE.includes(c.key) ? "Yes" : "No",
+    ];
+  }).filter((_, i) => (totals.byCategory.get(PLANNER_CATEGORIES[i].key) ?? 0) > 0);
+
+  rows.push(["Total", (totals.total / 60).toFixed(2), ""]);
+  rows.push(["Reportable total", (totals.reportable / 60).toFixed(2), ""]);
+
+  return { headers, rows };
+}
+
 /** CSV form of {@link plannerExportTable}, for anyone who wants raw text over
  *  a real workbook (the "Export spreadsheet" button uses .xlsx instead). */
 export function plannerToCsv(state: PlannerState): string {
