@@ -86,7 +86,18 @@ function downloadFile(filename: string, contents: string, mime: string) {
 
 type ViewMode = "week" | "month" | "year";
 
-export function PlannerBoard() {
+/**
+ * Planner and Primary stay usable with no account at all, unlike Secondaries
+ * and Interviews — but "no account, no limit, ever" also means someone can
+ * build out a real semester's worth of blocks in a browser that backs up to
+ * nothing. Six is enough to actually feel the product work (a full day's
+ * categories, easily) before it asks for an email. Existing blocks are never
+ * touched by this — the cap only stops a signed-out visitor from adding a
+ * seventh, and editing or deleting what is already there always works.
+ */
+const ANON_EVENT_LIMIT = 6;
+
+export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
   const state = useSyncExternalStore(
     subscribeToPlanner,
     getPlannerSnapshot,
@@ -104,6 +115,7 @@ export function PlannerBoard() {
   const [isNew, setIsNew] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [exportFailed, setExportFailed] = useState(false);
+  const [limitHit, setLimitHit] = useState(false);
 
   const totals = useMemo(() => weeklyTotals(state), [state]);
   const conflicts = useMemo(() => conflictIds(state), [state]);
@@ -114,11 +126,19 @@ export function PlannerBoard() {
     );
   }, [state]);
 
-  const openNew = useCallback((dateIso: string, start: number) => {
-    const snapped = Math.round(start / 15) * 15;
-    setDraft(blankEvent(dateIso, Math.max(0, Math.min(23 * 60, snapped))));
-    setIsNew(true);
-  }, []);
+  const openNew = useCallback(
+    (dateIso: string, start: number) => {
+      if (!signedIn && state.events.length >= ANON_EVENT_LIMIT) {
+        setLimitHit(true);
+        return;
+      }
+      setLimitHit(false);
+      const snapped = Math.round(start / 15) * 15;
+      setDraft(blankEvent(dateIso, Math.max(0, Math.min(23 * 60, snapped))));
+      setIsNew(true);
+    },
+    [signedIn, state.events.length],
+  );
 
   const openExisting = useCallback((e: PlannerEvent) => {
     setDraft({ ...e });
@@ -288,6 +308,32 @@ export function PlannerBoard() {
         <p className="text-sm text-danger">
           Could not build the spreadsheet. Try again in a moment.
         </p>
+      )}
+
+      {limitHit && !signedIn && (
+        <section className="anim-pop flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-navy-100 bg-accent-soft px-5 py-3.5">
+          <p className="text-sm leading-relaxed">
+            You&apos;ve saved {ANON_EVENT_LIMIT} blocks in this browser — the
+            free limit before signing in. Everything you&apos;ve already
+            added is safe and still yours to edit.
+          </p>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/account"
+              className="whitespace-nowrap rounded-lg bg-accent px-3.5 py-1.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+            >
+              Sign in to add more
+            </Link>
+            <button
+              type="button"
+              onClick={() => setLimitHit(false)}
+              className="text-sm text-muted hover:text-foreground"
+              aria-label="Dismiss"
+            >
+              Dismiss
+            </button>
+          </div>
+        </section>
       )}
 
       {empty && (

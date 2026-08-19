@@ -37,6 +37,17 @@ function limitText(
   return `${value.toLocaleString()} ${unit === "words" ? "words" : "characters"}`;
 }
 
+/**
+ * "Why this school" is the one category where the whole premise of this page
+ * — write once, reuse across schools — is actively the wrong advice. Every
+ * school in the group asks a version of the same question, but the correct
+ * answer is different by definition for each one; offering a "reuse a draft"
+ * shortcut here is exactly how someone ends up submitting a Brown essay to
+ * Yale. These prompts still get grouped and shown, for visibility into how
+ * many are left, but never offered as reusable.
+ */
+const NON_REUSABLE_TYPE_KEYS = new Set(["why_this_school"]);
+
 const COVERAGE_META: Record<
   CoverageStatus,
   { label: string; tone: "ok" | "warn" | "neutral" }
@@ -306,6 +317,15 @@ function EssayGroupCard({
         </p>
       </div>
 
+      {NON_REUSABLE_TYPE_KEYS.has(group.typeKey) && (
+        <p className="border-b border-line bg-warn-soft px-5 py-2.5 text-sm text-warn">
+          Each of these needs its own answer — what makes {group.typeLabel.toLowerCase()}{" "}
+          true for one school usually is not true for the next one. Grouped
+          here so you can see what is left, not to suggest reusing a draft
+          across them.
+        </p>
+      )}
+
       {(group.minWords !== null || group.minChars !== null) && (
         <p className="border-b border-line bg-sunken px-5 py-2.5 text-sm">
           <span className="font-medium">Write to:</span>{" "}
@@ -356,29 +376,32 @@ function EssayGroupCard({
                 {essay.label}
               </p>
 
-              {group.schoolCount > 1 && !isMaster && candidateMasters.length > 0 && (
-                <label className="mt-2 flex items-center gap-2 text-xs">
-                  <span className="text-muted">Reuse a draft:</span>
-                  <select
-                    value={essay.linkedToId ?? ""}
-                    onChange={(e) =>
-                      onPatchEssay(schoolSlug, essay.id, {
-                        linkedToId: e.target.value || undefined,
-                      })
-                    }
-                    className="rounded-lg border border-line-strong bg-surface px-2 py-1 text-xs"
-                  >
-                    <option value="">Write my own</option>
-                    {candidateMasters
-                      .filter((c) => c.essay.id !== essay.id)
-                      .map((c) => (
-                        <option key={c.essay.id} value={c.essay.id}>
-                          {c.schoolName}&apos;s draft
-                        </option>
-                      ))}
-                  </select>
-                </label>
-              )}
+              {group.schoolCount > 1 &&
+                !isMaster &&
+                candidateMasters.length > 0 &&
+                !NON_REUSABLE_TYPE_KEYS.has(group.typeKey) && (
+                  <label className="mt-2 flex items-center gap-2 text-xs">
+                    <span className="text-muted">Reuse a draft:</span>
+                    <select
+                      value={essay.linkedToId ?? ""}
+                      onChange={(e) =>
+                        onPatchEssay(schoolSlug, essay.id, {
+                          linkedToId: e.target.value || undefined,
+                        })
+                      }
+                      className="rounded-lg border border-line-strong bg-surface px-2 py-1 text-xs"
+                    >
+                      <option value="">Write my own</option>
+                      {candidateMasters
+                        .filter((c) => c.essay.id !== essay.id)
+                        .map((c) => (
+                          <option key={c.essay.id} value={c.essay.id}>
+                            {c.schoolName}&apos;s draft
+                          </option>
+                        ))}
+                    </select>
+                  </label>
+                )}
 
               {linkedMaster && (
                 <p className="mt-1.5 text-xs text-muted">

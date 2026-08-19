@@ -1,14 +1,19 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { SignInGate } from "@/components/SignInGate";
 import { SyncPanel } from "@/components/SyncPanel";
 import { TrackerBoard } from "@/components/TrackerBoard";
+import { getCurrentUser } from "@/lib/auth";
 import {
   getPromptsBySchool,
   getStats,
   listSchoolsForTracker,
 } from "@/lib/queries";
 
-export const revalidate = 3600;
+// Whether someone is signed in can change on every request, so this page can
+// no longer be a static revalidated page — the gate has to be right every
+// time, not cached from whoever loaded it last.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Secondaries",
@@ -17,10 +22,11 @@ export const metadata: Metadata = {
 };
 
 export default async function SecondariesPage() {
-  const [schools, promptsBySchool, stats] = await Promise.all([
+  const [schools, promptsBySchool, stats, user] = await Promise.all([
     listSchoolsForTracker(),
     getPromptsBySchool(),
     getStats(),
+    getCurrentUser(),
   ]);
 
   return (
@@ -59,7 +65,9 @@ export default async function SecondariesPage() {
         </div>
       </section>
 
-      <TrackerBoard schools={schools} promptsBySchool={promptsBySchool} />
+      <SignInGate signedIn={!!user} feature="secondaries">
+        <TrackerBoard schools={schools} promptsBySchool={promptsBySchool} />
+      </SignInGate>
 
       <SyncPanel />
     </div>
