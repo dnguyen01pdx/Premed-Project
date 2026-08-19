@@ -164,6 +164,7 @@ export default async function HomePage() {
               alt="Dylan Nguyen"
               width={480}
               height={600}
+              priority
               className="h-full w-full object-cover"
             />
           </div>

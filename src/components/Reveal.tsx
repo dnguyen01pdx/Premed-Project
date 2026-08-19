@@ -41,6 +41,13 @@ export function Reveal({
 
     setState("hidden");
 
+    // Positive bottom margin extends the observed area past the actual
+    // viewport, so a section is marked "intersecting" — and starts its
+    // (short) fade — while it is still below the fold. Combined with the
+    // 200ms duration below, this keeps content from lagging visibly behind
+    // a normal scroll speed, which a -12% margin and 700ms duration used to
+    // do: sections would still be mid-fade, or fully transparent, by the
+    // time a scroll actually brought them into view.
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -50,7 +57,7 @@ export function Reveal({
           }
         }
       },
-      { rootMargin: "0px 0px -12% 0px", threshold: 0.05 },
+      { rootMargin: "0px 0px 20% 0px", threshold: 0 },
     );
 
     io.observe(el);
@@ -64,7 +71,7 @@ export function Reveal({
         state === "hidden"
           ? "translate-y-6 opacity-0"
           : state === "shown"
-            ? "translate-y-0 opacity-100 transition-[opacity,transform] duration-700 ease-out"
+            ? "translate-y-0 opacity-100 transition-[opacity,transform] duration-200 ease-out"
             : ""
       }`}
       style={state === "shown" && delay ? { transitionDelay: `${delay}ms` } : undefined}

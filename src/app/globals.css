@@ -128,6 +128,15 @@
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
+/* Every page ends in the navy footer, so that's what should show during an
+   elastic overscroll bounce past the end of the page — not the light page
+   background, which read as a stray gray gap under a dark footer. The html
+   background is what a UA paints for canvas overscroll; body's is what
+   covers the actual page content, layered on top. */
+html {
+  background: var(--navy-900);
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

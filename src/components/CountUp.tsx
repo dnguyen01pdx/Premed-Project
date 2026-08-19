@@ -28,6 +28,14 @@ export function CountUp({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced || typeof IntersectionObserver === "undefined") return;
 
+    // Already on screen at mount (e.g. a stats row right under the H1): skip
+    // the animation entirely rather than reset a correct, already-rendered
+    // number down to 0 and count back up. That reset is what made the
+    // /prompts page briefly (or, on a quick glance, seemingly permanently)
+    // show "0" for every stat — the real number was there the whole time.
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.9) return;
+
     let raf = 0;
     let start = 0;
 
