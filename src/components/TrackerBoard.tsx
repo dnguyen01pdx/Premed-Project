@@ -336,8 +336,11 @@ export function TrackerBoard({
 
             {essayTotals.total > coreEssaysNeeded(essayGroups) && (
               <p className="mt-4 text-sm text-muted">
-                {essayTotals.total} prompts across your schools consolidate
-                into {coreEssaysNeeded(essayGroups)} core essays via the{" "}
+                {essayTotals.total}{" "}
+                {essayTotals.total === 1 ? "prompt" : "prompts"} across your
+                schools consolidate into {coreEssaysNeeded(essayGroups)} core{" "}
+                {coreEssaysNeeded(essayGroups) === 1 ? "essay" : "essays"} via
+                the{" "}
                 <button
                   type="button"
                   onClick={() => setTab("map")}

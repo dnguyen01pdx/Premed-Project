@@ -250,10 +250,13 @@ export function DashboardOverview() {
         category: "secondaries",
       });
     } else if (d <= 10) {
+      const openCount = (s.essays ?? []).filter(
+        (e) => e.status !== "done" && e.status !== "submitted",
+      ).length;
       items.push({
         href: "/secondaries",
         label: `${s.name} is due in ${d} day${d === 1 ? "" : "s"}`,
-        hint: `${(s.essays ?? []).filter((e) => e.status !== "done" && e.status !== "submitted").length} essays still open`,
+        hint: `${openCount} ${openCount === 1 ? "essay" : "essays"} still open`,
         tone: d <= 3 ? "warn" : "info",
         category: "secondaries",
       });

@@ -147,8 +147,8 @@ export default async function HomePage() {
                 <span className="font-semibold text-white">
                   Built by Dylan
                 </span>{" "}
-                — a premed who wanted this tracker during his own cycle and
-                it didn&apos;t exist.{" "}
+                — a medical student who wanted this tracker during his own
+                application cycle and it didn&apos;t exist.{" "}
                 <Link
                   href="/about"
                   className="whitespace-nowrap font-medium text-white underline underline-offset-4 hover:no-underline"

@@ -120,8 +120,15 @@ export function EssayMapPanel({
       {/* Headline stats: always visible, the "84 -> 16" teaser. */}
       <div className="rounded-2xl border border-navy-100 bg-accent-soft p-5 sm:p-6">
         <p className="text-lg leading-relaxed">
-          Your <strong>{essayCount} prompts</strong> group into{" "}
-          <strong>{core} core essays</strong> to actually write.
+          Your{" "}
+          <strong>
+            {essayCount} {essayCount === 1 ? "prompt" : "prompts"}
+          </strong>{" "}
+          group into{" "}
+          <strong>
+            {core} core {core === 1 ? "essay" : "essays"}
+          </strong>{" "}
+          to actually write.
         </p>
         <div className="mt-3">
           <div className="flex items-center justify-between text-sm">
