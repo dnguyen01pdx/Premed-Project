@@ -17,7 +17,8 @@
 import { createId } from "./id";
 import type { ExportTable } from "./xlsxExport";
 
-const KEY = "mda.planner.v1";
+export const PLANNER_STORAGE_KEY = "mda.planner.v1";
+const KEY = PLANNER_STORAGE_KEY;
 
 /**
  * Categories deliberately mirror the shape of AMCAS activity types rather than

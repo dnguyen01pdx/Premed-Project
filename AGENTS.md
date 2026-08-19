@@ -94,6 +94,25 @@ already in the app when their application year arrives.
 - Deleting an account must not touch their local data.
 - `/api/sync` stores opaque JSON. The server never interprets the shape, which
   is what keeps client model changes out of the sync path.
+- Magic-link auth is custom-built (`src/lib/auth.ts`, `src/lib/mailer.ts`), not
+  a third-party provider — hashed single-use tokens, 60-day sessions, rate
+  limiting, and a conflict UI when local and server disagree. It's already
+  solid; do not replace it with Supabase/Clerk without checking with Dylan
+  first, since that would mean throwing away working code for a rebuild.
+- `RESEND_API_KEY` must be set in the deploy environment for sign-in emails to
+  actually send. Without it, `sendSignInEmail` hard-fails in production (by
+  design — see the comment in `mailer.ts`) rather than pretending to work. In
+  dev, the sign-in link is returned in the response instead of emailed.
+- When adding a field to any store that syncs (tracker, prep, primary,
+  planner), add it to `trackerSnapshots` in `src/db/schema.ts` too, and to
+  both the GET response and the PUT/POST body in `src/app/api/sync/route.ts`.
+  Planner went unsynced for a while this way: the client already sent it, the
+  column didn't exist, and the route silently dropped it before the insert —
+  no error anywhere, just data that looked backed up and was not.
+- `SyncPanel`'s invite to add an email only renders once the browser holds
+  real data (see `hasRealData` in that file) and pushes edits within ~400ms
+  plus a `visibilitychange` → `sendBeacon` flush on tab close/hide, so the
+  window in which an edit exists only in this browser stays small.
 
 ## Design
 - Colors are defined once in `src/app/globals.css` and mirrored in

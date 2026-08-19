@@ -26,6 +26,27 @@ function countSchools(t: unknown): number {
 }
 
 /**
+ * Whether this browser holds anything worth losing. The invite to add an
+ * email only appears once this is true — an empty dashboard has nothing to
+ * protect, and showing a "don't lose your work" pitch before there is any
+ * work is exactly the kind of always-on nagging AGENTS.md rules out.
+ */
+function hasRealData(): boolean {
+  const tracker = getTrackerSnapshot();
+  const primary = getPrimarySnapshot();
+  const planner = getPlannerSnapshot();
+  const prep = getPrepSnapshot();
+  return (
+    tracker.schools.length > 0 ||
+    primary.experiences.length > 0 ||
+    primary.personalStatement.trim().length > 0 ||
+    primary.letters.length > 0 ||
+    planner.events.length > 0 ||
+    Object.keys(prep.notes).length > 0
+  );
+}
+
+/**
  * Optional sign-in, and the sync it buys.
  *
  * Two rules this follows:
@@ -122,40 +143,66 @@ export function SyncPanel() {
   useEffect(() => {
     if (!signedIn) return;
 
+    function snapshotBody() {
+      return JSON.stringify({
+        tracker: getTrackerSnapshot(),
+        prep: getPrepSnapshot(),
+        primary: getPrimarySnapshot(),
+        planner: getPlannerSnapshot(),
+      });
+    }
+
+    async function flushNow() {
+      clearTimeout(pushTimer.current);
+      setStatus((s) => (s.kind === "signedIn" ? { ...s, saving: true } : s));
+      try {
+        await fetch("/api/sync", {
+          method: "PUT",
+          headers: { "content-type": "application/json" },
+          body: snapshotBody(),
+        });
+        setStatus((s) =>
+          s.kind === "signedIn"
+            ? { ...s, saving: false, savedAt: new Date().toISOString() }
+            : s,
+        );
+      } catch {
+        setStatus((s) => (s.kind === "signedIn" ? { ...s, saving: false } : s));
+      }
+    }
+
     const push = () => {
       clearTimeout(pushTimer.current);
-      pushTimer.current = setTimeout(async () => {
-        setStatus((s) => (s.kind === "signedIn" ? { ...s, saving: true } : s));
-        try {
-          await fetch("/api/sync", {
-            method: "PUT",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({
-              tracker: getTrackerSnapshot(),
-              prep: getPrepSnapshot(),
-              primary: getPrimarySnapshot(),
-              planner: getPlannerSnapshot(),
-            }),
-          });
-          setStatus((s) =>
-            s.kind === "signedIn"
-              ? { ...s, saving: false, savedAt: new Date().toISOString() }
-              : s,
-          );
-        } catch {
-          setStatus((s) => (s.kind === "signedIn" ? { ...s, saving: false } : s));
-        }
-      }, 1200);
+      // Short on purpose: this is the window in which an edit exists only in
+      // this browser. Debounced rather than instant so a burst of keystrokes
+      // does not fire a request per character.
+      pushTimer.current = setTimeout(flushNow, 400);
+    };
+
+    // A closed tab, a phone put to sleep, or a browser quit all fire
+    // visibilitychange with "hidden" before they fire nothing at all. This is
+    // the one chance to get a pending debounced edit onto the server, so it
+    // uses sendBeacon (fire-and-forget, survives page teardown) instead of the
+    // fetch above, which the browser can and does cancel mid-navigation.
+    const flushOnHide = () => {
+      if (document.visibilityState !== "hidden") return;
+      if (pushTimer.current === undefined) return; // nothing pending
+      clearTimeout(pushTimer.current);
+      pushTimer.current = undefined;
+      const body = new Blob([snapshotBody()], { type: "application/json" });
+      navigator.sendBeacon?.("/api/sync", body);
     };
 
     // localStorage writes from this tab do not fire `storage`, so the tracker
     // module notifies listeners directly. Poll-free.
     const onChange = () => push();
     window.addEventListener("mda:local-change", onChange);
-    push(); // sync once on sign-in
+    document.addEventListener("visibilitychange", flushOnHide);
+    flushNow(); // sync once on sign-in, immediately rather than debounced
 
     return () => {
       window.removeEventListener("mda:local-change", onChange);
+      document.removeEventListener("visibilitychange", flushOnHide);
       clearTimeout(pushTimer.current);
     };
   }, [signedIn]);
@@ -286,13 +333,20 @@ export function SyncPanel() {
     );
   }
 
+  // Nothing entered yet: there is nothing to lose, so there is nothing to
+  // pitch. The prompt shows up the moment there is real data at stake, not
+  // before and not on every page regardless of whether it applies.
+  if (!hasRealData()) return null;
+
   return (
     <section className="rounded-2xl border border-line bg-sunken p-5 sm:p-6">
-      <h2 className="font-semibold">Want this on your phone too?</h2>
+      <h2 className="font-semibold">Save your work.</h2>
       <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-muted">
-        Add your email and your list follows you between devices. Optional:
-        everything here already works without it. No password, we just email you
-        a link.
+        Add an email so four years of logging doesn&apos;t disappear with your
+        browser history. Everything above already works without it — this
+        just makes sure clearing your browser, breaking your laptop, or
+        switching devices can&apos;t take it with it. No password, we just
+        email you a link.
       </p>
 
       <form onSubmit={requestLink} className="mt-4 flex flex-wrap gap-2">

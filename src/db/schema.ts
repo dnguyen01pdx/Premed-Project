@@ -298,6 +298,13 @@ export const trackerSnapshots = pgTable("tracker_snapshots", {
   tracker: jsonb("tracker"),
   prep: jsonb("prep"),
   primary: jsonb("primary"),
+  /**
+   * Added after the rest of this table. Until this column existed, the
+   * client was already sending the planner in every /api/sync PUT and the
+   * route was silently dropping it before the insert — planner data was
+   * never actually backed up server-side, unlike everything else here.
+   */
+  planner: jsonb("planner"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

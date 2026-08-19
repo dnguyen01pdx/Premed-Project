@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { deleteAccount, getCurrentUser, signOutCurrentSession } from "@/lib/auth";
 import { SITE_NAME } from "@/lib/config";
 import { ProPreviewToggle } from "@/components/ProPreviewToggle";
+import { ExportDataButtons } from "@/components/ExportDataButtons";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +69,8 @@ export default async function AccountPage({
           Go to my dashboard
         </Link>
 
+        <ExportDataButtons />
+
         <ProPreviewToggle />
       </div>
     );
@@ -104,6 +107,8 @@ export default async function AccountPage({
       </section>
 
       <ProPreviewToggle />
+
+      <ExportDataButtons />
 
       <form action={doSignOut}>
         <button

@@ -25,11 +25,12 @@ export async function GET() {
     tracker: row?.tracker ?? null,
     prep: row?.prep ?? null,
     primary: row?.primary ?? null,
+    planner: row?.planner ?? null,
     updatedAt: row?.updatedAt ?? null,
   });
 }
 
-export async function PUT(req: Request) {
+async function saveSnapshot(req: Request): Promise<NextResponse> {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Not signed in." }, { status: 401 });
 
@@ -40,19 +41,38 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const { tracker, prep, primary } = (body ?? {}) as Record<string, unknown>;
-  if (JSON.stringify({ tracker, prep, primary }).length > MAX_BYTES) {
+  const { tracker, prep, primary, planner } = (body ?? {}) as Record<
+    string,
+    unknown
+  >;
+  if (
+    JSON.stringify({ tracker, prep, primary, planner }).length > MAX_BYTES
+  ) {
     return NextResponse.json({ error: "That is too large to sync." }, { status: 413 });
   }
 
   // The server never interprets this JSON; the client owns its shape.
   await db
     .insert(trackerSnapshots)
-    .values({ userId: user.id, tracker, prep, primary, updatedAt: new Date() })
+    .values({ userId: user.id, tracker, prep, primary, planner, updatedAt: new Date() })
     .onConflictDoUpdate({
       target: trackerSnapshots.userId,
-      set: { tracker, prep, primary, updatedAt: new Date() },
+      set: { tracker, prep, primary, planner, updatedAt: new Date() },
     });
 
   return NextResponse.json({ ok: true });
+}
+
+export async function PUT(req: Request) {
+  return saveSnapshot(req);
+}
+
+/**
+ * navigator.sendBeacon only ever sends POST, and it is the one reliable way
+ * to flush a pending edit when a tab is closing — a fetch() started in a
+ * visibilitychange handler can be, and often is, cancelled by the browser
+ * mid-navigation. Same body, same behavior as PUT.
+ */
+export async function POST(req: Request) {
+  return saveSnapshot(req);
 }
