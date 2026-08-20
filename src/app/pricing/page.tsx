@@ -107,7 +107,7 @@ export default async function PricingPage({
               Feature comparison between the free and paid tiers
             </caption>
             <thead>
-              <tr className="border-b border-line bg-navy-900 text-white">
+              <tr className="border-b border-line bg-navy-900 text-base text-white">
                 <th scope="col" className="px-5 py-4 font-semibold">
                   Feature
                 </th>

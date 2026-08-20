@@ -97,7 +97,7 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className="space-y-20 sm:space-y-28">
+    <div className="space-y-20 pb-10 sm:space-y-28 sm:pb-16">
       {/* Returning users see their status here instead of the pitch. */}
       <HomeSnapshot />
 
@@ -108,7 +108,7 @@ export default async function HomePage() {
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
             <div>
               <CompassMark className="h-11 w-11 text-white/70" />
-              <h1 className="mt-5 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl sm:leading-[1.1]">
+              <h1 className="mt-5 max-w-3xl text-5xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
                 The operating system for your medical school application.
               </h1>
 
@@ -124,12 +124,6 @@ export default async function HomePage() {
                   className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
                 >
                   Open my dashboard
-                </Link>
-                <Link
-                  href="/prompts"
-                  className="rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
-                >
-                  Just browse the prompts
                 </Link>
               </div>
               <p className="mt-4 text-sm text-navy-100">
@@ -191,7 +185,7 @@ export default async function HomePage() {
           <div className="max-w-2xl">
             <h2
               id="stages-heading"
-              className="text-3xl font-semibold tracking-tight sm:text-4xl"
+              className="text-4xl font-semibold tracking-tight sm:text-5xl"
             >
               One application. Four connected stages.
             </h2>
