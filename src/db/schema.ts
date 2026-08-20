@@ -229,6 +229,21 @@ export const users = pgTable(
     id: text("id").primaryKey().$defaultFn(createId),
     /** Stored lowercased; the unique index below is what prevents duplicates. */
     email: text("email").notNull(),
+    /**
+     * Whether this account has Pro. Set exactly two ways: the Stripe webhook
+     * on a completed checkout, or a redeemed promo code (see promoCodes
+     * below). Never set from the client — there is no request path that lets
+     * the browser flip this directly.
+     */
+    isPro: boolean("is_pro").notNull().default(false),
+    /** "stripe" | "promo". Null until isPro is set once. Kept for support
+     * questions ("why do I have Pro?"), not used for any access logic. */
+    proSource: text("pro_source"),
+    proGrantedAt: timestamp("pro_granted_at", { withTimezone: true }),
+    /** Set on a Stripe grant. Useful for looking a customer up in the Stripe
+     * dashboard for a refund; never used to gate access. */
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeCheckoutSessionId: text("stripe_checkout_session_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -291,6 +306,62 @@ export const sessions = pgTable(
  * lib/tracker.ts), the server never interprets it, and that keeps schema
  * migrations out of the sync path entirely.
  */
+/**
+ * Beta-tester and promotional access codes, redeemed once per account.
+ *
+ * Deliberately separate from Stripe: a code should work the moment Dylan
+ * hands it out, whether or not Stripe is even configured yet, and should
+ * never touch a card or create a real charge.
+ */
+export const promoCodes = pgTable(
+  "promo_codes",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    /** Stored and compared uppercase. */
+    code: text("code").notNull(),
+    /** Internal note only, e.g. "Beta testers, batch 1". Never shown to users. */
+    label: text("label"),
+    /** Null means unlimited redemptions. */
+    maxRedemptions: integer("max_redemptions"),
+    redemptionCount: integer("redemption_count").notNull().default(0),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("promo_codes_code_idx").on(t.code)],
+);
+
+/**
+ * One row per successful redemption. The unique index on (promoCodeId,
+ * userId) is the actual guard against redeeming the same code twice on one
+ * account, not just an application-level check that a race could slip past.
+ */
+export const promoRedemptions = pgTable(
+  "promo_redemptions",
+  {
+    id: text("id").primaryKey().$defaultFn(createId),
+    promoCodeId: text("promo_code_id")
+      .notNull()
+      .references(() => promoCodes.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    redeemedAt: timestamp("redeemed_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("promo_redemptions_code_user_idx").on(
+      t.promoCodeId,
+      t.userId,
+    ),
+    index("promo_redemptions_user_idx").on(t.userId),
+  ],
+);
+
+export type PromoCode = typeof promoCodes.$inferSelect;
+
 export const trackerSnapshots = pgTable("tracker_snapshots", {
   userId: text("user_id")
     .primaryKey()

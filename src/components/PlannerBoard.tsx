@@ -313,7 +313,7 @@ export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
       {limitHit && !signedIn && (
         <section className="anim-pop flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-navy-100 bg-accent-soft px-5 py-3.5">
           <p className="text-sm leading-relaxed">
-            You&apos;ve saved {ANON_EVENT_LIMIT} blocks in this browser — the
+            You&apos;ve saved {ANON_EVENT_LIMIT} blocks in this browser, the
             free limit before signing in. Everything you&apos;ve already
             added is safe and still yours to edit.
           </p>
@@ -342,7 +342,7 @@ export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
             Your calendar is empty.
           </h2>
           <p className="mx-auto mt-2 max-w-md leading-relaxed text-muted">
-            Add your commitments — recurring, or just once. Lectures, shifts,
+            Add your commitments, recurring or just once. Lectures, shifts,
             lab hours, a one-time MCAT date. The planner totals them, and
             those totals are the hours your application asks for later.
           </p>
@@ -659,7 +659,7 @@ function WeekView({
                   {DAYS[weekdayOfIso(dateIso)].short} {fromIsoDate(dateIso)}
                 </span>
                 <span className="block text-xs tabular-nums text-muted">
-                  {mins > 0 ? hoursLabel(mins) : "—"}
+                  {mins > 0 ? hoursLabel(mins) : "0h"}
                 </span>
               </div>
             );
@@ -1016,7 +1016,7 @@ function CalendarExportPanel({
           <p className="mt-1 text-sm text-muted">
             Pick which of your saved blocks to export as a standard .ics
             file. Every calendar app can import one, including Google
-            Calendar — nothing here requires connecting an account, and
+            Calendar. Nothing here requires connecting an account, and
             nothing here is required to use the planner.
           </p>
         </span>
@@ -1173,7 +1173,7 @@ function EventEditor({
           >
             {PLANNER_CATEGORIES.map((c) => (
               <option key={c.key} value={c.key}>
-                {c.label} — {c.hint}
+                {c.label} ({c.hint})
               </option>
             ))}
           </select>

@@ -338,7 +338,7 @@ export function DashboardOverview() {
     return (
       <section className="anim-pop rounded-2xl border border-line bg-surface p-8 text-center sm:p-12">
         <h2 className="text-2xl font-semibold tracking-tight">
-          Nothing here yet — pick a starting point.
+          Nothing here yet. Pick a starting point.
         </h2>
         <p className="mx-auto mt-3 max-w-lg leading-relaxed text-muted">
           None of these depend on each other. Fill in whichever one matches
@@ -404,7 +404,7 @@ export function DashboardOverview() {
               Where are you right now?
             </h2>
             <p className="mt-1.5 text-sm leading-relaxed text-muted">
-              This decides what leads below — you can change it any time.
+              This decides what leads below. You can change it any time.
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {PHASES.map((p) => (
@@ -601,7 +601,7 @@ export function DashboardOverview() {
             </span>
             <span className="mt-0.5 block text-sm text-muted">
               Activities, hours, schools, secondaries, essays, interviews, and
-              letters — one workbook, one download.
+              letters: one workbook, one download.
             </span>
           </span>
           <button

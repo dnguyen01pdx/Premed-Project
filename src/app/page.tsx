@@ -113,8 +113,8 @@ export default async function HomePage() {
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-relaxed text-navy-100">
-                MD Atlas is the one place four years of work actually lives
-                — the hours, the activities, the secondaries, the
+                MD Atlas is the one place four years of work actually lives:
+                the hours, the activities, the secondaries, the
                 interviews. Start anywhere. Nothing has to be filled in for
                 the rest to work.
               </p>
@@ -172,8 +172,8 @@ export default async function HomePage() {
           <p className="max-w-xl text-sm leading-relaxed text-muted">
             <span className="font-semibold text-foreground">
               Built by Dylan
-            </span>{" "}
-            — a medical student who wanted this tracker during his own
+            </span>
+            , a medical student who wanted this tracker during his own
             application cycle and it didn&apos;t exist.{" "}
             <Link
               href="/about"
@@ -275,7 +275,7 @@ export default async function HomePage() {
                     Somewhere in here: the MCAT.
                   </span>
                   <span className="text-muted">
-                    MD Atlas doesn&apos;t do MCAT prep — for that,{" "}
+                    MD Atlas doesn&apos;t do MCAT prep. For that,{" "}
                     <a
                       href="https://mcatpulse.com"
                       target="_blank"
@@ -355,7 +355,7 @@ export default async function HomePage() {
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
                 Mostly aggregators and past applicants&apos; reports, not
-                schools&apos; own admissions pages — so treat them as a head
+                schools&apos; own admissions pages, so treat them as a head
                 start, not gospel. Every prompt shows the source it came from
                 and the cycle it was reported for, and schools change prompts
                 without notice. Confirm against your actual secondary before
@@ -363,7 +363,7 @@ export default async function HomePage() {
                 {stats.prompts.toLocaleString()} prompts across{" "}
                 {stats.schools} of {schools.length} programs
                 {withoutPrompts > 0
-                  ? ` — ${withoutPrompts} still have nothing collected, and their pages say so plainly`
+                  ? `. ${withoutPrompts} still have nothing collected, and their pages say so plainly`
                   : ""}
                 .{" "}
                 <Link
@@ -387,7 +387,7 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Nothing, automatically — it just stays there, yours, for as
+                Nothing, automatically. It just stays there, yours, for as
                 long as you want it. Export everything as JSON or CSV from
                 your account page, or a full spreadsheet from the dashboard,
                 whenever you like. Delete your account and its synced copy is
@@ -408,7 +408,7 @@ export default async function HomePage() {
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
                 No. Never a rewritten paragraph, a suggested sentence, or a
-                fill-in-the-blank outline — not for free accounts, not for
+                fill-in-the-blank outline, not for free accounts, not for
                 paying ones, not once feedback ships.{" "}
                 <Link
                   href="/how-feedback-works"
@@ -431,7 +431,7 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                One person — Dylan, an incoming medical student who applied
+                One person: Dylan, an incoming medical student who applied
                 in the most recent cycle and built the tracker he wanted and
                 didn&apos;t have.{" "}
                 <Link

@@ -4,8 +4,10 @@ import { revalidatePath } from "next/cache";
 import type { Metadata } from "next";
 import { deleteAccount, getCurrentUser, signOutCurrentSession } from "@/lib/auth";
 import { SITE_NAME } from "@/lib/config";
+import { isStripeConfigured } from "@/lib/stripe";
 import { CompassMark } from "@/components/Logo";
 import { ProPreviewToggle } from "@/components/ProPreviewToggle";
+import { PromoCodeForm } from "@/components/PromoCodeForm";
 import { ExportDataButtons } from "@/components/ExportDataButtons";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 
@@ -43,6 +45,7 @@ export default async function AccountPage({
 }) {
   const sp = await searchParams;
   const error = Array.isArray(sp.error) ? sp.error[0] : sp.error;
+  const upgraded = (Array.isArray(sp.upgraded) ? sp.upgraded[0] : sp.upgraded) === "1";
   const user = await getCurrentUser();
 
   if (!user) {
@@ -89,8 +92,13 @@ export default async function AccountPage({
               )}
               {error === "google" && (
                 <p className="mt-4 rounded-xl border border-danger/30 bg-danger-soft p-3.5 text-sm text-danger">
-                  Google sign-in didn&apos;t go through. Nothing was saved or
-                  changed — try again below.
+                  Google sign-in did not go through. Nothing was saved or
+                  changed. Try again below.
+                </p>
+              )}
+              {error === "signinfirst" && (
+                <p className="mt-4 rounded-xl border border-line-strong bg-sunken p-3.5 text-sm">
+                  Sign in first, then head back to Pricing to upgrade.
                 </p>
               )}
 
@@ -121,7 +129,7 @@ export default async function AccountPage({
 
         <div className="mx-auto max-w-lg space-y-6">
           <p className="leading-relaxed text-muted">
-            You do not need an account — the dashboard works fully without
+            You do not need an account. The dashboard works fully without
             one. Signing in only adds syncing, so your work follows you
             between devices.
           </p>
@@ -141,6 +149,8 @@ export default async function AccountPage({
     );
   }
 
+  const stripeReady = isStripeConfigured();
+
   return (
     <div className="mx-auto max-w-lg space-y-8">
       <header>
@@ -149,6 +159,13 @@ export default async function AccountPage({
           Signed in as <strong className="text-foreground">{user.email}</strong>.
         </p>
       </header>
+
+      {upgraded && !user.isPro && (
+        <p className="rounded-xl border border-line-strong bg-sunken p-3.5 text-sm">
+          Payment received. This can take a few seconds to show up here,
+          reload if it still says Free.
+        </p>
+      )}
 
       <section className="rounded-2xl border border-line bg-surface p-6">
         <h2 className="font-semibold">What {SITE_NAME} stores for you</h2>
@@ -171,7 +188,53 @@ export default async function AccountPage({
         </p>
       </section>
 
-      <ProPreviewToggle />
+      <section className="rounded-2xl border border-line bg-surface p-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-semibold">Pro</h2>
+          {user.isPro && (
+            <span className="rounded-full bg-ok-soft px-3 py-1 text-xs font-semibold text-ok">
+              Active
+            </span>
+          )}
+        </div>
+
+        {user.isPro ? (
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            You have Pro on this account. It follows your sign-in, not this
+            browser, so it is there whenever you sign in anywhere else too.
+          </p>
+        ) : (
+          <>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              $49 one time, covers your whole cycle. See{" "}
+              <Link
+                href="/pricing"
+                className="text-accent underline underline-offset-2 hover:no-underline"
+              >
+                what it unlocks
+              </Link>
+              .
+            </p>
+            {stripeReady ? (
+              <a
+                href="/api/checkout/start"
+                className="mt-4 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+              >
+                Upgrade to Pro
+              </a>
+            ) : (
+              <p className="mt-3 text-sm text-muted">
+                Purchasing is not open yet.
+              </p>
+            )}
+            <div className="mt-5 border-t border-line pt-5">
+              <PromoCodeForm />
+            </div>
+          </>
+        )}
+      </section>
+
+      {!user.isPro && <ProPreviewToggle />}
 
       <ExportDataButtons />
 

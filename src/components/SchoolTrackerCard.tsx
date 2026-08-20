@@ -372,7 +372,7 @@ export function SchoolTrackerCard({
                     <div className="mt-2.5 space-y-2.5 rounded-lg border border-line bg-sunken p-3">
                       <label className="block text-xs">
                         <span className="mb-1 block font-medium text-muted">
-                          Category (used for the Master Essay Map — override
+                          Category (used for the Master Essay Map; override
                           our guess any time)
                         </span>
                         <select
@@ -508,8 +508,8 @@ export function SchoolTrackerCard({
 
                       <label className="block text-xs">
                         <span className="mb-1 block font-medium text-muted">
-                          Your draft (stays in this browser only — used for the
-                          school-name safety check and the Essay Map)
+                          Your draft (stays in this browser only and is used for
+                          the school-name safety check and the Essay Map)
                         </span>
                         <textarea
                           value={essay.draftText ?? ""}
@@ -538,7 +538,7 @@ export function SchoolTrackerCard({
                       </label>
                       <label className="block text-xs">
                         <span className="mb-1 block font-medium text-muted">
-                          Experiences this draws on (comma separated — e.g. Free
+                          Experiences this draws on (comma separated, e.g. Free
                           clinic, Research)
                         </span>
                         <input

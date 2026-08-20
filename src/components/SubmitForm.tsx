@@ -94,7 +94,7 @@ export function SubmitForm({ schools }: { schools: SchoolOption[] }) {
             Thank you. {sentCount} prompt{sentCount === 1 ? "" : "s"} sent.
           </strong>{" "}
           It will be reviewed before it appears on the site. If your secondary
-          had more essays, add the next one below — the school and cycle are
+          had more essays, add the next one below. The school and cycle are
           still filled in.
         </div>
       )}
@@ -177,7 +177,7 @@ export function SubmitForm({ schools }: { schools: SchoolOption[] }) {
         </label>
         <p className="mb-2 text-sm text-muted">
           Copy and paste it exactly as the school wrote it. Exact wording is the
-          entire point — a paraphrase is worse than nothing here.
+          entire point: a paraphrase is worse than nothing here.
         </p>
         <textarea
           id="promptText"

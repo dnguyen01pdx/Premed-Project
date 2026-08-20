@@ -8,8 +8,8 @@ import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
-    template: `%s — ${SITE_NAME}`,
+    default: `${SITE_NAME} · ${SITE_TAGLINE}`,
+    template: `%s · ${SITE_NAME}`,
   },
   description:
     "A free dashboard for the whole medical school application: log your activities, draft Work & Activities entries, track every secondary, and manage interviews.",

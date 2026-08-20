@@ -15,15 +15,15 @@ const COPY: Record<
 > = {
   secondaries: {
     title: "Sign in to track your secondaries",
-    body: "Add each school, break its secondary into individual essays, and see which prompts overlap across your list so you write once instead of twenty times. Free — just an email, no password.",
+    body: "Add each school, break its secondary into individual essays, and see which prompts overlap across your list so you write once instead of twenty times. Free: just an email, no password.",
     existingData: (n) =>
-      `This browser already has ${n} ${n === 1 ? "school" : "schools"} saved locally. Sign in to keep editing and back it up — nothing is deleted by signing in.`,
+      `This browser already has ${n} ${n === 1 ? "school" : "schools"} saved locally. Sign in to keep editing and back it up. Nothing is deleted by signing in.`,
   },
   interviews: {
     title: "Sign in to track your interviews",
-    body: "Log every invite from offer to decision, plus a full question bank of what interviewers are actually listening for. Free — just an email, no password.",
+    body: "Log every invite from offer to decision, plus a full question bank of what interviewers are actually listening for. Free: just an email, no password.",
     existingData: () =>
-      "This browser already has interview activity saved locally. Sign in to keep tracking it — nothing is deleted by signing in.",
+      "This browser already has interview activity saved locally. Sign in to keep tracking it. Nothing is deleted by signing in.",
   },
 };
 

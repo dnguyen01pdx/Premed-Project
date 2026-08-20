@@ -133,7 +133,7 @@ export default async function SchoolPage({
             {cycle} cycle
             {cycle !== CURRENT_CYCLE && (
               <span className="ml-2 font-normal text-muted normal-case">
-                (prior cycle — may not repeat)
+                (prior cycle, may not repeat)
               </span>
             )}
           </h2>

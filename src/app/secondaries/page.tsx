@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { ProSync } from "@/components/ProSync";
 import { SignInGate } from "@/components/SignInGate";
 import { SyncPanel } from "@/components/SyncPanel";
 import { TrackerBoard } from "@/components/TrackerBoard";
@@ -64,6 +65,8 @@ export default async function SecondariesPage() {
           </Link>
         </div>
       </section>
+
+      <ProSync isPro={!!user?.isPro} />
 
       <SignInGate signedIn={!!user} feature="secondaries">
         <TrackerBoard schools={schools} promptsBySchool={promptsBySchool} />

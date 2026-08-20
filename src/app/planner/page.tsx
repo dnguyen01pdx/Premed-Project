@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Planner",
   description:
-    "A real calendar for your premed timeline — recurring classes and shifts alongside one-time dates like your MCAT, with week, month, and year views and exactly how many hours each commitment takes.",
+    "A real calendar for your premed timeline: recurring classes and shifts alongside one-time dates like your MCAT, with week, month, and year views and exactly how many hours each commitment takes.",
 };
 
 export default async function PlannerPage() {
@@ -20,7 +20,7 @@ export default async function PlannerPage() {
       <header className="anim-rise">
         <h1 className="text-4xl font-semibold tracking-tight">Planner</h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Put in what repeats — lectures, shifts, lab, standing meetings — and
+          Put in what repeats (lectures, shifts, lab, standing meetings) and
           what doesn&apos;t, like your MCAT date or an application deadline.
           Both live on the same calendar, in week, month, or year view.
         </p>

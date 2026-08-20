@@ -150,7 +150,7 @@ export async function clearSessionCookie() {
   jar.delete(SESSION_COOKIE);
 }
 
-export type CurrentUser = { id: string; email: string };
+export type CurrentUser = { id: string; email: string; isPro: boolean };
 
 /** Resolves the signed-in user, or null. Safe to call on any request. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -159,7 +159,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!raw) return null;
 
   const [row] = await db
-    .select({ id: users.id, email: users.email })
+    .select({ id: users.id, email: users.email, isPro: users.isPro })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
     .where(

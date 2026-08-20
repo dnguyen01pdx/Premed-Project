@@ -69,7 +69,7 @@ export function CopyEmailButton({ email }: { email: string }) {
       {status === "copied"
         ? "Copied"
         : status === "failed"
-          ? "Couldn't copy — select it above"
+          ? "Couldn't copy. Select it above"
           : "Copy email address"}
     </button>
   );

@@ -100,8 +100,8 @@ export function MyOverlap({
                     `${c.minChars.toLocaleString()} characters`,
                 ]
                   .filter(Boolean)
-                  .join(" or ")}{" "}
-                — the tightest limit among your schools.
+                  .join(" or ")}
+                , the tightest limit among your schools.
               </span>
             </p>
           )}

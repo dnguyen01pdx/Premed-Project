@@ -32,8 +32,8 @@ export default function PrivacyPage() {
           Your tracker is not on our servers
         </h2>
         <p className="mt-2 leading-relaxed">
-          Everything on the My Schools page — which schools you applied to, your
-          essays, their statuses, your deadlines, your notes — is saved in your
+          Everything on the My Schools page (which schools you applied to, your
+          essays, their statuses, your deadlines, your notes) is saved in your
           own browser using local storage. It is never transmitted to us. We
           could not show you your own list if you asked us to, because we do not
           have it.
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
             <p className="mt-1.5 leading-relaxed text-muted">
               We store what you typed: the school, the cycle, the prompt text,
               the length limit, and any note. If you fill in the optional email
-              field, we store that too, and we use it for exactly one thing —
+              field, we store that too, and we use it for exactly one thing:
               asking you a follow-up question if the submission is unclear. It
               is never published, never sold, and never added to a mailing list.
               Leaving it blank is completely fine.
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
           </p>
           <p>
             When you sign in we store your email address and a copy of your
-            dashboard — schools, essays, statuses, interviews, prep notes. We
+            dashboard: schools, essays, statuses, interviews, prep notes. We
             use your email to send sign-in links and to tell you when essay
             feedback launches. We do not sell it, and there is no other mailing
             list.

@@ -1,8 +1,7 @@
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
-import { timingSafeEqual } from "node:crypto";
 import type { Metadata } from "next";
 import { Badge } from "@/components/Badge";
+import { adminSignIn, isAdminAuthed } from "@/lib/admin";
 import {
   listSubmissions,
   setSubmissionStatus,
@@ -15,44 +14,15 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-const COOKIE = "mda_admin";
-
-/** Constant-time compare, so the password cannot be guessed by timing. */
-function matches(a: string, b: string): boolean {
-  const ab = Buffer.from(a);
-  const bb = Buffer.from(b);
-  if (ab.length !== bb.length) return false;
-  return timingSafeEqual(ab, bb);
-}
-
-async function isAuthed(): Promise<boolean> {
-  const secret = process.env.ADMIN_PASSWORD;
-  if (!secret) return false;
-  const jar = await cookies();
-  const got = jar.get(COOKIE)?.value;
-  return Boolean(got && matches(got, secret));
-}
-
 async function signIn(formData: FormData) {
   "use server";
-  const secret = process.env.ADMIN_PASSWORD;
-  const entered = String(formData.get("password") ?? "");
-  if (secret && matches(entered, secret)) {
-    const jar = await cookies();
-    jar.set(COOKIE, entered, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/admin",
-      maxAge: 60 * 60 * 12,
-    });
-  }
+  await adminSignIn(String(formData.get("password") ?? ""));
   revalidatePath("/admin/submissions");
 }
 
 async function decide(formData: FormData) {
   "use server";
-  if (!(await isAuthed())) return;
+  if (!(await isAdminAuthed())) return;
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "");
   if (!id) return;
@@ -81,7 +51,7 @@ export default async function AdminSubmissionsPage({
     );
   }
 
-  if (!(await isAuthed())) {
+  if (!(await isAdminAuthed())) {
     return (
       <form
         action={signIn}
@@ -122,8 +92,14 @@ export default async function AdminSubmissionsPage({
         <p className="mt-2 text-sm text-muted">
           Approving marks a submission as good to copy into{" "}
           <code>data/schools.json</code>. Nothing here is published
-          automatically — the JSON file stays the source of truth.
+          automatically. The JSON file stays the source of truth.
         </p>
+        <a
+          href="/admin/promo"
+          className="mt-2 inline-block text-sm font-medium text-accent underline underline-offset-2 hover:no-underline"
+        >
+          Promo codes &rarr;
+        </a>
       </header>
 
       <nav className="flex flex-wrap gap-2">

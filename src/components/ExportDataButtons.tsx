@@ -27,7 +27,7 @@ export function ExportDataButtons() {
   function clearLocal() {
     const ok = window.confirm(
       "Clear everything MD Atlas has stored in this browser? This does not " +
-        "touch anything already saved to your account — if you are signed " +
+        "touch anything already saved to your account. If you are signed " +
         "in, it comes right back next time you load the site. If you are " +
         "not signed in, this is the only copy, and this cannot be undone.",
     );
@@ -71,7 +71,7 @@ export function ExportDataButtons() {
         <h3 className="text-sm font-semibold">Clear this browser&apos;s data</h3>
         <p className="mt-1.5 text-sm leading-relaxed text-muted">
           Removes everything MD Atlas has stored on this device. Sign in
-          first if you want a copy kept safe first — export it too, just in
+          first if you want a copy kept safe, and export it too, just in
           case.
         </p>
         <button

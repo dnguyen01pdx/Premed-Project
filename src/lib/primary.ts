@@ -292,7 +292,7 @@ export function essaysExportTable(state: PrimaryState): ExportTable {
     const mostMeaningfulEssay = e.mostMeaningfulEssay ?? "";
     if (description.trim()) {
       rows.push([
-        `${label} — description`,
+        `${label} (description)`,
         `${DESCRIPTION_LIMIT} characters`,
         String(charCount(description)),
         description,
@@ -300,7 +300,7 @@ export function essaysExportTable(state: PrimaryState): ExportTable {
     }
     if (e.mostMeaningful && mostMeaningfulEssay.trim()) {
       rows.push([
-        `${label} — most meaningful`,
+        `${label} (most meaningful)`,
         `${MOST_MEANINGFUL_LIMIT} characters`,
         String(charCount(mostMeaningfulEssay)),
         mostMeaningfulEssay,

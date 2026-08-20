@@ -326,7 +326,7 @@ export function TrackerBoard({
               </div>
               <div>
                 <span className="block text-2xl font-semibold tabular-nums">
-                  {coveragePct === null ? "—" : `${coveragePct}%`}
+                  {coveragePct === null ? "N/A" : `${coveragePct}%`}
                 </span>
                 <span className="mt-0.5 block text-xs text-muted">
                   essay coverage
@@ -372,7 +372,7 @@ export function TrackerBoard({
                     </span>
                     <span className="mt-1 block font-medium">
                       {nextDeadline.school.name}
-                      {" — "}
+                      {": "}
                       {nextDeadline.days === 0
                         ? "due today"
                         : `due in ${nextDeadline.days} day${nextDeadline.days === 1 ? "" : "s"}`}
@@ -391,7 +391,7 @@ export function TrackerBoard({
                     <span className="mt-1 block font-medium">
                       {nextUp.typeLabel}
                       {nextUp.schoolCount > 1
-                        ? ` — covers ${nextUp.schoolCount} schools`
+                        ? ` (covers ${nextUp.schoolCount} schools)`
                         : ""}
                       {nextUp.soonestSchoolName
                         ? `, starting with ${nextUp.soonestSchoolName}`

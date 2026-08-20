@@ -319,7 +319,7 @@ function EssayGroupCard({
 
       {NON_REUSABLE_TYPE_KEYS.has(group.typeKey) && (
         <p className="border-b border-line bg-warn-soft px-5 py-2.5 text-sm text-warn">
-          Each of these needs its own answer — what makes {group.typeLabel.toLowerCase()}{" "}
+          Each of these needs its own answer: what makes {group.typeLabel.toLowerCase()}{" "}
           true for one school usually is not true for the next one. Grouped
           here so you can see what is left, not to suggest reusing a draft
           across them.
@@ -336,8 +336,8 @@ function EssayGroupCard({
                 `${group.minChars.toLocaleString()} characters`,
             ]
               .filter(Boolean)
-              .join(" or ")}{" "}
-            — the tightest limit in this group.
+              .join(" or ")}
+            , the tightest limit in this group.
           </span>
         </p>
       )}
@@ -406,7 +406,7 @@ function EssayGroupCard({
               {linkedMaster && (
                 <p className="mt-1.5 text-xs text-muted">
                   Reusing the draft from this group&apos;s master version.
-                  Remember to adapt it — that&apos;s what the name check below
+                  Remember to adapt it. That&apos;s what the name check below
                   is for.
                 </p>
               )}
@@ -462,7 +462,7 @@ function SafetyCheckControl({
       </button>
       {result === "flagged" && (
         <p className="mt-1.5 rounded-lg border border-danger/30 bg-danger-soft px-3 py-2 text-xs font-medium text-danger">
-          ⚠️ Possible school-name error — this draft contains &ldquo;
+          ⚠️ Possible school-name error: this draft contains &ldquo;
           {hits.join('", "')}&rdquo;.
         </p>
       )}

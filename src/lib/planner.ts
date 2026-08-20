@@ -268,7 +268,7 @@ export function duration(e: PlannerEvent): number {
 export function recurrenceSummary(e: PlannerEvent): string {
   switch (e.recurrence) {
     case "none":
-      return `Once — ${fmtDateShort(e.startDate)}`;
+      return `Once: ${fmtDateShort(e.startDate)}`;
     case "daily":
       return "Every day";
     case "weekly":

@@ -44,8 +44,11 @@ must not be dropped.
 
 Accounts are optional and exist only to sync across devices.
 
-Still not built: the essay feedback engine and Stripe. Those remain the paid
-tier and the only paid tier.
+Still not built: the essay feedback engine itself. That remains the one thing
+Pro actually pays for. The payment and entitlement infrastructure to sell
+access to it (Stripe checkout, webhook-granted Pro, promo codes) is built and
+live; see "Payments and Pro" below. Until the feedback engine ships, Pro is a
+paid placeholder — `ProPreviewToggle` says so on `/account`.
 
 ## The load-bearing product decision
 Free covers everything organizational; only feedback is paid. Do not move a
@@ -143,6 +146,51 @@ already in the app when their application year arrives.
   management. `SiteHeader` deliberately doesn't fetch auth state itself to
   decide the label; if that starts to read as wrong once actually signed in,
   revisit it then rather than adding a client-side auth check to every page.
+
+## Payments and Pro
+- Real Pro status is server-authoritative: `users.isPro` plus `proSource`
+  (`"stripe"` or `"promo"`), `proGrantedAt`, `stripeCustomerId`, and
+  `stripeCheckoutSessionId` in `src/db/schema.ts`. It is set exactly two ways,
+  both in `src/lib/pro.ts`: `grantProFromStripe()` from the webhook, or
+  `redeemPromoCode()` from `/api/promo/redeem`. Never set `isPro` from
+  anywhere else, including client code.
+- This is deliberately separate from the older, client-side-only
+  `entitlements.ts` (`localStorage`, `mda.entitlements.v1`, `pro: boolean`)
+  that `EssayMapPanel.tsx`, `MyOverlap.tsx`, `TrackerBoard.tsx`, and
+  `ProPreviewToggle.tsx` already read from. `ProSync.tsx`, rendered once on
+  `/secondaries`, is the one-directional bridge: it flips the local flag on
+  when the server confirms real Pro, and never flips it off. Don't touch the
+  Pro-gated components' internals to wire in server state directly; extend
+  `ProSync` instead if a new page needs the bridge.
+- Stripe is a one-time $49 payment (`mode: "payment"`), not a subscription,
+  via hosted Checkout: `/api/checkout/start` creates the session and
+  redirects, `/api/stripe/webhook` grants Pro on `checkout.session.completed`
+  with `payment_status === "paid"`. No client-side Stripe.js — everything
+  goes through the server `stripe` package. Both routes are gated behind
+  `isStripeConfigured()` (`src/lib/stripe.ts`), which checks `STRIPE_SECRET_KEY`
+  and `STRIPE_PRICE_ID`. Unset means checkout redirects to
+  `/pricing?error=notready` instead of throwing, same posture as the
+  `GOOGLE_CLIENT_SECRET` and `RESEND_API_KEY` checks elsewhere. The webhook
+  reads the raw body via `req.text()` before any JSON parsing; verifying the
+  signature needs the exact bytes Stripe sent, so never add body parsing
+  ahead of `stripe.webhooks.constructEvent()` in that route.
+- Promo codes are fully independent of Stripe and work with no payment setup.
+  `/admin/promo` (same `ADMIN_PASSWORD` gate as `/admin/submissions`, shared
+  helper now in `src/lib/admin.ts`) creates and deletes codes and shows
+  redemption counts. A code optionally carries `maxRedemptions` (null =
+  unlimited) and `expiresAt`. The real guard against double redemption is the
+  unique index on `(promoCodeId, userId)` in `promo_redemptions`; the
+  application-level check in `redeemPromoCode()` only exists to return a
+  friendlier message than a raw constraint failure. An already-Pro account is
+  blocked from redeeming at all, before the code lookup even runs, so it
+  can't burn a limited-quantity code's slot for no reason.
+- To actually take real payments, someone with access to the Stripe account
+  needs to set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID` (one Product, one
+  one-time Price), and `STRIPE_WEBHOOK_SECRET` (from a webhook endpoint at
+  `/api/stripe/webhook` subscribed to at least `checkout.session.completed`)
+  in Vercel and local `.env.local`. Until then, `/pricing`'s Buy button
+  degrades to "Purchasing is not open yet" and promo codes remain the only
+  way to grant Pro.
 
 ## Design
 - Colors are defined once in `src/app/globals.css` and mirrored in

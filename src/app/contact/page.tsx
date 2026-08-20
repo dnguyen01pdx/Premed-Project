@@ -16,7 +16,7 @@ export default function ContactPage() {
           Contact
         </h1>
         <p className="mt-4 leading-relaxed text-muted">
-          Corrections, questions, bug reports, anything else — this reaches a
+          Corrections, questions, bug reports, anything else: this reaches a
           real person, not a form that goes nowhere.
         </p>
       </header>
@@ -39,7 +39,7 @@ export default function ContactPage() {
           &ldquo;Open in email app&rdquo; only works if your browser has a
           default mail app set up. If nothing happens when you click it, use
           &ldquo;Copy email address&rdquo; and paste it into whatever you
-          actually use — Gmail, Outlook, your phone.
+          actually use: Gmail, Outlook, your phone.
         </p>
       </section>
 
