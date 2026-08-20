@@ -84,6 +84,17 @@ already in the app when their application year arrives.
   Never "complete" a truncated prompt by inference.
 - Each cycle gets its own prompt row. Never mutate a prior-cycle row into the
   current cycle.
+- The reseed on every build is delete-then-insert per school (see
+  `scripts/seed.ts`), and `prompts.id` is a random `createId()`, not derived
+  from content. That means a prompt's id is **not stable across deploys**,
+  even when its text is unchanged. This bit us once already: the Secondaries
+  tracker used to key "already imported" purely off the stored `promptId`, so
+  after any redeploy the same prompts would look new again and "add the
+  prompts we have" would re-import (double) them. Fixed by also matching on
+  normalized prompt text in `SchoolTrackerCard.tsx`, plus a one-time cleanup
+  pass in `tracker.ts`'s `parseEssays` for anyone who already got duplicated.
+  Any future code that needs a *stable* identity for a prompt across deploys
+  must use `(schoolSlug, cycleYear, text)`, never `prompts.id` alone.
 
 ## Conventions
 - Database reads go in `src/lib/queries.ts`, never inline in a page.

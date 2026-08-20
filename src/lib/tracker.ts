@@ -353,7 +353,54 @@ function parseEssays(raw: unknown): TrackedEssay[] {
         : undefined,
     });
   }
+  return dedupeImportedEssays(out);
+}
+
+/**
+ * Collapses essays that are exact re-imports of the same prompt.
+ *
+ * These used to accumulate because every deploy fully reseeds the prompts
+ * table with freshly generated ids (see AGENTS.md): a prompt someone already
+ * imported would get a new id on the next deploy, so "add the prompts we
+ * have" no longer recognized it as already-present and offered it again.
+ * `SchoolTrackerCard` no longer lets that happen going forward (it now also
+ * matches on text), but this cleans up anyone who already ended up with
+ * doubled essays before that fix shipped.
+ *
+ * Only touches essays that came from an import (promptId set) and share
+ * normalized text with another one — a manually-typed essay is never merged,
+ * even if its text happens to coincide with another entry.
+ */
+function dedupeImportedEssays(list: TrackedEssay[]): TrackedEssay[] {
+  const indexByKey = new Map<string, number>();
+  const out: TrackedEssay[] = [];
+  for (const e of list) {
+    if (!e.promptId) {
+      out.push(e);
+      continue;
+    }
+    const key = e.label.trim().toLowerCase().replace(/\s+/g, " ");
+    const existingIndex = indexByKey.get(key);
+    if (existingIndex === undefined) {
+      indexByKey.set(key, out.length);
+      out.push(e);
+    } else if (essayProgressScore(e) > essayProgressScore(out[existingIndex])) {
+      out[existingIndex] = e;
+    }
+    // Otherwise this is a duplicate with no more progress than the one
+    // already kept, so it's dropped.
+  }
   return out;
+}
+
+/** Rough "don't lose the one with more in it" ranking for dedup purposes. */
+function essayProgressScore(e: TrackedEssay): number {
+  let score = STATUSES.indexOf(e.status) * 100;
+  if (e.draftText && e.draftText.trim()) score += 40;
+  if (e.notes && e.notes.trim()) score += 10;
+  if (e.dueOn) score += 10;
+  if (e.experienceTags && e.experienceTags.length > 0) score += 5;
+  return score;
 }
 
 export function loadTracker(): TrackerState {

@@ -25,6 +25,10 @@ export type SchoolPrompt = {
   limitUnit: "words" | "characters" | "none";
 };
 
+function normalizePromptText(text: string): string {
+  return text.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 function limitText(
   value: number | null | undefined,
   unit: string | undefined,
@@ -77,8 +81,16 @@ export function SchoolTrackerCard({
     (e) => e.status === "done" || e.status === "submitted",
   ).length;
 
+  // Matching on id alone is not enough: every deploy fully reseeds the
+  // prompts table with freshly generated ids (see AGENTS.md), so a prompt
+  // someone already imported can show up again under a new id after a
+  // redeploy. Also matching on the normalized text keeps "add the prompts we
+  // have" from re-offering (and re-importing) content that is already here.
   const importedIds = new Set(essays.map((e) => e.promptId).filter(Boolean));
-  const importable = prompts.filter((p) => !importedIds.has(p.id));
+  const importedTexts = new Set(essays.map((e) => normalizePromptText(e.label)));
+  const importable = prompts.filter(
+    (p) => !importedIds.has(p.id) && !importedTexts.has(normalizePromptText(p.text)),
+  );
 
   function setEssays(next: TrackedEssay[]) {
     onPatch(school.slug, { essays: next });
