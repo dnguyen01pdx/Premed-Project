@@ -206,8 +206,7 @@ export default async function PricingPage({
               the first few.
             </p>
             <p className="mt-3 text-sm text-muted">
-              Full refund within 14 days, no questions asked. Beta tester
-              with a code? Redeem it on your account page instead of paying.
+              Full refund within 14 days, no questions asked.
             </p>
 
             {user?.isPro ? null : stripeReady ? (

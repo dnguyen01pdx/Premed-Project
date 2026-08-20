@@ -57,7 +57,7 @@ export function PromoCodeForm() {
   return (
     <form onSubmit={submit} className="space-y-2">
       <label htmlFor="promo-code" className="block text-sm font-medium">
-        Have a beta code?
+        Have a promo code?
       </label>
       <div className="flex flex-wrap gap-2">
         <input
