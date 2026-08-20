@@ -191,6 +191,17 @@ already in the app when their application year arrives.
   in Vercel and local `.env.local`. Until then, `/pricing`'s Buy button
   degrades to "Purchasing is not open yet" and promo codes remain the only
   way to grant Pro.
+- Adding a migration means committing both the generated `drizzle/000N_*.sql`
+  file AND its entry in `drizzle/meta/_journal.json`. `scripts/setup.ts`
+  reads the journal to decide what's pending, not a directory scan of `.sql`
+  files, so a `.sql` file without a matching journal entry is invisible to
+  `migrate()`: the build step logs "Applying database migrations..." and
+  exits clean, with no error and no warning, having silently done nothing.
+  This happened once (the `isPro`/Stripe columns went live in code while
+  production's `users` table still lacked them, breaking every page that
+  reads a session). If a page starts throwing "column ... does not exist"
+  right after a deploy that should have migrated the database, check the
+  journal first.
 
 ## Design
 - Colors are defined once in `src/app/globals.css` and mirrored in
