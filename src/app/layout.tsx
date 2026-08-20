@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -27,6 +28,18 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="flex min-h-full flex-col font-sans">
+        {/*
+          Browsers remember scroll position across a reload by default
+          (history.scrollRestoration === "auto"), so hitting refresh halfway
+          down a long page like Prompts or Secondaries leaves you exactly
+          where you were instead of at the top. Turning that off, as early as
+          possible via beforeInteractive, makes every reload land at the top
+          like a fresh page load instead.
+        */}
+        <Script id="disable-scroll-restoration" strategy="beforeInteractive">
+          {`try { if ("scrollRestoration" in history) { history.scrollRestoration = "manual"; } } catch (e) {}`}
+        </Script>
+
         <a href="#main" className="skip-link">
           Skip to content
         </a>
