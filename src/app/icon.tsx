@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
-/** Favicon: the compass mark on navy, generated from the same geometry. */
+/** Favicon: the compass mark on the ink-teal field, generated from the same geometry. */
 export default function Icon() {
   return new ImageResponse(
     (
@@ -14,7 +14,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0a1c3d",
+          background: "#0c2a28",
           borderRadius: 6,
         }}
       >
