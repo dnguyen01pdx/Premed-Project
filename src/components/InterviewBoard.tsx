@@ -73,6 +73,10 @@ export function InterviewBoard({
     return a.name.localeCompare(b.name);
   });
 
+  const waiting = sorted.filter(
+    (s) => (s.interview?.stage ?? "none") === "none",
+  );
+
   function patchInterview(
     school: TrackedSchool,
     changes: Partial<TrackedInterview>,
@@ -112,7 +116,7 @@ export function InterviewBoard({
       )}
 
       <section className="space-y-3">
-        {sorted.map((school) => {
+        {sorted.filter((s) => (s.interview?.stage ?? "none") !== "none").map((school) => {
           const iv = school.interview ?? emptyInterview();
           const active = iv.stage !== "none";
           const days = daysUntil(iv.interviewOn, today);
@@ -360,6 +364,65 @@ export function InterviewBoard({
           );
         })}
       </section>
+
+      {/* Schools with no invite yet. These used to be one full card each,
+          which with fifteen schools meant scrolling past fifteen empty cards
+          to reach the real ones. One compact list, one control per row. */}
+      {waiting.length > 0 && (
+        <section
+          aria-labelledby="waiting-heading"
+          className="rounded-2xl border border-line bg-surface p-4 sm:p-5"
+        >
+          <h3 id="waiting-heading" className="text-base font-semibold">
+            Waiting on an invite{" "}
+            <span className="font-normal text-muted tabular-nums">
+              {waiting.length}
+            </span>
+          </h3>
+          <p className="mt-1 text-sm text-muted">
+            When an invite arrives, change its status and it moves up with the
+            rest.
+          </p>
+          <ul className="mt-3 divide-y divide-line">
+            {waiting.map((school) => {
+              const iv = school.interview ?? emptyInterview();
+              return (
+                <li
+                  key={school.slug}
+                  className="flex flex-wrap items-center justify-between gap-3 py-2.5"
+                >
+                  <Link
+                    href={`/schools/${school.slug}`}
+                    className="min-w-0 text-sm text-accent underline underline-offset-2 hover:no-underline"
+                  >
+                    {school.name}
+                  </Link>
+                  <label className="shrink-0 text-sm">
+                    <span className="sr-only">
+                      Interview stage for {school.name}
+                    </span>
+                    <select
+                      value={iv.stage}
+                      onChange={(e) =>
+                        patchInterview(school, {
+                          stage: e.target.value as InterviewStage,
+                        })
+                      }
+                      className="rounded-lg border border-line-strong bg-surface px-3 py-1.5 text-sm"
+                    >
+                      {INTERVIEW_STAGES.map((v) => (
+                        <option key={v} value={v}>
+                          {INTERVIEW_STAGE_META[v].label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

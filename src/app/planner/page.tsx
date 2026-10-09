@@ -24,11 +24,6 @@ export default async function PlannerPage() {
           what doesn&apos;t, like your MCAT date or an application deadline.
           Both live on the same calendar, in week, month, or year view.
         </p>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-          The totals are not decoration. Hours per week is the number your
-          application asks for, and the one nobody can reconstruct two years
-          later from memory.
-        </p>
       </header>
 
       <PlannerBoard signedIn={!!user} />

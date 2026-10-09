@@ -1011,13 +1011,11 @@ function CalendarExportPanel({
       >
         <span>
           <h2 className="text-lg font-semibold tracking-tight">
-            Send to Google Calendar (or any calendar app)
+            Export only some events
           </h2>
           <p className="mt-1 text-sm text-muted">
-            Pick which of your saved blocks to export as a standard .ics
-            file. Every calendar app can import one, including Google
-            Calendar. Nothing here requires connecting an account, and
-            nothing here is required to use the planner.
+            Pick which blocks go into the .ics file. Google Calendar, Apple
+            Calendar, and Outlook can all import it.
           </p>
         </span>
         <span className="ml-3 shrink-0 text-sm font-medium text-accent">

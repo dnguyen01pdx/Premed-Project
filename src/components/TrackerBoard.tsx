@@ -95,6 +95,7 @@ export function TrackerBoard({
 
   const [storageOk, setStorageOk] = useState(true);
   const [exportFailed, setExportFailed] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<Status | "all">("all");
   const [tab, setTab] = useState<"list" | "overlap" | "map" | "interviews">(
@@ -403,57 +404,6 @@ export function TrackerBoard({
             )}
           </section>
 
-          {/* Progress summary */}
-          <section aria-labelledby="progress-heading">
-            <h2 id="progress-heading" className="sr-only">
-              Progress
-            </h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {STATUSES.map((s) => {
-                const active = statusFilter === s;
-                return (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => setStatusFilter(active ? "all" : s)}
-                    aria-pressed={active}
-                    className={`rounded-xl border p-4 text-left transition-colors ${
-                      active
-                        ? "border-accent bg-accent-soft"
-                        : "border-line bg-surface hover:border-line-strong"
-                    }`}
-                  >
-                    <span className="block text-2xl font-semibold tabular-nums">
-                      {counts[s]}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-muted">
-                      {STATUS_META[s].label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            {statusFilter !== "all" && (
-              <button
-                type="button"
-                onClick={() => setStatusFilter("all")}
-                className="mt-3 text-sm font-medium text-accent underline underline-offset-2 hover:no-underline"
-              >
-                Show all {tracked.length}
-              </button>
-            )}
-          </section>
-
-          {/* Essay totals: the number that reflects real workload. */}
-          {essayTotals.total > 0 && (
-            <p className="text-sm text-muted">
-              <strong className="text-foreground">
-                {essayTotals.remaining}
-              </strong>{" "}
-              of {essayTotals.total} individual essays still to write.
-            </p>
-          )}
-
           {/* Tabs */}
           <div
             role="tablist"
@@ -489,6 +439,35 @@ export function TrackerBoard({
 
           {tab === "list" ? (
             <section className="space-y-3">
+              {/* Status filter. Used to be four big counter cards above the
+                  tabs, which repeated what the season summary already says.
+                  As chips it filters the list without its own block. */}
+              <div
+                role="group"
+                aria-label="Filter schools by status"
+                className="flex flex-wrap gap-2"
+              >
+                {(["all", ...STATUSES] as const).map((s) => {
+                  const active = statusFilter === s;
+                  const n = s === "all" ? tracked.length : counts[s];
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setStatusFilter(s)}
+                      aria-pressed={active}
+                      className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+                        active
+                          ? "border-accent bg-accent-soft font-semibold text-accent"
+                          : "border-line bg-surface text-muted hover:border-line-strong hover:text-foreground"
+                      }`}
+                    >
+                      {s === "all" ? "All" : STATUS_META[s].label}{" "}
+                      <span className="tabular-nums">{n}</span>
+                    </button>
+                  );
+                })}
+              </div>
               {visible.map((s) => (
                 <SchoolTrackerCard
                   key={s.slug}
@@ -525,9 +504,9 @@ export function TrackerBoard({
       <section className="rounded-xl border border-line bg-sunken p-5">
         <h2 className="text-sm font-semibold">Your data</h2>
         <p className="mt-1 text-sm text-muted">
-          This list is stored in this browser only. We never see it. That also
-          means clearing your browser data or switching devices loses it, so
-          export a copy if it matters.{" "}
+          Saved in this browser. If you are signed in, it is also backed up
+          to your account. If you are not, clearing your browser data loses
+          it, so export a copy.{" "}
           <a
             href="/privacy"
             className="text-accent underline underline-offset-2 hover:no-underline"
@@ -577,16 +556,54 @@ export function TrackerBoard({
               e.target.value = "";
             }}
           />
-          {tracked.length > 0 && (
+          {tracked.length > 0 && !confirmClear && (
             <button
               type="button"
-              onClick={() => update(emptyTracker())}
+              onClick={() => setConfirmClear(true)}
               className="rounded-lg border border-danger/40 bg-surface px-3.5 py-2 text-sm font-medium text-danger hover:bg-danger-soft"
             >
               Clear everything
             </button>
           )}
         </div>
+        {/* Two steps on purpose. One click used to wipe the whole list, and
+            for a signed-in user the sync then pushed the empty list over
+            their backup too. */}
+        {tracked.length > 0 && confirmClear && (
+          <div
+            role="alert"
+            className="mt-3 rounded-lg border border-danger/40 bg-danger-soft p-4 text-sm text-danger"
+          >
+            <p>
+              <strong>
+                Delete all {tracked.length}{" "}
+                {tracked.length === 1 ? "school" : "schools"} and their
+                essays?
+              </strong>{" "}
+              This cannot be undone, and if you are signed in it clears your
+              backup too. Export a backup first if you might want it.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  update(emptyTracker());
+                  setConfirmClear(false);
+                }}
+                className="rounded-lg bg-danger px-3.5 py-2 text-sm font-semibold text-white"
+              >
+                Yes, delete everything
+              </button>
+              <button
+                type="button"
+                onClick={() => setConfirmClear(false)}
+                className="rounded-lg border border-line-strong bg-surface px-3.5 py-2 text-sm font-medium text-foreground"
+              >
+                Keep my list
+              </button>
+            </div>
+          </div>
+        )}
         {exportFailed && (
           <p className="mt-3 text-sm text-danger">
             Could not build the spreadsheet. Try again, or use Export backup

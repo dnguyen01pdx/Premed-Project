@@ -6,6 +6,12 @@ import { Reveal } from "@/components/Reveal";
 import { getStats, listSchools } from "@/lib/queries";
 import { TOTAL_QUESTIONS } from "@/lib/interview-questions";
 import { CycleRoute } from "@/components/CycleRoute";
+import {
+  InterviewsPreview,
+  PlannerPreview,
+  PrimaryPreview,
+  SecondariesPreview,
+} from "@/components/StagePreviews";
 
 export const revalidate = 3600;
 
@@ -43,9 +49,7 @@ export default async function HomePage() {
         "Double-booked blocks flagged before you commit to both",
       ],
       cta: "Lay out my week",
-      img: "/img/screenshots/planner.webp",
-      imgAlt:
-        "The MD Atlas planner showing a week's scheduled hours, application hours, and double-booked blocks",
+      preview: <PlannerPreview />,
     },
     {
       n: "02",
@@ -59,9 +63,7 @@ export default async function HomePage() {
         "Verifier contact per entry, with a nag until you have one",
       ],
       cta: "Start logging",
-      img: "/img/screenshots/primary.webp",
-      imgAlt:
-        "The MD Atlas primary application page showing activity counts, hours logged, and a Work & Activities entry",
+      preview: <PrimaryPreview />,
     },
     {
       n: "03",
@@ -75,9 +77,7 @@ export default async function HomePage() {
         "Overlap across your list, with the tightest limit to write to",
       ],
       cta: "Track secondaries",
-      img: "/img/screenshots/secondaries.webp",
-      imgAlt:
-        "The MD Atlas secondaries tracker showing schools by status, with prompts collected across programs",
+      preview: <SecondariesPreview />,
     },
     {
       n: "04",
@@ -91,9 +91,7 @@ export default async function HomePage() {
         `${TOTAL_QUESTIONS} questions with what the interviewer is listening for`,
       ],
       cta: "Prep interviews",
-      img: "/img/screenshots/interviews.webp",
-      imgAlt:
-        "The MD Atlas interviews page showing an interview pipeline with dates, formats, and decisions",
+      preview: <InterviewsPreview />,
     },
   ];
 
@@ -226,16 +224,7 @@ export default async function HomePage() {
                         ))}
                       </ul>
 
-                      <div className="mt-5 overflow-hidden rounded-xl border border-line">
-                        <Image
-                          src={s.img}
-                          alt={s.imgAlt}
-                          width={1120}
-                          height={699}
-                          sizes="(max-width: 768px) 100vw, 640px"
-                          className="h-auto w-full"
-                        />
-                      </div>
+                      <div className="mt-6">{s.preview}</div>
                     </div>
                   </div>
                 </li>

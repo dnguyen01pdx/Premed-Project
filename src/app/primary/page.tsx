@@ -20,14 +20,10 @@ export default function PrimaryPage() {
           the details are fresh. If you are applying now, turn those entries into
           your fifteen Work &amp; Activities descriptions.
         </p>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
-          Works with no account. Everything stays in your browser unless you sign
-          in to sync.
-        </p>
       </header>
 
-      <SyncPanel />
       <PrimaryBoard />
+      <SyncPanel />
     </div>
   );
 }

@@ -387,9 +387,9 @@ export function PrimaryBoard() {
       <section className="rounded-2xl border border-line bg-sunken p-5">
         <h2 className="text-sm font-semibold">Your data</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
-          Stored in this browser, and synced to your account if you signed in on
-          the dashboard. The spreadsheet export is laid out for transcribing
-          into AMCAS.
+          Saved in this browser, and backed up to your account if you are
+          signed in. The AMCAS export is laid out in the order you will type
+          it into the application.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <button

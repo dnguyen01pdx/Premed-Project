@@ -54,6 +54,11 @@ export function SchoolTrackerCard({
   onRemove: (slug: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  // Submitted schools start folded to one line: once it is in, the dates and
+  // status fields are history, and twenty expanded cards bury the two that
+  // still need work. null = follow the default for the current status.
+  const [detailsOpen, setDetailsOpen] = useState<boolean | null>(null);
   const [draft, setDraft] = useState("");
   const [draftOpenId, setDraftOpenId] = useState<string | null>(null);
 
@@ -73,6 +78,8 @@ export function SchoolTrackerCard({
 
   const essays = school.essays ?? [];
   const rolled = rollUpStatus(school);
+  const folded =
+    detailsOpen === null ? rolled === "submitted" : !detailsOpen;
   const days = daysUntil(school.dueOn, today);
   const overdue = days !== null && days < 0 && rolled !== "submitted";
   const soon = days !== null && days >= 0 && days <= 7 && rolled !== "submitted";
@@ -190,16 +197,58 @@ export function SchoolTrackerCard({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={() => onRemove(school.slug)}
-            className="shrink-0 text-xs text-muted underline underline-offset-2 hover:text-danger"
-          >
-            Remove
-          </button>
+          <div className="flex shrink-0 items-center gap-3 text-xs">
+            {folded && (
+              <button
+                type="button"
+                onClick={() => setDetailsOpen(true)}
+                className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+              >
+                Show details
+              </button>
+            )}
+            {!folded && rolled === "submitted" && (
+              <button
+                type="button"
+                onClick={() => setDetailsOpen(false)}
+                className="text-muted underline underline-offset-2 hover:text-foreground"
+              >
+                Fold
+              </button>
+            )}
+            {confirmRemove ? (
+              <span className="flex items-center gap-2" role="alert">
+                <span className="text-danger">
+                  Remove this school and its essays?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(school.slug)}
+                  className="font-semibold text-danger underline underline-offset-2"
+                >
+                  Remove
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmRemove(false)}
+                  className="text-muted underline underline-offset-2 hover:text-foreground"
+                >
+                  Cancel
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirmRemove(true)}
+                className="text-muted underline underline-offset-2 hover:text-danger"
+              >
+                Remove
+              </button>
+            )}
+          </div>
         </div>
 
-        {essays.length > 0 && (
+        {!folded && essays.length > 0 && (
           <div className="mt-3">
             <div
               className="h-1.5 overflow-hidden rounded-full bg-sunken"
@@ -217,6 +266,8 @@ export function SchoolTrackerCard({
           </div>
         )}
 
+        {!folded && (
+        <>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <label className="text-sm">
             <span className="mb-1 block text-xs font-medium text-muted">
@@ -290,9 +341,11 @@ export function SchoolTrackerCard({
             </button>
           )}
         </div>
+        </>
+        )}
       </div>
 
-      {open && (
+      {open && !folded && (
         <div className="border-t border-line bg-sunken p-4 sm:p-5">
           {essays.length === 0 ? (
             <p className="text-sm text-muted">
