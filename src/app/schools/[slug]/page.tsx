@@ -129,7 +129,7 @@ export default async function SchoolPage({
 
       {byCycle.map(([cycle, list]) => (
         <section key={cycle}>
-          <h2 className="mb-3 text-sm font-semibold tracking-wide uppercase">
+          <h2 className="mb-3 text-sm font-semibold">
             {cycle} cycle
             {cycle !== CURRENT_CYCLE && (
               <span className="ml-2 font-normal text-muted normal-case">

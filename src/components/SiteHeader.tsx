@@ -83,12 +83,14 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`on-navy sticky top-0 z-40 bg-navy-900 text-white transition-shadow duration-300 ${
-        scrolled ? "shadow-lg shadow-navy-900/20" : ""
+      className={`sticky top-0 z-40 border-b bg-surface/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${
+        scrolled
+          ? "border-line shadow-[0_4px_16px_-8px_rgb(12_42_40/0.18)]"
+          : "border-transparent"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-3.5">
-        <Link href="/" className="text-white" aria-label="MD Atlas home">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
+        <Link href="/" className="text-navy-900" aria-label="MD Atlas home">
           <Logo />
         </Link>
 
@@ -102,10 +104,10 @@ export function SiteHeader() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                    className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
                       active
-                        ? "bg-white/15 font-medium text-white"
-                        : "text-navy-100 hover:bg-white/10 hover:text-white"
+                        ? "bg-accent-soft font-semibold text-accent"
+                        : "text-muted hover:bg-sunken hover:text-foreground"
                     }`}
                   >
                     {item.label}
@@ -120,10 +122,10 @@ export function SiteHeader() {
           <Link
             href={PRICING.href}
             aria-current={pathname === PRICING.href ? "page" : undefined}
-            className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+            className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
               pathname === PRICING.href
-                ? "bg-white/15 font-medium text-white"
-                : "text-navy-100/80 hover:bg-white/10 hover:text-white"
+                ? "bg-accent-soft font-semibold text-accent"
+                : "text-muted hover:bg-sunken hover:text-foreground"
             }`}
           >
             {PRICING.label}
@@ -131,10 +133,10 @@ export function SiteHeader() {
           <Link
             href={ACCOUNT.href}
             aria-current={pathname === ACCOUNT.href ? "page" : undefined}
-            className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
               pathname === ACCOUNT.href
-                ? "border-white/40 bg-white/15 text-white"
-                : "border-white/30 text-white hover:bg-white/10"
+                ? "bg-accent-hover text-on-accent"
+                : "bg-accent text-on-accent hover:bg-accent-hover"
             }`}
           >
             {ACCOUNT.label}
@@ -146,7 +148,7 @@ export function SiteHeader() {
           onClick={() => setMenuOpen((v) => !v)}
           aria-expanded={menuOpen}
           aria-controls="mobile-nav"
-          className="rounded-lg px-3 py-1.5 text-sm text-navy-100 hover:bg-white/10 hover:text-white md:hidden"
+          className="rounded-full border border-line-strong px-3.5 py-1.5 text-sm font-medium text-foreground hover:bg-sunken md:hidden"
         >
           {menuOpen ? "Close" : "Menu"}
         </button>
@@ -156,7 +158,7 @@ export function SiteHeader() {
         <nav
           id="mobile-nav"
           aria-label="Main"
-          className="anim-slide border-t border-white/10 md:hidden"
+          className="anim-slide border-t border-line md:hidden"
         >
           <ul className="mx-auto max-w-6xl px-5 py-2">
             {NAV.map((item) => (
@@ -164,17 +166,17 @@ export function SiteHeader() {
                 <Link
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
-                  className="block rounded-lg px-2 py-2.5 text-sm text-navy-100 hover:bg-white/10 hover:text-white"
+                  className="block rounded-lg px-2 py-3 text-base text-foreground hover:bg-sunken"
                 >
                   {item.label}
                 </Link>
               </li>
             ))}
-            <li className="mt-1 border-t border-white/10 pt-1">
+            <li className="mt-1 border-t border-line pt-1">
               <Link
                 href={PRICING.href}
                 onClick={() => setMenuOpen(false)}
-                className="block rounded-lg px-2 py-2.5 text-sm text-navy-100/80 hover:bg-white/10 hover:text-white"
+                className="block rounded-lg px-2 py-3 text-base text-muted hover:bg-sunken"
               >
                 {PRICING.label}
               </Link>
@@ -183,7 +185,7 @@ export function SiteHeader() {
               <Link
                 href={ACCOUNT.href}
                 onClick={() => setMenuOpen(false)}
-                className="block rounded-lg px-2 py-2.5 text-sm font-medium text-white hover:bg-white/10"
+                className="block rounded-lg px-2 py-3 text-base font-semibold text-accent hover:bg-sunken"
               >
                 {ACCOUNT.label}
               </Link>
@@ -196,7 +198,7 @@ export function SiteHeader() {
           React render on every scroll frame. */}
       <div
         aria-hidden="true"
-        className="h-0.5 origin-left bg-white/70"
+        className="h-0.5 origin-left bg-accent"
         style={{ transform: "scaleX(var(--scroll-progress, 0))" }}
       />
     </header>

@@ -13,7 +13,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <header className="anim-rise">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+        <p className="text-sm font-semibold text-muted">
           {CURRENT_CYCLE} cycle
         </p>
         <h1 className="mt-1.5 text-4xl font-semibold tracking-tight">

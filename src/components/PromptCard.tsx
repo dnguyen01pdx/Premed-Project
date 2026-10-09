@@ -58,7 +58,13 @@ export function PromptCard({
         <p className="mt-3 rounded-lg border border-warn/30 bg-warn-soft px-3 py-2 text-xs leading-relaxed text-warn">
           <strong>This text is incomplete.</strong> The source we found it on cut
           it off. Read the full question on your actual secondary before you
-          write to it.
+          write to it.{" "}
+          <Link
+            href={`/submit?school=${encodeURIComponent(prompt.schoolSlug)}&incomplete=${encodeURIComponent(prompt.text.slice(0, 80))}`}
+            className="font-semibold underline underline-offset-2 hover:no-underline"
+          >
+            Have the full text? Send it
+          </Link>
         </p>
       )}
 

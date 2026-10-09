@@ -159,14 +159,14 @@ export function HomeSnapshot() {
       </div>
 
       <ol className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stages.map((s, i) => (
+        {stages.map((s) => (
           <li key={s.label}>
             <Link
               href={s.href}
               className="block h-full rounded-2xl border border-white/15 bg-white/5 p-5 transition-colors hover:border-white/40 hover:bg-white/10"
             >
-              <span className="text-xs font-semibold tracking-widest text-navy-100">
-                {String(i + 1).padStart(2, "0")} · {s.label.toUpperCase()}
+              <span className="text-sm font-semibold text-navy-100">
+                {s.label}
               </span>
               <span className="mt-2.5 block text-xl font-semibold tracking-tight">
                 {s.headline}

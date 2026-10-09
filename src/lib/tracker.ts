@@ -146,6 +146,9 @@ export type TrackedInterview = {
   thankYouSent: boolean;
   decision: Decision;
   notes?: string;
+  /** What actually came up in the interview, in the applicant's words.
+   *  Private to them; useful for the thank-you note and for later interviews. */
+  askedQuestions?: string;
 };
 
 export function emptyInterview(): TrackedInterview {
@@ -310,6 +313,10 @@ function parseInterview(raw: unknown): TrackedInterview | undefined {
     location: typeof i.location === "string" ? i.location.slice(0, 500) : undefined,
     thankYouSent: i.thankYouSent === true,
     notes: typeof i.notes === "string" ? i.notes.slice(0, 2000) : undefined,
+    askedQuestions:
+      typeof i.askedQuestions === "string"
+        ? i.askedQuestions.slice(0, 4000)
+        : undefined,
   };
 }
 
@@ -670,6 +677,7 @@ export function interviewsExportTable(schools: TrackedSchool[]): ExportTable {
     "Thank-you sent",
     "Decision",
     "Notes",
+    "Questions asked",
   ];
   const rows = schools
     .filter((s) => s.interview && s.interview.stage !== "none")
@@ -685,6 +693,7 @@ export function interviewsExportTable(schools: TrackedSchool[]): ExportTable {
         i.thankYouSent ? "Yes" : "No",
         DECISION_META[i.decision].label,
         i.notes ?? "",
+        i.askedQuestions ?? "",
       ];
     });
   return { headers, rows };

@@ -119,7 +119,7 @@ function StageCard({
     >
       <Ring value={value} total={total} tone={tone} />
       <span className="min-w-0">
-        <span className="block text-xs font-semibold uppercase tracking-widest text-muted">
+        <span className="block text-sm font-semibold text-muted">
           {eyebrow}
         </span>
         <span className="mt-1 block text-xl font-semibold tracking-tight">

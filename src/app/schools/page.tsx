@@ -74,7 +74,7 @@ export default async function SchoolsPage() {
           >
             <h2
               id={`state-${code}-heading`}
-              className="mb-3 text-sm font-semibold tracking-wide uppercase text-muted"
+              className="mb-3 text-sm font-semibold text-muted"
             >
               {STATE_NAMES[code] ?? code}
               <span className="ml-2 font-normal normal-case">

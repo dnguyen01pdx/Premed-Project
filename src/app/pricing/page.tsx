@@ -48,11 +48,6 @@ const ROWS: Array<{ feature: string; free: string; paid: string }> = [
   { feature: "Export your tracker", free: "Yes", paid: "Yes" },
   { feature: "Interview tracking and prep questions", free: "Yes", paid: "Yes" },
   {
-    feature: "Structured feedback on your drafts",
-    free: "Not built yet",
-    paid: "Not built yet, first Pro feature once it ships",
-  },
-  {
     feature: "Your overlap: which of your own schools share a question",
     free: `First ${FREE_PREVIEW_LIMIT} groups`,
     paid: "Every group",
@@ -188,22 +183,21 @@ export default async function PricingPage({
               submit your last secondary. No auto-renew, nothing to cancel.
             </p>
             <p className="mt-3 leading-relaxed">
-              Structured feedback on your drafts is planned as the first
-              feature added to Pro once it is built. It does not exist yet,
-              for free or paid accounts, and when it ships it will never
-              write your essay for you.{" "}
+              What you get today: your complete Essay Map, the full ranked
+              list of what to write next, and every application insight, not
+              just the first few.
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              Structured feedback on your drafts is in progress and will be
+              added to Pro at no extra cost when it ships. It will never write
+              your essay for you.{" "}
               <Link
                 href="/how-feedback-works"
-                className="font-medium underline underline-offset-4 hover:no-underline"
+                className="font-medium text-foreground underline underline-offset-4 hover:no-underline"
               >
                 Read the policy
               </Link>
               .
-            </p>
-            <p className="mt-3 leading-relaxed">
-              Beyond that: your complete Essay Map, the full ranked list of
-              what to write next, and every application insight, not just
-              the first few.
             </p>
             <p className="mt-3 text-sm text-muted">
               Full refund within 14 days, no questions asked.
@@ -242,11 +236,10 @@ export default async function PricingPage({
               useful no matter how many schools or essays they add.
             </p>
             <p>
-              Structured feedback on your drafts is the part that will
-              actually cost something once it exists, and it is the first
-              thing being built for Pro. Past a first look, going deeper into
-              cross-school reuse, ranked priorities, and pattern insights
-              across everything you have entered will join it there too.
+              What costs money is analysis on top of what you entered:
+              which of your schools ask the same question, which draft to
+              reuse where, and what to write next. You always get a first
+              look at all of it for free.
             </p>
           </div>
         </section>

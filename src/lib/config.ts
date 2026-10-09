@@ -6,6 +6,14 @@
  */
 export const CURRENT_CYCLE = "2026-2027";
 
+/**
+ * Prompts from cycles older than this are hidden on /prompts unless the
+ * visitor asks for them. Schools rewrite secondaries often enough that text
+ * this old is more noise than head start. School pages still show everything,
+ * since someone on a school's page asked about that school specifically.
+ */
+export const OLDEST_DEFAULT_CYCLE = "2023-2024";
+
 export const SITE_NAME = "MD Atlas";
 
 /** Where people write in: corrections, deletion requests, questions. */

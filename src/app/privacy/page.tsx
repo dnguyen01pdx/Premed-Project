@@ -136,15 +136,15 @@ export default function PrivacyPage() {
           <p>
             When you sign in we store your email address and a copy of your
             dashboard: schools, essays, statuses, interviews, prep notes. We
-            use your email to send sign-in links and to tell you when essay
+            use your email to identify your account and to tell you when essay
             feedback launches. We do not sell it, and there is no other mailing
             list.
           </p>
           <p>
-            There are no passwords. Signing in sends a link that works once and
-            expires in 15 minutes. We store only a scrambled version of that
-            link and of your session, so a database leak does not hand anyone a
-            way into your account.
+            There are no passwords. You sign in with your Google account, and
+            Google confirms your email address to us; we never see your Google
+            password. We store only a scrambled version of your session, so a
+            database leak does not hand anyone a way into your account.
           </p>
           <p>
             <strong className="text-foreground">Deleting it:</strong> the

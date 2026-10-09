@@ -22,8 +22,8 @@ export default function ContactPage() {
       </header>
 
       <section className="rounded-2xl border border-line bg-surface p-6">
-        <p className="text-sm font-semibold tracking-widest text-muted">
-          EMAIL
+        <p className="text-sm font-semibold text-muted">
+          Email
         </p>
         <p className="mt-2 select-all text-lg font-medium">{CONTACT_EMAIL}</p>
         <div className="mt-5 flex flex-wrap gap-3">

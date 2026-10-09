@@ -2,7 +2,7 @@ import "server-only";
 import { and, asc, eq, ilike, inArray, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
 import { prompts, promptTypes, schools } from "@/db/schema";
-import { CURRENT_CYCLE } from "./config";
+import { CURRENT_CYCLE, OLDEST_DEFAULT_CYCLE } from "./config";
 
 /**
  * Keeps only each school's most recent cycle of prompts.
@@ -53,6 +53,8 @@ export type PromptFilters = {
   confirmedOnly?: boolean;
   /** Hide administrative and other non-essay items. */
   essaysOnly?: boolean;
+  /** Include prompts older than OLDEST_DEFAULT_CYCLE (hidden by default). */
+  includeOlder?: boolean;
 };
 
 export type PromptRow = {
@@ -111,6 +113,10 @@ function buildWhere(filters: PromptFilters): SQL | undefined {
   if (filters.confirmedOnly) {
     clauses.push(eq(prompts.confirmed, true));
     clauses.push(eq(prompts.cycleYear, CURRENT_CYCLE));
+  }
+  if (!filters.includeOlder) {
+    // "YYYY-YYYY" compares correctly as a string.
+    clauses.push(sql`${prompts.cycleYear} >= ${OLDEST_DEFAULT_CYCLE}`);
   }
   if (filters.essaysOnly) {
     clauses.push(

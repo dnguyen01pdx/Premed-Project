@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
+import "@fontsource-variable/bricolage-grotesque/standard.css";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -46,7 +47,7 @@ export default function RootLayout({
 
         <SiteHeader />
 
-        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-10">
+        <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-12 sm:py-16">
           {children}
         </main>
 
@@ -86,8 +87,8 @@ export default function RootLayout({
               */}
               <div className="flex flex-wrap gap-x-10 gap-y-6">
                 <nav aria-label="More">
-                  <h2 className="text-xs font-semibold tracking-widest text-navy-100">
-                    MORE
+                  <h2 className="text-sm font-semibold text-navy-100">
+                    More
                   </h2>
                   <ul className="mt-3 space-y-2 text-sm">
                     <li>
@@ -122,8 +123,8 @@ export default function RootLayout({
                 </nav>
 
                 <nav aria-label="Account">
-                  <h2 className="text-xs font-semibold tracking-widest text-navy-100">
-                    ACCOUNT
+                  <h2 className="text-sm font-semibold text-navy-100">
+                    Account
                   </h2>
                   <ul className="mt-3 space-y-2 text-sm">
                     <li>

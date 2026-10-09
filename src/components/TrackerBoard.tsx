@@ -296,8 +296,8 @@ export function TrackerBoard({
               I actually stand" without opening a tab. Everything in it links
               to the tab that can act on it. */}
           <section className="rounded-2xl border border-line bg-surface p-5 sm:p-6">
-            <p className="text-xs font-semibold tracking-widest text-muted">
-              SECONDARY SEASON
+            <p className="text-sm font-semibold text-muted">
+              Secondary season
             </p>
             <div className="mt-3 grid grid-cols-2 gap-4 sm:grid-cols-4">
               <div>
@@ -367,7 +367,7 @@ export function TrackerBoard({
                         : "border-line bg-sunken"
                     }`}
                   >
-                    <span className="block text-xs font-semibold uppercase tracking-widest text-muted">
+                    <span className="block text-sm font-semibold text-muted">
                       Next deadline
                     </span>
                     <span className="mt-1 block font-medium">
@@ -385,7 +385,7 @@ export function TrackerBoard({
                     onClick={() => setTab("map")}
                     className="rounded-xl border border-line bg-sunken p-4 text-left"
                   >
-                    <span className="block text-xs font-semibold uppercase tracking-widest text-muted">
+                    <span className="block text-sm font-semibold text-muted">
                       Recommended next essay
                     </span>
                     <span className="mt-1 block font-medium">

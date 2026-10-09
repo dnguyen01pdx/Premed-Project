@@ -11,7 +11,16 @@ const PRIOR_CYCLE = (() => {
   return `${a - 1}-${b - 1}`;
 })();
 
-export function SubmitForm({ schools }: { schools: SchoolOption[] }) {
+export function SubmitForm({
+  schools,
+  initialSchool = "",
+  initialNote = "",
+}: {
+  schools: SchoolOption[];
+  /** Prefill from /submit?school=…, used by "Have the full text?" links. */
+  initialSchool?: string;
+  initialNote?: string;
+}) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -19,7 +28,9 @@ export function SubmitForm({ schools }: { schools: SchoolOption[] }) {
   const [limitUnit, setLimitUnit] = useState<"words" | "characters" | "none">(
     "characters",
   );
-  const [schoolSlug, setSchoolSlug] = useState("");
+  const [schoolSlug, setSchoolSlug] = useState(
+    schools.some((x) => x.slug === initialSchool) ? initialSchool : "",
+  );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -237,6 +248,7 @@ export function SubmitForm({ schools }: { schools: SchoolOption[] }) {
           id="note"
           name="note"
           rows={2}
+          defaultValue={initialNote}
           placeholder="Was it optional? Which number essay was it? When did the secondary arrive?"
           className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2.5 text-sm placeholder:text-muted"
         />

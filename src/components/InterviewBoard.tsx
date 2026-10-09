@@ -18,6 +18,14 @@ import {
   emptyInterview,
   interviewTotals,
 } from "@/lib/tracker";
+import { FORMAT_PREP } from "@/lib/interview-questions";
+
+const FORMAT_PREP_TITLE: Record<keyof typeof FORMAT_PREP, string> = {
+  traditional: "How to prep for a one-on-one interview",
+  mmi: "How to prep for an MMI",
+  panel: "How to prep for a panel interview",
+  hybrid: "How to prep for a mixed-format day",
+};
 
 /**
  * The interview half of the dashboard.
@@ -286,6 +294,50 @@ export function InterviewBoard({
                     )}
                   </div>
 
+                  {iv.format !== "unknown" && iv.stage !== "decision" && (
+                    <details className="group mt-3 rounded-lg border border-line bg-sunken px-3.5 py-2.5 text-sm">
+                      <summary className="cursor-pointer list-none font-medium [&::-webkit-details-marker]:hidden">
+                        <span
+                          aria-hidden="true"
+                          className="mr-1.5 inline-block text-muted transition-transform group-open:rotate-90"
+                        >
+                          &rsaquo;
+                        </span>
+                        {FORMAT_PREP_TITLE[iv.format]}
+                      </summary>
+                      <ul className="mt-2 space-y-1.5 pl-1">
+                        {FORMAT_PREP[iv.format].map((item) => (
+                          <li key={item} className="flex gap-2 leading-relaxed text-muted">
+                            <span
+                              aria-hidden="true"
+                              className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent"
+                            />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  )}
+
+                  {(iv.stage === "completed" || iv.stage === "decision") && (
+                    <label className="mt-3 block text-sm">
+                      <span className="mb-1 block text-xs font-medium text-muted">
+                        Questions I was asked
+                      </span>
+                      <textarea
+                        value={iv.askedQuestions ?? ""}
+                        onChange={(e) =>
+                          patchInterview(school, {
+                            askedQuestions: e.target.value || undefined,
+                          })
+                        }
+                        rows={3}
+                        placeholder="One per line, while you still remember them. Only you can see this."
+                        className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
+                      />
+                    </label>
+                  )}
+
                   <label className="mt-3 block text-sm">
                     <span className="mb-1 block text-xs font-medium text-muted">
                       Notes
@@ -298,7 +350,7 @@ export function InterviewBoard({
                         })
                       }
                       rows={2}
-                      placeholder="Who you spoke with, what they asked, what you want to mention in the thank-you."
+                      placeholder="Who you spoke with and what you want to mention in the thank-you."
                       className="w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm placeholder:text-muted"
                     />
                   </label>

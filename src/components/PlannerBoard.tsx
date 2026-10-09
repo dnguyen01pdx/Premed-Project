@@ -582,7 +582,7 @@ function Stat({
       }`}
     >
       <p
-        className={`text-xs font-semibold tracking-widest uppercase ${warn ? "text-warn" : "text-muted"}`}
+        className={`text-sm font-semibold ${warn ? "text-warn" : "text-muted"}`}
       >
         {label}
       </p>
@@ -840,7 +840,7 @@ function MonthView({
           {DAYS.map((d) => (
             <div
               key={d.key}
-              className="px-2 py-2 text-center text-xs font-semibold tracking-widest text-muted uppercase"
+              className="px-2 py-2 text-center text-sm font-semibold text-muted"
             >
               {d.short}
             </div>

@@ -46,9 +46,9 @@ export default function AboutPage() {
               </h2>
               <div className="mt-4 space-y-4 leading-relaxed">
                 <p>
-                  I&apos;m an incoming first-year medical student at the Warren
+                  I&apos;m a first-year medical student at the Warren
                   Alpert Medical School of Brown University. I built{" "}
-                  {SITE_NAME} because I applied in the most recent cycle and
+                  {SITE_NAME} because I applied in the 2025-2026 cycle and
                   wanted the tool I didn&apos;t have.
                 </p>
                 <p>

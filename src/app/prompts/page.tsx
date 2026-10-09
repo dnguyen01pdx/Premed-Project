@@ -1,4 +1,6 @@
 import { Suspense } from "react";
+import Link from "next/link";
+import { OLDEST_DEFAULT_CYCLE } from "@/lib/config";
 import type { Metadata } from "next";
 import { PromptCard } from "@/components/PromptCard";
 import { PromptFilters } from "@/components/PromptFilters";
@@ -43,20 +45,45 @@ function parseFilters(sp: SearchParams): Filters {
     maxWords: positiveInt(first(sp.maxWords)),
     maxChars: positiveInt(first(sp.maxChars)),
     essaysOnly: first(sp.essaysOnly) === "1",
+    includeOlder: first(sp.older) === "1",
   };
 }
 
-async function Results({ filters }: { filters: Filters }) {
-  const [rows, total] = await Promise.all([
+async function Results({
+  filters,
+  olderHref,
+}: {
+  filters: Filters;
+  olderHref: string;
+}) {
+  const [rows, total, withOlder] = await Promise.all([
     searchPrompts(filters, { limit: RESULT_LIMIT }),
     countPrompts(filters),
+    filters.includeOlder
+      ? Promise.resolve(0)
+      : countPrompts({ ...filters, includeOlder: true }),
   ]);
+  const hiddenOlder = filters.includeOlder ? 0 : withOlder - total;
+  const olderNote =
+    hiddenOlder > 0 ? (
+      <p className="mt-2 text-sm text-muted">
+        {hiddenOlder} older {hiddenOlder === 1 ? "prompt" : "prompts"} from
+        before {OLDEST_DEFAULT_CYCLE} hidden.{" "}
+        <Link
+          href={olderHref}
+          className="font-medium text-accent underline underline-offset-2 hover:no-underline"
+        >
+          Show them
+        </Link>
+      </p>
+    ) : null;
 
   if (rows.length === 0) {
     return (
       <p className="rounded-lg border border-line bg-surface p-6 text-sm text-muted">
         No prompts match those filters. Try clearing the length limit, or
         widening the prompt type.
+        {olderNote}
       </p>
     );
   }
@@ -67,6 +94,7 @@ async function Results({ filters }: { filters: Filters }) {
         {total.toLocaleString()} {total === 1 ? "prompt" : "prompts"}
         {total > rows.length && ` (showing the first ${rows.length})`}
       </p>
+      {olderNote}
       <div className="mt-4 space-y-3">
         {rows.map((p) => (
           <PromptCard key={p.id} prompt={p} />
@@ -94,6 +122,13 @@ export default async function PromptsPage({
   // Serialized filters key the Suspense boundary so the results area shows a
   // fallback whenever the query changes, rather than sitting stale.
   const key = JSON.stringify(filters);
+
+  const olderParams = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    for (const one of Array.isArray(v) ? v : v ? [v] : []) olderParams.append(k, one);
+  }
+  olderParams.set("older", "1");
+  const olderHref = `/prompts?${olderParams.toString()}`;
 
   return (
     <div className="space-y-8">
@@ -136,7 +171,7 @@ export default async function PromptsPage({
         key={key}
         fallback={<p className="text-sm text-muted">Loading prompts...</p>}
       >
-        <Results filters={filters} />
+        <Results filters={filters} olderHref={olderHref} />
       </Suspense>
     </div>
   );

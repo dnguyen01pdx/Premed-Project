@@ -3,7 +3,6 @@ import { SubmitForm } from "@/components/SubmitForm";
 import { listSchools } from "@/lib/queries";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
 
-export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Submit a prompt",
@@ -11,8 +10,20 @@ export const metadata: Metadata = {
     "Received a secondary? Send us the prompt so the next applicant does not have to guess.",
 };
 
-export default async function SubmitPage() {
+export default async function SubmitPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const one = (v: string | string[] | undefined) =>
+    (Array.isArray(v) ? v[0] : v) ?? "";
   const schools = await listSchools();
+  const initialSchool = one(sp.school).slice(0, 120);
+  const incomplete = one(sp.incomplete).slice(0, 160);
+  const initialNote = incomplete
+    ? `Full text for a prompt shown as incomplete: "${incomplete}"`
+    : "";
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
@@ -50,6 +61,8 @@ export default async function SubmitPage() {
 
       <SubmitForm
         schools={schools.map((s) => ({ slug: s.slug, name: s.name }))}
+        initialSchool={initialSchool}
+        initialNote={initialNote}
       />
     </div>
   );

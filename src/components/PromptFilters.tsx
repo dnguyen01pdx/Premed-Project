@@ -115,7 +115,7 @@ export function PromptFilters({
       </div>
 
       <fieldset>
-        <legend className="mb-2 text-xs font-medium tracking-wide text-muted uppercase">
+        <legend className="mb-2 text-sm font-medium text-muted">
           Prompt type
         </legend>
         <div className="flex flex-wrap gap-2">

@@ -1,10 +1,11 @@
-import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CompassMark } from "@/components/Logo";
 import { HomeSnapshot } from "@/components/HomeSnapshot";
 import { Reveal } from "@/components/Reveal";
 import { getStats, listSchools } from "@/lib/queries";
+import { TOTAL_QUESTIONS } from "@/lib/interview-questions";
+import { CycleRoute } from "@/components/CycleRoute";
 
 export const revalidate = 3600;
 
@@ -87,7 +88,7 @@ export default async function HomePage() {
       body: "Invites, dates, formats, and the thank-you notes everybody forgets. Plus a question bank that tells you what each question is actually testing, rather than handing you an answer to memorize.",
       points: [
         "Loud reminders for unsent thank-you notes",
-        "27 questions with what the interviewer is listening for",
+        `${TOTAL_QUESTIONS} questions with what the interviewer is listening for`,
       ],
       cta: "Prep interviews",
       img: "/img/screenshots/interviews.webp",
@@ -104,47 +105,33 @@ export default async function HomePage() {
       {/* Hero. Kept short enough to fit one screen on arrival — the pitch,
           not a scroll, is the first thing a new visitor should have to do. */}
       <div className="space-y-5">
-        <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-10 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-14">
-          <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,460px)]">
+        <section className="-mx-5 -mt-12 overflow-hidden bg-navy-900 px-5 py-12 text-white sm:mx-0 sm:-mt-4 sm:rounded-3xl sm:px-12 sm:py-16">
+          <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
             <div>
-              <CompassMark className="h-11 w-11 text-white/70" />
-              <h1 className="mt-5 max-w-3xl text-5xl font-semibold tracking-tight sm:text-6xl sm:leading-[1.05]">
+              <CompassMark className="h-10 w-10 text-navy-100/70" />
+              <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.02] sm:text-7xl">
                 The operating system for your medical school application.
               </h1>
 
-              <p className="mt-5 max-w-2xl text-lg leading-relaxed text-navy-100">
-                MD Atlas is the one place four years of work actually lives:
-                the hours, the activities, the secondaries, the
-                interviews. Start anywhere. Nothing has to be filled in for
-                the rest to work.
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-navy-100">
+                The hours, the activities, the secondaries, the interviews:
+                four years of work in one place. Start anywhere. Nothing has
+                to be filled in for the rest to work.
               </p>
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link
                   href="/dashboard"
-                  className="lift rounded-xl bg-white px-6 py-3 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+                  className="lift rounded-full bg-white px-7 py-3.5 text-base font-semibold text-navy-900 hover:bg-navy-50"
                 >
                   Open my dashboard
                 </Link>
+                <p className="text-sm text-navy-100">
+                  Free. No account needed to start.
+                </p>
               </div>
-              <p className="mt-4 text-sm text-navy-100">
-                Free. No account needed to start.
-              </p>
             </div>
 
-            {/* Hidden below lg: a screenshot competing with the pitch on a
-                phone screen loses every time, and the hero still works as
-                pure text there. */}
-            <div className="hidden overflow-hidden rounded-2xl border border-white/10 shadow-2xl lg:block">
-              <Image
-                src="/img/screenshots/dashboard.webp"
-                alt="The MD Atlas dashboard, showing progress across the planner, primary application, secondaries, and interviews, plus a next-up list of what needs attention"
-                width={1120}
-                height={699}
-                sizes="460px"
-                priority
-                className="h-auto w-full"
-              />
-            </div>
+            <CycleRoute now={new Date()} />
           </div>
         </section>
 
@@ -198,31 +185,29 @@ export default async function HomePage() {
           </div>
         </Reveal>
 
-        <ol className="mt-10 space-y-5">
+        <ol className="mt-12 space-y-8">
           {STAGES.map((s, i) => (
-            <Fragment key={s.title}>
-              <Reveal delay={i * 70}>
+              <Reveal key={s.title} delay={i * 70}>
                 <li className="overflow-hidden rounded-2xl border border-line bg-surface">
                   <div className="grid gap-0 md:grid-cols-[minmax(0,260px)_1fr]">
-                    <div className="border-b border-line bg-navy-900 p-6 text-white md:border-r md:border-b-0">
-                      <span className="text-xs font-semibold tracking-widest text-navy-100">
+                    <div className="border-b border-line bg-sunken p-7 sm:p-8 md:border-r md:border-b-0">
+                      <span className="font-display text-4xl font-semibold text-accent tabular-nums">
                         {s.n}
                       </span>
-                      <h3 className="mt-2 text-2xl font-semibold tracking-tight">
+                      <h3 className="mt-3 text-3xl font-semibold">
                         {s.title}
                       </h3>
-                      <p className="mt-1.5 text-sm text-navy-100">{s.when}</p>
+                      <p className="mt-1.5 text-sm text-muted">{s.when}</p>
                       <Link
                         href={s.href}
-                        className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-navy-900 hover:bg-navy-100"
+                        className="mt-6 inline-flex items-center rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
                       >
                         {s.cta}
-                        <span aria-hidden="true">&rarr;</span>
                       </Link>
                     </div>
 
-                    <div className="p-6 sm:p-7">
-                      <p className="text-lg font-medium tracking-tight">
+                    <div className="p-7 sm:p-9">
+                      <p className="font-display text-2xl font-semibold">
                         {s.lead}
                       </p>
                       <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
@@ -255,37 +240,6 @@ export default async function HomePage() {
                   </div>
                 </li>
               </Reveal>
-
-              {/* Not a fifth stage — MD Atlas doesn't do MCAT prep, and
-                  giving this the same numbered-card treatment as Planner or
-                  Primary would wrongly imply it does. It sits here, between
-                  Planner and Primary, purely because that is chronologically
-                  where it happens; visually it reads as connective tissue,
-                  not a peer feature, and links out clearly rather than
-                  living inside the product. */}
-              {i === 0 && (
-                <li className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-dashed border-line-strong bg-sunken px-5 py-3.5 text-sm">
-                  <span className="font-medium text-foreground">
-                    Somewhere in here: the MCAT.
-                  </span>
-                  <span className="text-muted">
-                    MD Atlas doesn&apos;t do MCAT prep. For that,{" "}
-                    <a
-                      href="https://mcatpulse.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="font-medium text-accent underline underline-offset-2 hover:no-underline"
-                    >
-                      MCAT Pulse
-                      <span aria-hidden="true" className="text-xs">
-                        &#8599;
-                      </span>
-                    </a>{" "}
-                    is a separate tool worth a look, not part of MD Atlas.
-                  </span>
-                </li>
-              )}
-            </Fragment>
           ))}
         </ol>
       </section>
@@ -425,8 +379,8 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                One person: Dylan, an incoming medical student who applied
-                in the most recent cycle and built the tracker he wanted and
+                One person: Dylan, a first-year medical student at Brown who
+                applied in the 2025-2026 cycle and built the tracker he wanted and
                 didn&apos;t have.{" "}
                 <Link
                   href="/about"
