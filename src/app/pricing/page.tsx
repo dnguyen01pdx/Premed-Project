@@ -4,7 +4,7 @@ import { Reveal } from "@/components/Reveal";
 import { getCurrentUser } from "@/lib/auth";
 import { SITE_NAME } from "@/lib/config";
 import { FREE_PREVIEW_LIMIT } from "@/lib/entitlements";
-import { isStripeConfigured } from "@/lib/stripe";
+import { isPlanAvailable, isStripeConfigured, type Plan } from "@/lib/stripe";
 
 export const dynamic = "force-dynamic";
 
@@ -69,6 +69,36 @@ const ROWS: Array<{ feature: string; free: string; paid: string }> = [
   },
 ];
 
+const PLANS: Array<{
+  key: Plan;
+  name: string;
+  price: string;
+  per: string;
+  terms: string;
+  note?: string;
+  cta: string;
+}> = [
+  {
+    key: "monthly",
+    name: "Monthly",
+    price: "$20",
+    per: "per month",
+    terms:
+      "Renews every month until you cancel. Cancel anytime from your account page and keep Pro until the end of the month you paid for.",
+    cta: "Start monthly",
+  },
+  {
+    key: "quarter",
+    name: "3 months",
+    price: "$49",
+    per: "one time",
+    note: "Saves $11",
+    terms:
+      "Three months of Pro for one payment. It does not renew, so there is nothing to cancel. Long enough for a full secondary season.",
+    cta: "Buy 3 months",
+  },
+];
+
 export default async function PricingPage({
   searchParams,
 }: {
@@ -87,11 +117,9 @@ export default async function PricingPage({
           Almost all of it is free.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted">
-          Every school, essay, hour, and interview you enter is yours, free,
-          with no cap. That data is never the thing you pay for. Pro is the
-          full cross-school analysis built on top of it: your complete Essay
-          Map, every prioritized suggestion, and every insight, instead of
-          the first {FREE_PREVIEW_LIMIT}.
+          Tracking everything is free, with no limits. Pro adds the full
+          Essay Map, every suggestion, and every insight, instead of the
+          first {FREE_PREVIEW_LIMIT}.
         </p>
       </header>
 
@@ -147,12 +175,10 @@ export default async function PricingPage({
             <h2 className="text-2xl font-semibold tracking-tight">Free</h2>
             <p className="mt-1 text-3xl font-semibold tracking-tight">$0</p>
             <p className="mt-4 leading-relaxed text-muted">
-              The planner, the primary log, the prompt atlas, and the whole
-              secondaries and interviews tracker: every school and essay you
-              add, no cap. Plus a first look at the Essay Map, your top{" "}
-              {FREE_PREVIEW_LIMIT} reusable groups, one prioritized
-              suggestion, and one application insight. No account required,
-              no credit card, no trial that expires.
+              The planner, activity log, prompt database, and the
+              secondaries and interviews trackers, with no limit on schools
+              or essays. You also see your top {FREE_PREVIEW_LIMIT} Essay Map
+              groups, one suggestion, and one insight. No credit card.
             </p>
             <Link
               href="/secondaries"
@@ -171,21 +197,9 @@ export default async function PricingPage({
                 </span>
               )}
             </div>
-            <p className="mt-1 text-3xl font-semibold tracking-tight">
-              $49{" "}
-              <span className="text-base font-normal text-muted">
-                one time, per cycle
-              </span>
-            </p>
-            <p className="mt-4 leading-relaxed">
-              Not a subscription. One flat payment that covers your whole
-              application cycle, because your need for this ends the day you
-              submit your last secondary. No auto-renew, nothing to cancel.
-            </p>
             <p className="mt-3 leading-relaxed">
-              What you get today: your complete Essay Map, the full ranked
-              list of what to write next, and every application insight, not
-              just the first few.
+              Your complete Essay Map, the full ranked list of what to write
+              next, and every application insight, not just the first few.
             </p>
             <p className="mt-3 text-sm leading-relaxed text-muted">
               Structured feedback on your drafts is in progress and will be
@@ -199,51 +213,87 @@ export default async function PricingPage({
               </Link>
               .
             </p>
-            <p className="mt-3 text-sm text-muted">
-              Full refund within 14 days, no questions asked.
-            </p>
 
-            {user?.isPro ? null : stripeReady ? (
+            {/* The two ways to pay. Same Pro either way; the only difference
+                is how long it runs and whether it renews. */}
+            <div className="mt-6 grid gap-3">
+              {PLANS.map((plan) => {
+                const available = isPlanAvailable(plan.key);
+                return (
+                  <div
+                    key={plan.key}
+                    className="rounded-xl border border-line bg-surface p-5"
+                  >
+                    <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                      <h3 className="text-lg font-semibold">{plan.name}</h3>
+                      {plan.note && (
+                        <span className="rounded-full bg-ok-soft px-2.5 py-0.5 text-xs font-semibold text-ok">
+                          {plan.note}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1">
+                      <span className="font-display text-3xl font-semibold">
+                        {plan.price}
+                      </span>{" "}
+                      <span className="text-sm text-muted">{plan.per}</span>
+                    </p>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">
+                      {plan.terms}
+                    </p>
+                    {user?.isPro ? null : available ? (
+                      <a
+                        href={`/api/checkout/start?plan=${plan.key}`}
+                        className="mt-4 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+                      >
+                        {plan.cta}
+                      </a>
+                    ) : (
+                      <p className="mt-4 text-sm font-medium text-muted">
+                        Not open yet.
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {user?.isPro && user.hasSubscription && (
               <a
-                href="/api/checkout/start"
-                className="mt-5 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+                href="/api/billing/portal"
+                className="mt-4 inline-block text-sm font-medium text-accent underline underline-offset-4 hover:no-underline"
               >
-                Buy Pro
+                Manage or cancel your subscription
               </a>
-            ) : (
+            )}
+            {!user?.isPro && !stripeReady && (
               <Link
                 href="/account"
-                className="mt-5 inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
+                className="mt-4 inline-block text-sm font-medium text-accent underline underline-offset-4 hover:no-underline"
               >
-                Not open yet: sign in to redeem a code
+                Have a code? Sign in to redeem it
               </Link>
             )}
+
+            {!user?.isPro && (
+              <p className="mt-4 text-sm leading-relaxed">
+                Not sure yet?{" "}
+                <Link
+                  href="/account"
+                  className="font-semibold text-accent underline underline-offset-4 hover:no-underline"
+                >
+                  Try Pro free for 3 days
+                </Link>
+                . No card needed, and it ends on its own.
+              </p>
+            )}
+            <p className="mt-3 text-sm text-muted">
+              Full refund within 14 days of buying, no questions asked.
+            </p>
           </div>
         </section>
       </Reveal>
 
-      <Reveal>
-        <section className="mx-auto max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight">
-            Why this split
-          </h2>
-          <div className="mt-4 space-y-4 leading-relaxed text-muted">
-            <p>
-              Organizing your application should not cost money. A sophomore
-              logging hours, or an applicant in August trying to remember
-              which secondary is still sitting unopened, should be able to
-              land here and be useful to themselves in ten seconds, and stay
-              useful no matter how many schools or essays they add.
-            </p>
-            <p>
-              What costs money is analysis on top of what you entered:
-              which of your schools ask the same question, which draft to
-              reuse where, and what to write next. You always get a first
-              look at all of it for free.
-            </p>
-          </div>
-        </section>
-      </Reveal>
     </div>
   );
 }

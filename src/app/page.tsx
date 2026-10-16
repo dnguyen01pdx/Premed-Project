@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CompassMark } from "@/components/Logo";
 import { HomeSnapshot } from "@/components/HomeSnapshot";
 import { Reveal } from "@/components/Reveal";
 import { getStats, listSchools } from "@/lib/queries";
@@ -38,58 +37,34 @@ export default async function HomePage() {
 
   const STAGES = [
     {
-      n: "01",
       href: "/planner",
       when: "Every week, all four years",
       title: "Planner",
-      lead: "Your week, entered once.",
-      body: "Classes, shifts, lab hours, volunteering, standing meetings. The planner totals them by category every week, which means the hours question on your application is already answered before anyone asks it.",
-      points: [
-        "Hours per category, split into what counts on AMCAS and what does not",
-        "Double-booked blocks flagged before you commit to both",
-      ],
+      body: "Put in your classes, shifts, lab time, and volunteering once. The planner adds up your hours by category every week, so you have real numbers when AMCAS asks for them.",
       cta: "Lay out my week",
       preview: <PlannerPreview />,
     },
     {
-      n: "02",
       href: "/primary",
       when: "Sophomore year through May",
       title: "Primary",
-      lead: "Log it while you remember it.",
-      body: "Hours, dates, and the supervisor's email for every activity, captured while you still see these people. Then turn those entries into your fifteen Work & Activities descriptions and your personal statement, with AMCAS limits counted live.",
-      points: [
-        "18 AMCAS categories, hours done and hours planned kept separate",
-        "Verifier contact per entry, with a nag until you have one",
-      ],
+      body: "Log each activity with its hours, dates, and a supervisor you can list as a contact. When you apply, write your Work & Activities entries and personal statement here, with the AMCAS character limits counted as you type.",
       cta: "Start logging",
       preview: <PrimaryPreview />,
     },
     {
-      n: "03",
       href: "/secondaries",
       when: "June through September",
       title: "Secondaries",
-      lead: "Twenty applications, eight actual questions.",
-      body: "Every prompt we have, per school, broken into individual essays you track one at a time. The overlap view groups your own schools by question type, so you write once and adapt instead of starting over twenty times.",
-      points: [
-        "Each essay tracked: not started, drafting, done, submitted",
-        "Overlap across your list, with the tightest limit to write to",
-      ],
+      body: "Add your schools and we fill in the prompts we have for each one. You can see which schools ask the same question, so you write one essay and adjust it instead of starting over each time.",
       cta: "Track secondaries",
       preview: <SecondariesPreview />,
     },
     {
-      n: "04",
       href: "/interviews",
       when: "September through March",
       title: "Interviews",
-      lead: "The part that is pure logistics.",
-      body: "Invites, dates, formats, and the thank-you notes everybody forgets. Plus a question bank that tells you what each question is actually testing, rather than handing you an answer to memorize.",
-      points: [
-        "Loud reminders for unsent thank-you notes",
-        `${TOTAL_QUESTIONS} questions with what the interviewer is listening for`,
-      ],
+      body: `Keep track of invites, dates, and formats, with a reminder for any thank-you note you haven't sent. There are also ${TOTAL_QUESTIONS} practice questions, each with a short note on what the interviewer wants to learn from your answer.`,
       cta: "Prep interviews",
       preview: <InterviewsPreview />,
     },
@@ -106,15 +81,14 @@ export default async function HomePage() {
         <section className="-mx-5 -mt-12 overflow-hidden bg-navy-900 px-5 py-12 text-white sm:mx-0 sm:-mt-4 sm:rounded-3xl sm:px-12 sm:py-16">
           <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
             <div>
-              <CompassMark className="h-10 w-10 text-navy-100/70" />
-              <h1 className="mt-6 max-w-3xl text-5xl font-semibold leading-[1.02] sm:text-7xl">
-                The operating system for your medical school application.
+              <h1 className="max-w-3xl text-5xl font-semibold leading-[1.02] sm:text-7xl">
+                Your med school application, in one place.
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-navy-100">
-                The hours, the activities, the secondaries, the interviews:
-                four years of work in one place. Start anywhere. Nothing has
-                to be filled in for the rest to work.
+                Log your hours as you go, keep up with every secondary, and
+                get ready for interviews. It&apos;s free, and you can start
+                with whichever part you need right now.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link
@@ -124,7 +98,7 @@ export default async function HomePage() {
                   Open my dashboard
                 </Link>
                 <p className="text-sm text-navy-100">
-                  Free. No account needed to start.
+                  The planner and activity log work without an account.
                 </p>
               </div>
             </div>
@@ -152,8 +126,8 @@ export default async function HomePage() {
             <span className="font-semibold text-foreground">
               Built by Dylan
             </span>
-            , a medical student who wanted this tracker during his own
-            application cycle and it didn&apos;t exist.{" "}
+, a medical student at Brown who wanted something
+            like this when he applied and couldn&apos;t find it.{" "}
             <Link
               href="/about"
               className="whitespace-nowrap font-medium text-accent underline underline-offset-4 hover:no-underline"
@@ -172,63 +146,42 @@ export default async function HomePage() {
               id="stages-heading"
               className="text-4xl font-semibold tracking-tight sm:text-5xl"
             >
-              One application. Four connected stages.
+              What&apos;s in it
             </h2>
             <p className="mt-3 leading-relaxed text-muted">
-              Most tools handle one of these and stop there. MD Atlas
-              connects them: the hours in your week become the hours on
-              your application, and what you did there is what they ask
-              about in the interview.
+              One part for each stage of applying. They share what you
+              enter, so the hours in your planner carry over to your
+              activities.
             </p>
           </div>
         </Reveal>
 
-        <ol className="mt-12 space-y-8">
-          {STAGES.map((s, i) => (
-              <Reveal key={s.title} delay={i * 70}>
-                <li className="overflow-hidden rounded-2xl border border-line bg-surface">
-                  <div className="grid gap-0 md:grid-cols-[minmax(0,260px)_1fr]">
-                    <div className="border-b border-line bg-sunken p-7 sm:p-8 md:border-r md:border-b-0">
-                      <span className="font-display text-4xl font-semibold text-accent tabular-nums">
-                        {s.n}
-                      </span>
-                      <h3 className="mt-3 text-3xl font-semibold">
-                        {s.title}
-                      </h3>
-                      <p className="mt-1.5 text-sm text-muted">{s.when}</p>
-                      <Link
-                        href={s.href}
-                        className="mt-6 inline-flex items-center rounded-full bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
-                      >
-                        {s.cta}
-                      </Link>
-                    </div>
-
-                    <div className="p-7 sm:p-9">
-                      <p className="font-display text-2xl font-semibold">
-                        {s.lead}
-                      </p>
-                      <p className="mt-2 leading-relaxed text-muted">{s.body}</p>
-                      <ul className="mt-4 grid gap-2 sm:grid-cols-2">
-                        {s.points.map((p) => (
-                          <li
-                            key={p}
-                            className="flex gap-2 text-sm leading-relaxed text-muted"
-                          >
-                            <span
-                              aria-hidden="true"
-                              className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
-                            />
-                            {p}
-                          </li>
-                        ))}
-                      </ul>
-
-                      <div className="mt-6">{s.preview}</div>
-                    </div>
-                  </div>
-                </li>
-              </Reveal>
+        {/* Plain rows split by a rule, not four identical boxes. The stages
+            are a sequence, but the order is carried by the "when" line and
+            the reading order; numbered badges added nothing. */}
+        <ol className="mt-10 divide-y divide-line border-y border-line">
+          {STAGES.map((s) => (
+            <li
+              key={s.title}
+              className="grid gap-8 py-12 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-14 md:py-16"
+            >
+              <div>
+                <p className="text-sm text-muted">{s.when}</p>
+                <h3 className="mt-1 text-3xl font-semibold sm:text-4xl">
+                  {s.title}
+                </h3>
+                <p className="mt-4 max-w-md leading-relaxed text-muted">
+                  {s.body}
+                </p>
+                <Link
+                  href={s.href}
+                  className="mt-6 inline-block rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent"
+                >
+                  {s.cta}
+                </Link>
+              </div>
+              <div>{s.preview}</div>
+            </li>
           ))}
         </ol>
       </section>
@@ -244,16 +197,16 @@ export default async function HomePage() {
       <Reveal>
         <section
           aria-labelledby="faq-heading"
-          className="mx-auto max-w-2xl text-center"
+          className="grid gap-8 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-14"
         >
           <h2
             id="faq-heading"
             className="text-3xl font-semibold tracking-tight sm:text-4xl"
           >
-            Frequently asked questions
+            Questions
           </h2>
-          <div className="mt-6 divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surface text-left">
-            <details className="group p-5 sm:p-6">
+          <div className="divide-y divide-line border-y border-line">
+            <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 Is this really free?
                 <span
@@ -264,12 +217,10 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Yes. The planner, the primary log, the full prompt database,
-                and the whole secondaries and interviews tracker are free
-                forever, with no cap on schools or essays and no account
-                required. The only thing that will ever cost anything is
-                going deeper than a first look at the Essay Map, and,
-                eventually, structured feedback on your drafts.{" "}
+                Yes. The planner, activity log, prompt database, and the
+                secondaries and interviews trackers are all free, with no
+                limit on schools or essays. Pro adds the full Essay Map and
+                ranked suggestions, and later, feedback on your drafts.{" "}
                 <Link
                   href="/pricing"
                   className="font-medium text-accent underline underline-offset-2 hover:no-underline"
@@ -280,7 +231,7 @@ export default async function HomePage() {
               </div>
             </details>
 
-            <details className="group p-5 sm:p-6">
+            <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 Where do the prompts come from, and how current are they?
                 <span
@@ -291,16 +242,15 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Mostly aggregators and past applicants&apos; reports, not
-                schools&apos; own admissions pages, so treat them as a head
-                start, not gospel. Every prompt shows the source it came from
-                and the cycle it was reported for, and schools change prompts
-                without notice. Confirm against your actual secondary before
-                you write a word. We currently hold{" "}
+                Mostly from prep sites and past applicants, not from the
+                schools themselves. Each prompt shows where it came from and
+                which year it was reported for. Schools change their prompts,
+                so check against your actual secondary before you write. We
+                have{" "}
                 {stats.prompts.toLocaleString()} prompts across{" "}
                 {stats.schools} of {schools.length} programs
                 {withoutPrompts > 0
-                  ? `. ${withoutPrompts} still have nothing collected, and their pages say so plainly`
+                  ? `. ${withoutPrompts} have none yet`
                   : ""}
                 .{" "}
                 <Link
@@ -313,7 +263,23 @@ export default async function HomePage() {
               </div>
             </details>
 
-            <details className="group p-5 sm:p-6">
+            <details className="group py-5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+                Do I need an account?
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
+                >
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 leading-relaxed text-muted">
+                Not for the planner or activity log. Secondaries and
+                interviews need a free Google sign-in, so your school list is
+                backed up and works on any device.
+              </div>
+            </details>
+            <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 What happens to my data after my cycle ends?
                 <span
@@ -324,16 +290,14 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Nothing, automatically. It just stays there, yours, for as
-                long as you want it. Export everything as JSON or CSV from
-                your account page, or a full spreadsheet from the dashboard,
-                whenever you like. Delete your account and its synced copy is
-                gone immediately; what is saved in your own browser is never
-                touched unless you clear it yourself.
+                It stays as long as you want it. You can download everything
+                as a spreadsheet anytime. If you delete your account, the
+                copy on our server is erased right away, and the copy in your
+                browser stays until you clear it.
               </div>
             </details>
 
-            <details className="group p-5 sm:p-6">
+            <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 Do you write essays for me?
                 <span
@@ -344,9 +308,8 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                No. Never a rewritten paragraph, a suggested sentence, or a
-                fill-in-the-blank outline, not for free accounts, not for
-                paying ones, not once feedback ships.{" "}
+                No. MD Atlas will never write or rewrite your essays, on any
+                plan.{" "}
                 <Link
                   href="/how-feedback-works"
                   className="font-medium text-accent underline underline-offset-2 hover:no-underline"
@@ -357,7 +320,7 @@ export default async function HomePage() {
               </div>
             </details>
 
-            <details className="group p-5 sm:p-6">
+            <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
                 Who made this?
                 <span

@@ -20,7 +20,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Everything that is actually waiting on you, in the order it will bite.
+          What needs your attention next, most urgent first.
         </p>
       </header>
 

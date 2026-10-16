@@ -271,7 +271,7 @@ export function TrackerBoard({
                     <span>{s.name}</span>
                     <span className="shrink-0 text-xs text-muted">
                       {s.state}
-                      {s.promptCount > 0 && ` · ${s.promptCount} prompts`}
+                      {s.promptCount > 0 && `, ${s.promptCount} prompts`}
                     </span>
                   </button>
                 </li>

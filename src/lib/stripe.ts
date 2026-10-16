@@ -17,7 +17,29 @@ export function getStripe(): Stripe | null {
   return client;
 }
 
-/** Both the secret key and a configured price are required to sell Pro. */
+export type Plan = "monthly" | "quarter";
+
+/**
+ * Stripe Price ids for each plan.
+ *  - quarter: a ONE-TIME $49 price. STRIPE_PRICE_ID_QUARTER if set, else the
+ *    original STRIPE_PRICE_ID, which is already a one-time $49 price, so the
+ *    3-month pass works with no Stripe changes at all.
+ *  - monthly: a RECURRING $20/month price in STRIPE_PRICE_ID_MONTHLY. Until
+ *    that exists, the monthly button says it is not open yet.
+ */
+export function priceIdFor(plan: Plan): string | null {
+  if (plan === "monthly") return process.env.STRIPE_PRICE_ID_MONTHLY || null;
+  return (
+    process.env.STRIPE_PRICE_ID_QUARTER || process.env.STRIPE_PRICE_ID || null
+  );
+}
+
+/** Whether a given plan can be bought right now. */
+export function isPlanAvailable(plan: Plan): boolean {
+  return Boolean(process.env.STRIPE_SECRET_KEY && priceIdFor(plan));
+}
+
+/** True when at least one plan can be bought. */
 export function isStripeConfigured(): boolean {
-  return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_ID);
+  return isPlanAvailable("monthly") || isPlanAvailable("quarter");
 }

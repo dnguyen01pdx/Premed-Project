@@ -159,32 +159,61 @@ already in the app when their application year arrives.
   revisit it then rather than adding a client-side auth check to every page.
 
 ## Payments and Pro
-- Real Pro status is server-authoritative: `users.isPro` plus `proSource`
-  (`"stripe"` or `"promo"`), `proGrantedAt`, `stripeCustomerId`, and
-  `stripeCheckoutSessionId` in `src/db/schema.ts`. It is set exactly two ways,
-  both in `src/lib/pro.ts`: `grantProFromStripe()` from the webhook, or
-  `redeemPromoCode()` from `/api/promo/redeem`. Never set `isPro` from
-  anywhere else, including client code.
-- This is deliberately separate from the older, client-side-only
-  `entitlements.ts` (`localStorage`, `mda.entitlements.v1`, `pro: boolean`)
-  that `EssayMapPanel.tsx`, `MyOverlap.tsx`, `TrackerBoard.tsx`, and
-  `ProPreviewToggle.tsx` already read from. `ProSync.tsx`, rendered once on
-  `/secondaries`, is the one-directional bridge: it flips the local flag on
-  when the server confirms real Pro, and never flips it off. Don't touch the
-  Pro-gated components' internals to wire in server state directly; extend
-  `ProSync` instead if a new page needs the bridge.
-- Stripe is a one-time $49 payment (`mode: "payment"`), not a subscription,
-  via hosted Checkout: `/api/checkout/start` creates the session and
-  redirects, `/api/stripe/webhook` grants Pro on `checkout.session.completed`
-  with `payment_status === "paid"`. No client-side Stripe.js — everything
-  goes through the server `stripe` package. Both routes are gated behind
-  `isStripeConfigured()` (`src/lib/stripe.ts`), which checks `STRIPE_SECRET_KEY`
-  and `STRIPE_PRICE_ID`. Unset means checkout redirects to
-  `/pricing?error=notready` instead of throwing, same posture as the
-  `GOOGLE_CLIENT_SECRET` and `RESEND_API_KEY` checks elsewhere. The webhook
-  reads the raw body via `req.text()` before any JSON parsing; verifying the
-  signature needs the exact bytes Stripe sent, so never add body parsing
-  ahead of `stripe.webhooks.constructEvent()` in that route.
+- Pricing (since October 2026): Pro is $20/month (Stripe subscription) OR
+  $49 one-time for three months. The original "$49 one time, per cycle" pass
+  is retired for new buyers, but everyone who bought it keeps Pro with no end
+  date, as do all promo-code grants. Never give those accounts an end date.
+- Real Pro status is server-authoritative, in `users`: `isPro`, `proUntil`
+  (null = never ends), `proPlan` ("monthly" | "quarter" | "cycle" | "promo",
+  display only), `stripeSubscriptionId`, `stripeCustomerId`,
+  `stripeCheckoutSessionId`. Access is ONLY ever decided by
+  `effectiveIsPro()` in `auth.ts` (`isPro && (proUntil null or in the
+  future)`), and `getCurrentUser().isPro` is already that effective value.
+  Never read the raw `users.isPro` column for an access decision.
+- Pro is set only in `src/lib/pro.ts`: `grantQuarterPass()` and
+  `applySubscription()` from the webhook, `redeemPromoCode()` from
+  `/api/promo/redeem`. Two invariants there: `proUntil` only ever moves
+  LATER (renewals, stacked passes, out-of-order or duplicate webhooks can
+  extend access but never shorten it), and a no-end-date account is never
+  given an end date. `grantQuarterPass` is idempotent per Checkout session id,
+  because Stripe retries webhooks and a double delivery must not grant six
+  months.
+- Checkout: `/api/checkout/start?plan=monthly|quarter` (hosted Checkout,
+  no client-side Stripe.js). monthly = `mode: "subscription"` with
+  `subscription_data.metadata.userId` so renewals months later can find the
+  account; quarter = `mode: "payment"`. Price ids: `STRIPE_PRICE_ID_MONTHLY`
+  (recurring $20/month) and `STRIPE_PRICE_ID_QUARTER`, which falls back to
+  the original `STRIPE_PRICE_ID` (already a one-time $49 price).
+  `isPlanAvailable(plan)` gates each button separately, so the 3-month pass
+  sells even before the monthly price exists.
+- Webhook `/api/stripe/webhook` handles `checkout.session.completed`,
+  `checkout.session.async_payment_succeeded`, `invoice.paid` (renewals),
+  `customer.subscription.updated` and `.deleted`. The Stripe webhook endpoint
+  must be subscribed to all five. It reads the raw body via `req.text()`
+  before `constructEvent()`; never add body parsing ahead of it. Handler
+  errors return 500 on purpose so Stripe retries; every handler is safe to
+  run twice. Stripe moved `current_period_end` onto subscription items in
+  newer API versions; `snapshotOf()` reads both shapes.
+- Cancel/manage: `/api/billing/portal` opens Stripe's hosted Customer Portal
+  (must be enabled once in the Stripe dashboard). Canceling keeps access to
+  the end of the paid period; the `.deleted` event only clears
+  `stripeSubscriptionId`. Deleting an account cancels any live subscription
+  first and refuses to delete if Stripe cannot be reached, so nobody is
+  billed for an account that no longer exists.
+- Free trial: one 3-day trial per account (`users.trialEndsAt`, set once by
+  `startTrial()` in `pro.ts`; the `trial_ends_at IS NULL` condition in its
+  UPDATE is what enforces once-per-account). Started from the "Free trial"
+  card on `/account`, sign-in required. `getCurrentUser().onTrial` is true
+  inside the window for non-paying accounts. The old `ProPreviewToggle`
+  ("Preview Pro on this device", unlocked Pro forever for free, even signed
+  out) is no longer rendered anywhere; do not bring it back.
+- Local flag bridge: `entitlements.ts` (`mda.entitlements.v1`) is what the
+  Pro-gated components read. `ProSync.tsx` (on `/secondaries`) sets it from
+  `isPro || onTrial`: on for active accounts (and marks
+  `mda.proFromAccount.v1`), off for signed-in accounts that are not active.
+  Signed out, a flag the account turned on is kept (a paying user who signs
+  out keeps working) and any unvouched flag, i.e. leftovers from the old
+  preview switch, is turned off.
 - Promo codes are fully independent of Stripe and work with no payment setup.
   `/admin/promo` (same `ADMIN_PASSWORD` gate as `/admin/submissions`, shared
   helper now in `src/lib/admin.ts`) creates and deletes codes and shows
@@ -195,13 +224,10 @@ already in the app when their application year arrives.
   friendlier message than a raw constraint failure. An already-Pro account is
   blocked from redeeming at all, before the code lookup even runs, so it
   can't burn a limited-quantity code's slot for no reason.
-- To actually take real payments, someone with access to the Stripe account
-  needs to set `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID` (one Product, one
-  one-time Price), and `STRIPE_WEBHOOK_SECRET` (from a webhook endpoint at
-  `/api/stripe/webhook` subscribed to at least `checkout.session.completed`)
-  in Vercel and local `.env.local`. Until then, `/pricing`'s Buy button
-  degrades to "Purchasing is not open yet" and promo codes remain the only
-  way to grant Pro.
+- Env vars for payments, in Vercel and `.env.local`: `STRIPE_SECRET_KEY`,
+  `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID` (or `STRIPE_PRICE_ID_QUARTER`),
+  `STRIPE_PRICE_ID_MONTHLY`. A plan whose price is unset shows "Not open yet"
+  instead of a broken button.
 - Adding a migration means committing both the generated `drizzle/000N_*.sql`
   file AND its entry in `drizzle/meta/_journal.json`. `scripts/setup.ts`
   reads the journal to decide what's pending, not a directory scan of `.sql`
@@ -252,4 +278,12 @@ already in the app when their application year arrives.
   time is worse than no total.
 - Category colors are a text/fill/edge triple so the identity survives for
   anyone who cannot separate the hues. All pairings are in the contrast script.
+
+## Migrations
+- `drizzle/meta` is missing the 0005 snapshot, so `drizzle-kit generate`
+  re-emits everything since 0004 (CREATE TABLE promo_codes and friends) into
+  any new migration. That would fail on production. Always open a generated
+  `.sql` file and cut it down to only the new change, using
+  `IF NOT EXISTS`, as was done for 0006 (pro_until / pro_plan /
+  stripe_subscription_id).
 <!-- END:project-rules -->

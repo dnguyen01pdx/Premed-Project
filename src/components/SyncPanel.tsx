@@ -254,9 +254,9 @@ export function SyncPanel() {
         <p className="text-sm text-ok">
           Synced to <strong>{status.email}</strong>
           {status.saving
-            ? " · saving..."
+            ? ", saving..."
             : status.savedAt
-              ? " · saved"
+              ? ", saved"
               : ""}
         </p>
         <button

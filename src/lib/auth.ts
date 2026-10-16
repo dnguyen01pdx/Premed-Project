@@ -150,7 +150,41 @@ export async function clearSessionCookie() {
   jar.delete(SESSION_COOKIE);
 }
 
-export type CurrentUser = { id: string; email: string; isPro: boolean };
+export type ProPlan = "monthly" | "quarter" | "cycle" | "promo";
+
+export type CurrentUser = {
+  id: string;
+  email: string;
+  /** Effective Pro: granted AND not past proUntil. Every access check reads
+   *  this, never the raw column. */
+  isPro: boolean;
+  /** When Pro ends; null if it never does (legacy one-time and promo). */
+  proUntil: Date | null;
+  proPlan: ProPlan | null;
+  /** True while there is a monthly subscription to manage or cancel. */
+  hasSubscription: boolean;
+  /** End of the one free 3-day trial; null if never started. */
+  trialEndsAt: Date | null;
+  /** Inside the free trial right now (and not already paying). */
+  onTrial: boolean;
+};
+
+export const TRIAL_DAYS = 3;
+
+/** The one place "does this account have Pro right now" is decided. */
+export function effectiveIsPro(
+  isPro: boolean,
+  proUntil: Date | null,
+  now: Date = new Date(),
+): boolean {
+  return isPro && (proUntil === null || proUntil.getTime() > now.getTime());
+}
+
+function asPlan(v: string | null): ProPlan | null {
+  return v === "monthly" || v === "quarter" || v === "cycle" || v === "promo"
+    ? v
+    : null;
+}
 
 /** Resolves the signed-in user, or null. Safe to call on any request. */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
@@ -159,7 +193,15 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   if (!raw) return null;
 
   const [row] = await db
-    .select({ id: users.id, email: users.email, isPro: users.isPro })
+    .select({
+      id: users.id,
+      email: users.email,
+      isPro: users.isPro,
+      proUntil: users.proUntil,
+      proPlan: users.proPlan,
+      stripeSubscriptionId: users.stripeSubscriptionId,
+      trialEndsAt: users.trialEndsAt,
+    })
     .from(sessions)
     .innerJoin(users, eq(sessions.userId, users.id))
     .where(
@@ -170,7 +212,21 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     )
     .limit(1);
 
-  return row ?? null;
+  if (!row) return null;
+  const paid = effectiveIsPro(row.isPro, row.proUntil);
+  return {
+    id: row.id,
+    email: row.email,
+    isPro: paid,
+    trialEndsAt: row.trialEndsAt,
+    onTrial:
+      !paid &&
+      row.trialEndsAt !== null &&
+      row.trialEndsAt.getTime() > Date.now(),
+    proUntil: row.proUntil,
+    proPlan: asPlan(row.proPlan),
+    hasSubscription: Boolean(row.stripeSubscriptionId) && row.proPlan === "monthly",
+  };
 }
 
 export async function signOutCurrentSession() {

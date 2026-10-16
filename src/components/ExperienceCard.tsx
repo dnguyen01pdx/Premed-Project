@@ -21,7 +21,7 @@ function Counter({ text, limit }: { text: string | undefined; limit: number }) {
       className={`text-xs tabular-nums ${over ? "font-semibold text-danger" : "text-muted"}`}
     >
       {n.toLocaleString()} / {limit.toLocaleString()}
-      {over && ` · ${(n - limit).toLocaleString()} over`}
+      {over && ` (${(n - limit).toLocaleString()} over)`}
     </span>
   );
 }

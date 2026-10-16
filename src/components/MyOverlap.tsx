@@ -86,7 +86,7 @@ export function MyOverlap({
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-line bg-navy-900 px-5 py-3.5 text-white">
             <h3 className="font-semibold tracking-tight">{c.typeLabel}</h3>
             <p className="text-sm text-navy-100">
-              {c.schoolCount} of your schools · {c.essays.length} essays
+              {c.schoolCount} of your schools, {c.essays.length} essays
             </p>
           </div>
 
@@ -143,7 +143,7 @@ export function MyOverlap({
                 <span className="font-medium text-foreground/70">
                   {c.typeLabel}
                 </span>
-                <span>{c.schoolCount} of your schools · locked</span>
+                <span>{c.schoolCount} of your schools (locked)</span>
               </li>
             ))}
           </ul>

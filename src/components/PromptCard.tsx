@@ -73,11 +73,11 @@ export function PromptCard({
           <Badge tone="ok">Confirmed for {CURRENT_CYCLE}</Badge>
         ) : isCurrentCycle ? (
           <Badge tone="warn">
-            Reported for {CURRENT_CYCLE} &middot; not yet verified
+            Reported for {CURRENT_CYCLE}, not yet verified
           </Badge>
         ) : (
           <Badge tone="warn">
-            From the {prompt.cycleYear} cycle &middot; may not repeat
+            From the {prompt.cycleYear} cycle, may not repeat
           </Badge>
         )}
 

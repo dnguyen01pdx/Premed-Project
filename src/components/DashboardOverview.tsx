@@ -550,7 +550,7 @@ export function DashboardOverview() {
             detail={
               pt.entries === 0
                 ? "Nothing logged yet"
-                : `${pt.described} written · ${Math.round(pt.completed).toLocaleString()} hours`
+                : `${pt.described} written, ${Math.round(pt.completed).toLocaleString()} hours`
             }
             value={pt.described}
             total={Math.max(pt.entries, 1)}
@@ -583,7 +583,7 @@ export function DashboardOverview() {
             headline={iv.total > 0 ? `${iv.total} in flight` : "No invites yet"}
             detail={
               iv.total > 0
-                ? `${iv.completed} done · ${iv.scheduled} scheduled · ${iv.invited} to book`
+                ? `${iv.completed} done, ${iv.scheduled} scheduled, ${iv.invited} to book`
                 : "They start arriving in the fall"
             }
             value={iv.completed}

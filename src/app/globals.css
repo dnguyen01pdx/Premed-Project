@@ -163,8 +163,8 @@ h3,
   letter-spacing: -0.015em;
 }
 h1 {
-  font-stretch: 86%;
-  letter-spacing: -0.025em;
+  font-stretch: 90%;
+  letter-spacing: -0.02em;
 }
 
 /*
@@ -174,11 +174,9 @@ h1 {
  * :where() so they carry zero specificity and any Tailwind shadow utility on
  * an element still wins.
  */
-:where(.rounded-2xl.bg-surface, .rounded-xl.bg-surface, .rounded-3xl.bg-surface) {
-  box-shadow:
-    0 1px 2px rgb(var(--shadow-ink) / 0.05),
-    0 6px 16px -8px rgb(var(--shadow-ink) / 0.1);
-}
+/* Cards get no default shadow (Oct 2026). The same soft shadow under every
+   box is one of the clearest "generated UI" tells; a hairline border is
+   enough to separate a card from the page. Buttons keep their light. */
 
 /* Primary buttons: lit top edge, darker bottom lip, small cast shadow. */
 :where(a, button).bg-accent {
@@ -287,8 +285,13 @@ h1 {
   }
 }
 
+/* Page-load entrances (.anim-rise, .anim-stagger) are switched off on
+   purpose (Oct 2026): content that fades and slides in on every page and
+   every scroll reads as a generated template. The classes stay so markup
+   using them needs no change. Motion that answers a click (.anim-slide for
+   the mobile menu, .anim-pop) is kept. */
 .anim-rise {
-  animation: mda-rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: none;
 }
 
 .anim-pop {
@@ -302,8 +305,7 @@ h1 {
 /* Stagger children by index: style={{ "--i": n }}. Capped so a 200-row list
    does not end up with a six-second wait on the last item. */
 .anim-stagger > * {
-  animation: mda-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(min(var(--i, 0), 12) * 45ms);
+  animation: none;
 }
 
 /* Progress ring sweep. --dash-total is set inline from the circumference. */
@@ -320,8 +322,7 @@ h1 {
 }
 
 .lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -12px rgb(10 28 61 / 0.28);
+  box-shadow: 0 6px 18px -10px rgb(var(--shadow-ink) / 0.3);
 }
 
 .lift:active {

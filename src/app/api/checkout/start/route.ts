@@ -1,49 +1,66 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
-import { getStripe, isStripeConfigured } from "@/lib/stripe";
+import { getStripe, isPlanAvailable, priceIdFor, type Plan } from "@/lib/stripe";
 import { SITE_URL } from "@/lib/config";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * Starts a Pro purchase: a one-time $49 payment, not a subscription, so this
- * is Checkout in "payment" mode rather than "subscription" mode. Redirects to
- * Stripe's hosted page; the actual grant happens in the webhook once Stripe
- * confirms the payment, never here, since a browser redirect proves someone
- * reached Stripe, not that they paid.
+ * Starts a Pro purchase. `?plan=monthly` is a $20/month subscription
+ * (Checkout "subscription" mode); `?plan=quarter` (the default) is a $49
+ * one-time payment for three months (Checkout "payment" mode).
+ *
+ * Redirects to Stripe's hosted page. Pro is granted only in the webhook once
+ * Stripe confirms payment, never here: a browser landing back on our site
+ * proves someone reached Stripe, not that they paid.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const plan: Plan =
+    req.nextUrl.searchParams.get("plan") === "monthly" ? "monthly" : "quarter";
+
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.redirect(`${SITE_URL}/account?error=signinfirst`);
   }
 
-  if (!isStripeConfigured()) {
+  const stripe = getStripe();
+  const priceId = priceIdFor(plan);
+  if (!stripe || !priceId || !isPlanAvailable(plan)) {
     return NextResponse.redirect(`${SITE_URL}/pricing?error=notready`);
   }
 
-  const stripe = getStripe();
-  const priceId = process.env.STRIPE_PRICE_ID;
-  if (!stripe || !priceId) {
-    return NextResponse.redirect(`${SITE_URL}/pricing?error=notready`);
+  // A subscriber starting a second subscription would be billed twice for
+  // the same thing. Send them to manage the one they have instead.
+  if (plan === "monthly" && user.hasSubscription && user.isPro) {
+    return NextResponse.redirect(`${SITE_URL}/account?error=alreadysubscribed`);
   }
 
   try {
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
+    // client_reference_id is Stripe's documented "which of my users"; the
+    // metadata copy survives API changes. On subscriptions the userId is also
+    // stamped on the subscription itself, so renewal and cancellation events
+    // months later can still find the account.
+    const common = {
       line_items: [{ price: priceId, quantity: 1 }],
       customer_email: user.email,
-      // Both set on purpose: client_reference_id is what Stripe's own docs
-      // point to for "which of my users was this," metadata is a plain
-      // key-value bag that survives even if a future Stripe API version
-      // changes how client_reference_id is surfaced.
       client_reference_id: user.id,
-      metadata: { userId: user.id },
+      metadata: { userId: user.id, plan },
       allow_promotion_codes: true,
       success_url: `${SITE_URL}/account?upgraded=1`,
       cancel_url: `${SITE_URL}/pricing?canceled=1`,
-    });
+    };
+    const session =
+      plan === "monthly"
+        ? await stripe.checkout.sessions.create({
+            ...common,
+            mode: "subscription",
+            subscription_data: { metadata: { userId: user.id } },
+          })
+        : await stripe.checkout.sessions.create({
+            ...common,
+            mode: "payment",
+          });
 
     if (!session.url) {
       return NextResponse.redirect(`${SITE_URL}/pricing?error=notready`);

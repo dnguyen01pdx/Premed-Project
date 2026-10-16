@@ -137,7 +137,7 @@ export default async function PromptsPage({
           Browse secondary prompts
         </h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-          Filters update the URL, so you can bookmark or share any view.
+          Search secondary prompts by school, question type, or length.
         </p>
       </div>
 

@@ -16,9 +16,8 @@ export default function PrimaryPage() {
           Primary application
         </h1>
         <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-          Two jobs, one place. If you are years out, log what you are doing while
-          the details are fresh. If you are applying now, turn those entries into
-          your fifteen Work &amp; Activities descriptions.
+          Log your activities as you do them. When you apply, turn them into
+          your Work &amp; Activities entries and personal statement.
         </p>
       </header>
 

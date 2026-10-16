@@ -35,10 +35,9 @@ export default async function SecondariesPage() {
       <header className="anim-rise">
         <h1 className="text-4xl font-semibold tracking-tight">Secondaries</h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          The hardest part of this stretch is not the writing, it is remembering
-          what is still sitting there. Add your schools, break each into its
-          individual essays, and let the overlap view show you which ones are
-          really the same essay.
+          Add the schools you applied to. Each one gets its essay prompts, so
+          you can track every essay and see which schools ask the same
+          question.
         </p>
       </header>
 
@@ -55,18 +54,18 @@ export default async function SecondariesPage() {
             href="/prompts"
             className="link-sweep text-sm font-semibold text-accent"
           >
-            Search all prompts &rarr;
+            Search all prompts
           </Link>
           <Link
             href="/schools"
             className="link-sweep text-sm font-semibold text-accent"
           >
-            Browse by school &rarr;
+            Browse by school
           </Link>
         </div>
       </section>
 
-      <ProSync isPro={!!user?.isPro} />
+      <ProSync isPro={!!user?.isPro || !!user?.onTrial} signedIn={!!user} />
 
       <SignInGate signedIn={!!user} feature="secondaries">
         <TrackerBoard schools={schools} promptsBySchool={promptsBySchool} />

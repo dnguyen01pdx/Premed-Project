@@ -20,9 +20,9 @@ export default async function PlannerPage() {
       <header className="anim-rise">
         <h1 className="text-4xl font-semibold tracking-tight">Planner</h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Put in what repeats (lectures, shifts, lab, standing meetings) and
-          what doesn&apos;t, like your MCAT date or an application deadline.
-          Both live on the same calendar, in week, month, or year view.
+          Add what repeats each week, like classes, shifts, and lab, plus
+          one-time dates like your MCAT. Switch between week, month, and year
+          view.
         </p>
       </header>
 

@@ -244,6 +244,30 @@ export const users = pgTable(
      * dashboard for a refund; never used to gate access. */
     stripeCustomerId: text("stripe_customer_id"),
     stripeCheckoutSessionId: text("stripe_checkout_session_id"),
+    /**
+     * When Pro ends. Null means it never does: that covers everyone who
+     * bought the original one-time $49 pass and every promo-code grant, so
+     * changing the pricing model never took Pro away from anyone who already
+     * had it. New purchases always set this: a 3-month pass sets it three
+     * months out, and a monthly subscription keeps it at the end of the
+     * current paid period, pushed forward by each renewal (see pro.ts).
+     * Access is `isPro && (proUntil is null || proUntil > now)`, computed in
+     * one place: effectiveIsPro() in auth.ts.
+     */
+    proUntil: timestamp("pro_until", { withTimezone: true }),
+    /** "monthly" | "quarter" | "cycle" (legacy one-time) | "promo". Display
+     * and support only; access is decided by isPro + proUntil. */
+    proPlan: text("pro_plan"),
+    /** Set while the account has (or had) a monthly subscription. Renewal
+     * and cancellation webhooks find the account by this. */
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    /**
+     * End of this account's one free 3-day Pro trial. Null = never started.
+     * Set once by startTrial() in pro.ts and never cleared, so an account gets
+     * exactly one trial; clearing the browser cannot restart it. Replaced the
+     * old on-device "Preview Pro" switch, which unlocked Pro forever for free.
+     */
+    trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -251,7 +275,10 @@ export const users = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [uniqueIndex("users_email_idx").on(t.email)],
+  (t) => [
+    uniqueIndex("users_email_idx").on(t.email),
+    index("users_stripe_subscription_idx").on(t.stripeSubscriptionId),
+  ],
 );
 
 /**

@@ -218,7 +218,7 @@ export function PrimaryBoard() {
             >
               {psCount.toLocaleString()} /{" "}
               {PERSONAL_STATEMENT_LIMIT.toLocaleString()}
-              {psOver && ` · ${(psCount - PERSONAL_STATEMENT_LIMIT).toLocaleString()} over`}
+              {psOver && ` (${(psCount - PERSONAL_STATEMENT_LIMIT).toLocaleString()} over)`}
             </span>
           </div>
           <p className="mt-2 text-sm leading-relaxed text-muted">
@@ -250,7 +250,7 @@ export function PrimaryBoard() {
             <p className="text-sm text-muted">
               {totals.lettersIn} of {totals.lettersAsked} submitted
               {totals.thankYouOwed > 0 &&
-                ` · ${totals.thankYouOwed} thank-you note${totals.thankYouOwed === 1 ? "" : "s"} owed`}
+                `, ${totals.thankYouOwed} thank-you note${totals.thankYouOwed === 1 ? "" : "s"} owed`}
             </p>
             <button
               type="button"

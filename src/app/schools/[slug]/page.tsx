@@ -74,8 +74,8 @@ export default async function SchoolPage({
         </h1>
         <p className="mt-2 text-sm text-muted">
           {[school.city, school.state].filter(Boolean).join(", ")}
-          {school.degree && ` · ${school.degree}`}
-          {rows.length > 0 && ` · ${rows.length} prompts on file`}
+          {school.degree && `, ${school.degree}`}
+          {rows.length > 0 && `, ${rows.length} prompts on file`}
         </p>
         {school.websiteUrl && (
           <a

@@ -477,7 +477,7 @@ export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
               href="/primary"
               className="link-sweep text-sm font-medium text-accent"
             >
-              Log these hours on your application &rarr;
+              Log these hours on your application
             </Link>
           </div>
 
@@ -510,7 +510,7 @@ export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
                     {c.label}
                     {REPORTABLE.includes(c.key) && (
                       <span className="ml-1.5 text-xs text-muted">
-                        · counts on AMCAS
+                        (counts on AMCAS)
                       </span>
                     )}
                   </dt>
@@ -722,7 +722,7 @@ function WeekView({
                       {h > 34 && (
                         <span className="block truncate text-[11px] leading-tight opacity-80">
                           {fmtTime(event.startTime)}
-                          {event.location ? ` · ${event.location}` : ""}
+                          {event.location ? `, ${event.location}` : ""}
                         </span>
                       )}
                       {clash && <span className="sr-only">Overlaps another block.</span>}
@@ -785,7 +785,7 @@ function WeekView({
                           <span className="block text-sm text-muted">
                             {fmtTime(e.startTime)} – {fmtTime(e.endTime)} ·{" "}
                             {categoryLabel(e.category)}
-                            {conflicts.has(e.id) ? " · overlaps" : ""}
+                            {conflicts.has(e.id) ? ", overlaps" : ""}
                           </span>
                         </span>
                         <span className="shrink-0 text-sm tabular-nums text-muted">
@@ -878,7 +878,7 @@ function MonthView({
                       type="button"
                       onClick={() => onEventClick(e)}
                       className={`block w-full truncate rounded border px-1.5 py-0.5 text-left text-[11px] font-medium leading-tight ${CAT_CLASS[e.category]} ${conflicts.has(e.id) ? "ring-1 ring-danger/60" : ""}`}
-                      title={`${e.title} · ${fmtTime(e.startTime)}`}
+                      title={`${e.title}, ${fmtTime(e.startTime)}`}
                     >
                       {e.title}
                     </button>
@@ -1336,7 +1336,7 @@ function EventEditor({
         {!invalid && draft.title.trim() && (
           <p className="w-full text-sm text-muted sm:w-auto">
             {fmtDuration(draft.endTime - draft.startTime)} ·{" "}
-            {categoryLabel(draft.category)} · {recurrenceSummary(draft)}
+            {categoryLabel(draft.category)}, {recurrenceSummary(draft)}
           </p>
         )}
       </div>

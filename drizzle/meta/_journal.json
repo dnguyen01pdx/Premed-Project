@@ -43,6 +43,20 @@
       "when": 1787185189917,
       "tag": "0005_smiling_anita_blake",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792074903240,
+      "tag": "0006_daily_weapon_omega",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1792075608885,
+      "tag": "0007_dusty_firedrake",
+      "breakpoints": true
     }
   ]
 }

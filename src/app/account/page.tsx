@@ -2,11 +2,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import type { Metadata } from "next";
-import { deleteAccount, getCurrentUser, signOutCurrentSession } from "@/lib/auth";
-import { SITE_NAME } from "@/lib/config";
+import {
+  deleteAccount,
+  getCurrentUser,
+  signOutCurrentSession,
+  TRIAL_DAYS,
+} from "@/lib/auth";
+import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
 import { isStripeConfigured } from "@/lib/stripe";
+import { cancelSubscriptionForDeletion, startTrial } from "@/lib/pro";
 import { CompassMark } from "@/components/Logo";
-import { ProPreviewToggle } from "@/components/ProPreviewToggle";
 import { PromoCodeForm } from "@/components/PromoCodeForm";
 import { ExportDataButtons } from "@/components/ExportDataButtons";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
@@ -24,6 +29,15 @@ async function doSignOut() {
   redirect("/secondaries");
 }
 
+async function doStartTrial() {
+  "use server";
+  const user = await getCurrentUser();
+  if (!user) redirect("/account?error=signinfirst");
+  await startTrial(user.id);
+  // Straight to where the Pro features are, so the trial starts with them.
+  redirect("/secondaries?trial=1");
+}
+
 async function doDelete(formData: FormData) {
   "use server";
   const user = await getCurrentUser();
@@ -34,8 +48,48 @@ async function doDelete(formData: FormData) {
     revalidatePath("/account");
     return;
   }
+  // Stop billing before the account disappears; afterwards nothing could.
+  if (!(await cancelSubscriptionForDeletion(user.id))) {
+    redirect("/account?error=cancelfirst");
+  }
   await deleteAccount(user.id);
   redirect("/secondaries?deleted=1");
+}
+
+function fmtDate(d: Date): string {
+  return d.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "America/New_York",
+  });
+}
+
+function fmtDateTime(d: Date): string {
+  return d.toLocaleString("en-US", {
+    month: "long",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/New_York",
+    timeZoneName: "short",
+  });
+}
+
+/** One plain sentence about the plan, for the Pro card. */
+function planLine(
+  plan: string | null,
+  until: Date | null,
+  subscribed: boolean,
+): string {
+  if (!until) return "You have Pro on this account, with no end date.";
+  if (plan === "monthly" && subscribed) {
+    return "You are on the monthly plan. It renews each month until you cancel.";
+  }
+  if (plan === "monthly") {
+    return `Your subscription is canceled. Pro stays on until ${fmtDate(until)}.`;
+  }
+  return `3-month pass, active until ${fmtDate(until)}. It does not renew.`;
 }
 
 export default async function AccountPage({
@@ -142,8 +196,6 @@ export default async function AccountPage({
           </Link>
 
           <ExportDataButtons />
-
-          <ProPreviewToggle />
         </div>
       </div>
     );
@@ -159,6 +211,18 @@ export default async function AccountPage({
           Signed in as <strong className="text-foreground">{user.email}</strong>.
         </p>
       </header>
+
+      {(error === "alreadysubscribed" ||
+        error === "noportal" ||
+        error === "cancelfirst") && (
+        <p className="rounded-xl border border-warn/30 bg-warn-soft p-3.5 text-sm text-warn">
+          {error === "alreadysubscribed"
+            ? "You already have a monthly subscription, so nothing new was charged. Manage it below."
+            : error === "noportal"
+              ? `The billing page could not open right now. Try again in a minute, or email ${CONTACT_EMAIL} and it will be handled by hand.`
+              : `Your account was not deleted, because your subscription could not be canceled first and would have kept charging you. Try again in a minute, or email ${CONTACT_EMAIL}.`}
+        </p>
+      )}
 
       {upgraded && !user.isPro && (
         <p className="rounded-xl border border-line-strong bg-sunken p-3.5 text-sm">
@@ -199,14 +263,28 @@ export default async function AccountPage({
         </div>
 
         {user.isPro ? (
-          <p className="mt-2 text-sm leading-relaxed text-muted">
-            You have Pro on this account. It follows your sign-in, not this
-            browser, so it is there whenever you sign in anywhere else too.
-          </p>
+          <>
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              {planLine(user.proPlan, user.proUntil, user.hasSubscription)} It
+              follows your sign-in, not this browser, so it is there wherever
+              you sign in.
+            </p>
+            {user.hasSubscription && (
+              <a
+                href="/api/billing/portal"
+                className="mt-4 inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
+              >
+                Manage or cancel subscription
+              </a>
+            )}
+          </>
         ) : (
           <>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              $49 one time, covers your whole cycle. See{" "}
+              {user.proPlan && user.proUntil
+                ? `Your Pro ended ${fmtDate(user.proUntil)}. `
+                : ""}
+              $20 a month, or $49 for three months. See{" "}
               <Link
                 href="/pricing"
                 className="text-accent underline underline-offset-2 hover:no-underline"
@@ -216,12 +294,12 @@ export default async function AccountPage({
               .
             </p>
             {stripeReady ? (
-              <a
-                href="/api/checkout/start"
+              <Link
+                href="/pricing"
                 className="mt-4 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
               >
-                Upgrade to Pro
-              </a>
+                Choose a plan
+              </Link>
             ) : (
               <p className="mt-3 text-sm text-muted">
                 Purchasing is not open yet.
@@ -234,7 +312,43 @@ export default async function AccountPage({
         )}
       </section>
 
-      {!user.isPro && <ProPreviewToggle />}
+      {!user.isPro && (
+        <section className="rounded-2xl border border-line bg-surface p-6">
+          <h2 className="font-semibold">Free trial</h2>
+          {user.onTrial && user.trialEndsAt ? (
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Your free trial is on. Every Pro feature is unlocked until{" "}
+              <strong className="text-foreground">
+                {fmtDateTime(user.trialEndsAt)}
+              </strong>
+              . After that it switches off on its own, nothing is charged, and
+              everything you entered stays yours.
+            </p>
+          ) : user.trialEndsAt ? (
+            <p className="mt-2 text-sm leading-relaxed text-muted">
+              Your free trial ended {fmtDate(user.trialEndsAt)}. Everything you
+              entered is still here and still free; Pro adds the full analysis
+              on top.
+            </p>
+          ) : (
+            <>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                Try every Pro feature free for {TRIAL_DAYS} days: the full
+                Essay Map, the complete ranked list of what to write next, and
+                every insight. No card needed, and it ends on its own.
+              </p>
+              <form action={doStartTrial}>
+                <button
+                  type="submit"
+                  className="mt-4 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+                >
+                  Start my free trial
+                </button>
+              </form>
+            </>
+          )}
+        </section>
+      )}
 
       <ExportDataButtons />
 
@@ -253,6 +367,8 @@ export default async function AccountPage({
           This deletes your email and your synced dashboard from our database
           immediately. It cannot be undone. The copy saved in this browser stays
           put, so you will not lose your work here.
+          {user.hasSubscription &&
+            " Your monthly subscription is canceled at the same time, and Pro ends right away."}
         </p>
         <form action={doDelete} className="mt-4 space-y-3">
           <label htmlFor="confirm" className="block text-sm text-danger">
