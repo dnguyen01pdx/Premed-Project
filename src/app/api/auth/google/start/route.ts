@@ -15,7 +15,21 @@ const STATE_TTL_SECONDS = 10 * 60;
  * state cookie matches what Google echoes back before trusting anything else
  * in the response.
  */
-export async function GET() {
+export async function GET(req: Request) {
+  // The site answers on more than one host (the Vercel URL and
+  // atlas.medmapped.com), but Google only knows the SITE_URL callback, and
+  // the state cookie must be set on the same host that callback runs on.
+  // So start the flow on SITE_URL's host whatever host the click came from.
+  // `hop` stops a loop if the platform ever reports a host we don't expect.
+  const canonical = new URL(SITE_URL);
+  const here = new URL(req.url);
+  const host = req.headers.get("x-forwarded-host") ?? here.host;
+  if (host !== canonical.host && !here.searchParams.has("hop")) {
+    return NextResponse.redirect(
+      `${canonical.origin}/api/auth/google/start?hop=1`,
+    );
+  }
+
   const clientId = process.env.GOOGLE_CLIENT_ID;
   if (!clientId) {
     // Same posture as sendSignInEmail's missing-RESEND_API_KEY case: fail
