@@ -33,6 +33,19 @@ export const SITE_URL =
     : "http://localhost:3000");
 
 /**
+ * The address search engines and shared links should use. This is separate
+ * from SITE_URL on purpose: SITE_URL also drives the Google sign-in and Stripe
+ * redirects, which stay on the vercel.app host until atlas.medmapped.com is
+ * registered as an OAuth redirect URI. Without this, the sitemap and social
+ * previews pointed Google at the vercel.app copy of every page.
+ */
+export const PUBLIC_URL =
+  process.env.NEXT_PUBLIC_PUBLIC_URL ?? "https://atlas.medmapped.com";
+
+/** Hosts that serve the same pages but must stay out of search results. */
+export const NOINDEX_HOSTS = ["premed-project-vert.vercel.app"];
+
+/**
  * MD Atlas is the free app half of Med Mapped (medmapped.com), Dylan's blog
  * about the road to med school. The header, footer and homepage link there,
  * and the homepage pulls the newest posts from its RSS feed.

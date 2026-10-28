@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { NOINDEX_HOSTS } from "./src/lib/config";
 
 const nextConfig: NextConfig = {
   /**
@@ -10,6 +11,18 @@ const nextConfig: NextConfig = {
    * redirect would leave a stale bookmark pointing at a 404 the moment we
    * stopped serving it.
    */
+  /**
+   * The vercel.app host keeps serving (Stripe webhooks and Google sign-in
+   * still use it), so tell search engines to index only atlas.medmapped.com.
+   * Two indexed copies of every school page split the ranking between them.
+   */
+  async headers() {
+    return NOINDEX_HOSTS.map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      headers: [{ key: "X-Robots-Tag", value: "noindex" }],
+    }));
+  },
   async redirects() {
     return [
       { source: "/my-schools", destination: "/secondaries", permanent: true },

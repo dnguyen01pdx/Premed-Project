@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/config";
+import { PUBLIC_URL } from "@/lib/config";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -10,6 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       // either. Belt and braces.
       disallow: ["/admin/", "/account", "/auth/"],
     },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: `${PUBLIC_URL}/sitemap.xml`,
   };
 }
