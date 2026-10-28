@@ -50,7 +50,7 @@ export default function AboutPage() {
                   Alpert Medical School. I applied in the 2025-2026 cycle,
                   and somewhere between the spreadsheets and the secondaries
                   I realized the tool I wanted didn&apos;t exist. So I built
-                  it! That&apos;s {SITE_NAME}, and I&apos;m so glad you found it.
+                  it! That&apos;s {SITE_NAME}, and I hope it makes your cycle a little easier.
                 </p>
                 <p>
                   My road here wasn&apos;t a straight line. I studied piano
