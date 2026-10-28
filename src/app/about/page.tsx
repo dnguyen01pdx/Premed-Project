@@ -46,25 +46,27 @@ export default function AboutPage() {
               </h2>
               <div className="mt-4 space-y-4 leading-relaxed">
                 <p>
-                  I&apos;m a first-year medical student at the Warren
-                  Alpert Medical School of Brown University. I built{" "}
-                  {SITE_NAME} because I applied in the 2025-2026 cycle and
-                  wanted the tool I didn&apos;t have.
+                  I&apos;m a first-year med student at Brown&apos;s Warren
+                  Alpert Medical School. I applied in the 2025-2026 cycle,
+                  and somewhere between the spreadsheets and the secondaries
+                  I realized the tool I wanted didn&apos;t exist. So I built
+                  it. That&apos;s {SITE_NAME}.
                 </p>
                 <p>
-                  My path here was not the standard one. I did my undergrad at
-                  the University of Oregon, where I earned a Bachelor of Music
-                  in Piano Performance with a chemistry minor. I still perform
-                  and compete internationally. Before medical school I worked
-                  as an ophthalmic technician, which is where I learned what a
-                  clinic actually feels like from the inside, and where I got
-                  involved in research and co-authored a case report in
-                  neuro-ophthalmology.
+                  My road here wasn&apos;t a straight line. I studied piano
+                  performance at the University of Oregon (with a chemistry
+                  minor on the side), and I still perform and compete
+                  internationally. After college I worked as an ophthalmic
+                  technician. That&apos;s where I first saw what a clinic
+                  really feels like from the inside, and where I got pulled
+                  into research and co-authored a neuro-ophthalmology case
+                  report.
                 </p>
                 <p>
-                  I scored a 517 on the MCAT and a 24 on the DAT. I was
-                  accepted to dental school before deciding medicine was the
-                  right fit.
+                  I took both the DAT (24) and the MCAT (517), and I was
+                  accepted to dental school before realizing medicine was
+                  where I belonged. If your path feels a little unusual too,
+                  you&apos;re in good company.
                 </p>
               </div>
             </div>
