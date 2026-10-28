@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import "@fontsource-variable/bricolage-grotesque/standard.css";
+import "@fontsource-variable/big-shoulders-display";
+import "@fontsource-variable/archivo/wght.css";
+import "@fontsource/dm-mono/400.css";
+import "@fontsource/dm-mono/500.css";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
 import { SiteHeader } from "@/components/SiteHeader";
-import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
+import { MED_MAPPED, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -51,18 +54,28 @@ export default function RootLayout({
           {children}
         </main>
 
-        <footer className="on-navy mt-auto bg-navy-900 text-navy-100">
+        <footer className="on-navy mt-auto border-t-4 border-coral-pop bg-navy-900 text-navy-100">
           <div className="mx-auto max-w-6xl px-5 py-12">
             <div className="flex flex-wrap items-start justify-between gap-8">
               <div className="max-w-md">
                 <span className="inline-flex items-center gap-2.5 text-white">
-                  <CompassMark className="h-6 w-6" />
-                  <span className="text-base font-semibold tracking-tight">
+                  <CompassMark className="h-8 w-8" />
+                  <span className="font-display text-3xl leading-none">
                     {SITE_NAME}
                   </span>
                 </span>
                 <p className="mt-3 text-sm leading-relaxed">{SITE_TAGLINE}</p>
                 <p className="mt-4 text-sm leading-relaxed">
+                  {SITE_NAME} is the free app half of{" "}
+                  <a
+                    href={MED_MAPPED.url}
+                    className="font-medium text-white underline underline-offset-4 hover:no-underline"
+                  >
+                    {MED_MAPPED.name}
+                  </a>
+                  , a blog about the road to med school.
+                </p>
+                <p className="mt-2 text-sm leading-relaxed">
                   Studying for the MCAT?{" "}
                   <a
                     href="https://mcatpulse.com"
@@ -118,6 +131,35 @@ export default function RootLayout({
                       >
                         Feedback policy
                       </Link>
+                    </li>
+                  </ul>
+                </nav>
+
+                <nav aria-label={MED_MAPPED.name}>
+                  <h2 className="text-sm font-semibold text-navy-100">
+                    {MED_MAPPED.name}
+                  </h2>
+                  <ul className="mt-3 space-y-2 text-sm">
+                    <li>
+                      <a href={MED_MAPPED.url} className="hover:text-white">
+                        The blog
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`${MED_MAPPED.url}/applying/`}
+                        className="hover:text-white"
+                      >
+                        Applying guides
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href={`${MED_MAPPED.url}/med-school/`}
+                        className="hover:text-white"
+                      >
+                        Med school life
+                      </a>
                     </li>
                   </ul>
                 </nav>

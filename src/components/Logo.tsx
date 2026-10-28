@@ -1,3 +1,5 @@
+import { MED_MAPPED, SITE_NAME } from "@/lib/config";
+
 /**
  * MD Atlas compass mark.
  *
@@ -53,11 +55,12 @@ export function CompassMark({
         strokeLinejoin="round"
         opacity="0.5"
       />
-      {/* North half: solid. */}
+      {/* North half: solid, in Med Mapped coral, which reads on both ink
+          and white. */}
       <path
         d="M16 5 L20.6 17.6 L16 14.8 L11.4 17.6 Z"
-        fill="currentColor"
-        stroke="currentColor"
+        fill="#ff6f59"
+        stroke="#ff6f59"
         strokeWidth="1.6"
         strokeLinejoin="round"
       />
@@ -65,18 +68,32 @@ export function CompassMark({
   );
 }
 
-/** Mark plus wordmark, for the header and footer. */
+/**
+ * Mark plus wordmark, for the header and footer. The small "by Med Mapped"
+ * line ties the app to the blog it belongs to.
+ */
 export function Logo({
   className = "",
-  markClassName = "h-6 w-6",
+  markClassName = "h-7 w-7",
+  byline = true,
 }: {
   className?: string;
   markClassName?: string;
+  byline?: boolean;
 }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <CompassMark className={markClassName} />
-      <span className="text-base font-semibold tracking-tight">MD Atlas</span>
+      <span className="flex flex-col">
+        <span className="font-display text-[1.65rem] leading-[0.85]">
+          {SITE_NAME}
+        </span>
+        {byline && (
+          <span className="mt-0.5 font-[family-name:var(--font-label)] text-[10px] uppercase leading-none tracking-[0.12em] opacity-70">
+            by {MED_MAPPED.name}
+          </span>
+        )}
+      </span>
     </span>
   );
 }

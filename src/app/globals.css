@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /*
- * Palette (2026-10 redesign): one hue, surgical teal, run through many
- * brightness and saturation steps instead of navy plus a bright SaaS blue.
+ * Palette (late Oct 2026): MD Atlas now wears the Med Mapped colors, so the
+ * blog and the app read as one family. Ink #0e3b46 and denim teal #1d6e80
+ * come straight from medmapped.com's site.css; coral is the shared accent.
  * The token NAMES still say "navy" because every component references them;
  * renaming would touch 40+ files for no visual gain. Read "navy" as "ink".
  * Status colors stay separate because they carry meaning, never decoration.
@@ -11,30 +12,36 @@
  */
 :root {
   /* Ink ramp. 900 is the dark field (hero, footer), 600 the interactive teal. */
-  --navy-900: #0c2a28;
-  --navy-800: #113a37;
-  --navy-700: #174c48;
-  --navy-600: #0e6b63;
-  --navy-500: #13867c;
-  --navy-100: #cfe7e3;
-  --navy-50: #ebf5f3;
+  --navy-900: #0e3b46;
+  --navy-800: #134a57;
+  --navy-700: #185a69;
+  --navy-600: #1d6e80;
+  --navy-500: #2b88a0;
+  --navy-100: #cde3e8;
+  --navy-50: #e4f0f2;
 
-  --background: #f4f7f6;
+  --background: #f4f7f5;
   --surface: #ffffff;
-  --surface-sunken: #edf2f1;
-  --foreground: #13211f;
-  --muted: #4e605d;
-  --border: #dbe4e2;
-  --border-strong: #b5c7c3;
+  --surface-sunken: #eaf0ee;
+  --foreground: #0f2b33;
+  --muted: #4a5d62;
+  --border: #d2dedc;
+  --border-strong: #9fb4b5;
 
   --accent: var(--navy-600);
-  --accent-hover: #0a564f;
+  --accent-hover: #155766;
   --accent-soft: var(--navy-50);
   --on-accent: #ffffff;
 
+  /* Med Mapped coral. The decorative one (--coral-pop) is for shapes only;
+     text uses --coral, which clears AA on white and on the page. */
+  --coral: #b93a2d;
+  --coral-pop: #ff6f59;
+  --coral-soft: #fde9e5;
+
   /* Shadow tint: shadows take the ink hue instead of neutral grey, so depth
      reads as part of the palette rather than smudge. */
-  --shadow-ink: 12 42 40;
+  --shadow-ink: 14 59 70;
 
   /* Status. Each is a text color paired with its own soft background. */
   --warn: #8a4b04;
@@ -69,8 +76,8 @@
   --cat-work-soft: #eceff4;
   --cat-leadership: #9d174d;
   --cat-leadership-soft: #fde7ef;
-  --cat-application: #0c2a28;
-  --cat-application-soft: #dceeea;
+  --cat-application: #0e3b46;
+  --cat-application-soft: #dcebee;
   --cat-personal: #4b5563;
   --cat-personal-soft: #f0f2f5;
 }
@@ -94,6 +101,9 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-on-accent: var(--on-accent);
+  --color-coral: var(--coral);
+  --color-coral-pop: var(--coral-pop);
+  --color-coral-soft: var(--coral-soft);
 
   --color-warn: var(--warn);
   --color-warn-soft: var(--warn-soft);
@@ -125,17 +135,25 @@
   --color-cat-personal: var(--cat-personal);
   --color-cat-personal-soft: var(--cat-personal-soft);
 
-  /* Body stays on the system stack: no font request for the text people
-     actually read, no layout shift. Headings get one self-hosted variable
-     face (Bricolage Grotesque, bundled via @fontsource, no third-party
-     request) for personality where it is cheap: a few dozen words a page. */
+  /* Same three faces as medmapped.com, all self-hosted via @fontsource (no
+     third-party request): Big Shoulders for headlines, Archivo for reading,
+     DM Mono for small labels. */
   --font-display:
-    "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+    "Big Shoulders Display Variable", "Arial Narrow", ui-sans-serif, sans-serif;
   --font-sans:
-    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, sans-serif;
+    "Archivo Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, sans-serif;
+  --font-label: "DM Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+  /* Squarer corners than the stock scale. Med Mapped is printed-paper
+     square; a 16px radius on every box is a template tell. */
+  --radius-md: 0.25rem;
+  --radius-lg: 0.3125rem;
+  --radius-xl: 0.375rem;
+  --radius-2xl: 0.5rem;
+  --radius-3xl: 0.625rem;
 }
 
 /* Every page ends in the navy footer, so that's what should show during an
@@ -148,23 +166,64 @@ html {
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  /* Paper grain, the same noise tile medmapped.com prints on, so the app
+     surfaces sit on paper instead of flat app grey. */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .3  0 0 0 0 .25  0 0 0 0 .2  0 0 0 .06 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>");
   color: var(--foreground);
 }
 
-/* Headings: the display face, slightly condensed and tight at large sizes,
-   so a headline reads as a deliberate shape rather than enlarged body text. */
+/*
+ * Headings. Page titles and section titles are set like the blog: Big
+ * Shoulders, uppercase, tight. Only the large ones, though: a 16px card
+ * title in condensed caps is hard to read, so small h2/h3 stay in Archivo.
+ */
 h1,
-h2,
-h3,
+h2:is(.text-2xl, .text-3xl, .text-4xl, .text-5xl),
+h3:is(.text-3xl, .text-4xl),
 .font-display {
   font-family: var(--font-display);
-  font-stretch: 92%;
-  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+  line-height: 0.95;
 }
 h1 {
-  font-stretch: 90%;
-  letter-spacing: -0.02em;
+  font-weight: 900;
+}
+h2,
+h3 {
+  letter-spacing: -0.01em;
+}
+
+/* Header nav: the blog's mono, uppercase nav. */
+.nav-label {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Small mono label: cycle names, "Example", step numbers. */
+.kicker {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--coral);
+}
+
+/* Hard offset shadow, the blog's printed-sticker look. Used sparingly on
+   the few boxes that should feel like objects (hero, previews). */
+.stamp {
+  border: 2px solid var(--navy-900);
+  box-shadow: 6px 6px 0 var(--navy-100);
+}
+.stamp-coral {
+  border: 2px solid var(--navy-900);
+  box-shadow: 6px 6px 0 var(--coral-pop);
 }
 
 /*
@@ -178,27 +237,28 @@ h1 {
    box is one of the clearest "generated UI" tells; a hairline border is
    enough to separate a card from the page. Buttons keep their light. */
 
-/* Primary buttons: lit top edge, darker bottom lip, small cast shadow. */
-:where(a, button).bg-accent {
-  background-image: linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.1),
-    rgb(255 255 255 / 0)
-  );
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.18),
-    inset 0 -2px 0 rgb(0 0 0 / 0.16),
-    0 1px 2px rgb(var(--shadow-ink) / 0.25);
-}
-:where(a, button).bg-accent:active {
-  box-shadow: inset 0 2px 3px rgb(0 0 0 / 0.2);
-}
-
-/* White buttons sitting on the dark field: same light, softer. */
+/* Buttons (late Oct 2026): flat ink-edged blocks with a hard offset shadow,
+   matching the blog's buttons, instead of glossy pills. Unlayered, so this
+   beats the rounded-full utility on the buttons that still carry it. */
+:where(a, button).bg-accent,
 :where(.bg-navy-900) :where(a, button).bg-white {
-  box-shadow:
-    inset 0 -2px 0 rgb(var(--shadow-ink) / 0.12),
-    0 2px 6px rgb(0 0 0 / 0.25);
+  border-radius: 0.3rem;
+  font-family: var(--font-label);
+  font-weight: 500;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+:where(a, button).bg-accent {
+  box-shadow: 3px 3px 0 var(--navy-900);
+}
+:where(.bg-navy-900) :where(a, button).bg-white {
+  box-shadow: 4px 4px 0 var(--coral-pop);
+}
+:where(a, button).bg-accent:active,
+:where(.bg-navy-900) :where(a, button).bg-white:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--navy-900);
 }
 
 /* Inputs are set into the surface, so the shadow sits on their top lip. */
@@ -322,7 +382,15 @@ h1 {
 }
 
 .lift:hover {
-  box-shadow: 0 6px 18px -10px rgb(var(--shadow-ink) / 0.3);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--coral-pop);
+}
+
+/* Blocks in the planner grid are absolutely placed; a lift there would
+   shove them into their neighbors. */
+.lift.absolute:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .lift:active {

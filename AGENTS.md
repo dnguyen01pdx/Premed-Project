@@ -248,6 +248,18 @@ already in the app when their application year arrives.
 - Every page has exactly one `h1` and a working skip link.
 
 ## Brand
+- MD Atlas is the free app half of **Med Mapped** (medmapped.com, Dylan's
+  blog; repo dnguyen01pdx/pocketful-party). It wears the blog's look: ink
+  #0e3b46, denim teal #1d6e80, coral #ff6f59 (text uses #b93a2d), paper grain,
+  Big Shoulders Display headlines in caps, Archivo body, DM Mono labels
+  (`.kicker`, `.nav-label`), squared corners and hard offset shadows
+  (`.stamp`, `.lift:hover`). Keep both sites in step when either changes.
+- Links to the blog: `MED_MAPPED` in `config.ts` (header "Blog", footer
+  column, homepage "Read the road ahead" strip fed by the blog's RSS via
+  `src/lib/medMapped.ts`, with a fallback list if the feed is unreachable).
+  The blog links back with `atlas_url` in its `site.json`.
+- Deploys: Claude pushes to `main` itself (Dylan asked, Oct 2026); Vercel
+  builds production from `main`.
 - The product is **MD Atlas**. `SITE_NAME` in `src/lib/config.ts` is the single
   source; never hardcode the name in a component.
 - The compass mark lives in `src/components/Logo.tsx` and uses `currentColor`

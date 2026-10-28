@@ -31,3 +31,15 @@ export const SITE_URL =
   (process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : "http://localhost:3000");
+
+/**
+ * MD Atlas is the free app half of Med Mapped (medmapped.com), Dylan's blog
+ * about the road to med school. The header, footer and homepage link there,
+ * and the homepage pulls the newest posts from its RSS feed.
+ */
+export const MED_MAPPED = {
+  name: "Med Mapped",
+  url: "https://medmapped.com",
+  feed: "https://medmapped.com/feed.xml",
+  tagline: "The road to med school, mapped out by a first-year med student",
+};
