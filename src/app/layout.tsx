@@ -8,10 +8,10 @@ import "@fontsource/dm-mono/500.css";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
 import { SiteHeader } from "@/components/SiteHeader";
-import { MED_MAPPED, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/config";
+import { MED_MAPPED, PUBLIC_URL, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(PUBLIC_URL),
   title: {
     default: `${SITE_NAME} | ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
