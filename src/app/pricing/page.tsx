@@ -117,7 +117,7 @@ export default async function PricingPage({
           Almost all of it is free.
         </h1>
         <p className="mt-5 text-lg leading-relaxed text-muted">
-          Tracking everything is free, with no limits. Pro adds the full
+          Tracking everything is free, with no limits! Pro adds the full
           Essay Map, every suggestion, and every insight, instead of the
           first {FREE_PREVIEW_LIMIT}.
         </p>
@@ -178,7 +178,7 @@ export default async function PricingPage({
               The planner, activity log, prompt database, and the
               secondaries and interviews trackers, with no limit on schools
               or essays. You also see your top {FREE_PREVIEW_LIMIT} Essay Map
-              groups, one suggestion, and one insight. No credit card.
+              groups, one suggestion, and one insight. No credit card needed!
             </p>
             <Link
               href="/secondaries"
