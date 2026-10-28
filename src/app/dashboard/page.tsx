@@ -20,7 +20,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          What needs your attention next, most urgent first.
+          What needs your attention next, most urgent first. One step at a time, you&apos;ve got this!
         </p>
       </header>
 

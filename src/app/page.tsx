@@ -42,7 +42,7 @@ export default async function HomePage() {
       href: "/planner",
       when: "Every week, all four years",
       title: "Planner",
-      body: "Put in your classes, shifts, lab time, and volunteering once. The planner adds up your hours by category every week, so you have real numbers when AMCAS asks for them.",
+      body: "Put in your classes, shifts, lab time, and volunteering once. The planner adds up your hours by category every week, so you have real numbers ready when AMCAS asks for them!",
       cta: "Lay out my week",
       preview: <PlannerPreview />,
     },
@@ -58,7 +58,7 @@ export default async function HomePage() {
       href: "/secondaries",
       when: "June through September",
       title: "Secondaries",
-      body: "Add your schools and we fill in the prompts we have for each one. You can see which schools ask the same question, so you write one essay and adjust it instead of starting over each time.",
+      body: "Add your schools and we fill in the prompts we have for each one. You can see which schools ask the same question, so you write one essay and adjust it instead of starting over each time. Such a time saver!",
       cta: "Track secondaries",
       preview: <SecondariesPreview />,
     },
@@ -66,7 +66,7 @@ export default async function HomePage() {
       href: "/interviews",
       when: "September through March",
       title: "Interviews",
-      body: `Keep track of invites, dates, and formats, with a reminder for any thank-you note you haven't sent. There are also ${TOTAL_QUESTIONS} practice questions, each with a short note on what the interviewer wants to learn from your answer.`,
+      body: `Keep track of invites, dates, and formats, with a reminder for any thank-you note you haven't sent. There are also ${TOTAL_QUESTIONS} practice questions, each with a short note on what the interviewer wants to learn from your answer. You've got this!`,
       cta: "Prep interviews",
       preview: <InterviewsPreview />,
     },
@@ -94,7 +94,7 @@ export default async function HomePage() {
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-navy-100">
                 Log your hours as you go, keep up with every secondary, and
                 get ready for interviews. It&apos;s free, and you can start
-                with whichever part you need right now.
+                with whichever part you need right now. Welcome aboard!
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
                 <Link
@@ -104,7 +104,7 @@ export default async function HomePage() {
                   Open my dashboard
                 </Link>
                 <p className="text-sm text-navy-100">
-                  The planner and activity log work without an account.
+                  The planner and activity log work without an account!
                 </p>
               </div>
             </div>
@@ -157,7 +157,7 @@ export default async function HomePage() {
             <p className="mt-3 leading-relaxed text-muted">
               One part for each stage of applying. They share what you
               enter, so the hours in your planner carry over to your
-              activities.
+              activities. Enter it once, use it everywhere!
             </p>
           </div>
         </Reveal>
@@ -227,7 +227,7 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Yes. The planner, activity log, prompt database, and the
+                Yes! The planner, activity log, prompt database, and the
                 secondaries and interviews trackers are all free, with no
                 limit on schools or essays. Pro adds the full Essay Map and
                 ranked suggestions, and later, feedback on your drafts.{" "}
@@ -286,7 +286,7 @@ export default async function HomePage() {
               <div className="mt-3 leading-relaxed text-muted">
                 Not for the planner or activity log. Secondaries and
                 interviews need a free Google sign-in, so your school list is
-                backed up and works on any device.
+                backed up and works on any device. Easy!
               </div>
             </details>
             <details className="group py-5">
@@ -301,7 +301,7 @@ export default async function HomePage() {
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
                 It stays as long as you want it. You can download everything
-                as a spreadsheet anytime. If you delete your account, the
+                as a spreadsheet anytime, it&apos;s yours! If you delete your account, the
                 copy on our server is erased right away, and the copy in your
                 browser stays until you clear it.
               </div>
@@ -343,7 +343,7 @@ export default async function HomePage() {
               <div className="mt-3 leading-relaxed text-muted">
                 One person: Dylan, a first-year medical student at Brown who
                 applied in the 2025-2026 cycle and built the tracker he wanted and
-                didn&apos;t have.{" "}
+                didn&apos;t have. Hi, and good luck!{" "}
                 <Link
                   href="/about"
                   className="font-medium text-accent underline underline-offset-2 hover:no-underline"

@@ -42,7 +42,7 @@ export default function AboutPage() {
 
             <div className="p-7 sm:p-9">
               <h2 className="text-2xl font-semibold tracking-tight">
-                Hi, I&apos;m Dylan.
+                Hi, I&apos;m Dylan!
               </h2>
               <div className="mt-4 space-y-4 leading-relaxed">
                 <p>
@@ -50,7 +50,7 @@ export default function AboutPage() {
                   Alpert Medical School. I applied in the 2025-2026 cycle,
                   and somewhere between the spreadsheets and the secondaries
                   I realized the tool I wanted didn&apos;t exist. So I built
-                  it. That&apos;s {SITE_NAME}.
+                  it! That&apos;s {SITE_NAME}, and I&apos;m so glad you found it.
                 </p>
                 <p>
                   My road here wasn&apos;t a straight line. I studied piano
@@ -66,7 +66,7 @@ export default function AboutPage() {
                   I took both the DAT (24) and the MCAT (517), and I was
                   accepted to dental school before realizing medicine was
                   where I belonged. If your path feels a little unusual too,
-                  you&apos;re in good company.
+                  you&apos;re in good company!
                 </p>
               </div>
             </div>
@@ -81,7 +81,7 @@ export default function AboutPage() {
             href="/contact"
             className="text-accent underline underline-offset-2 hover:no-underline"
           >
-            Get in touch
+            Get in touch, I&apos;d love to hear from you
           </Link>
           . Curious where the line is on AI feedback?{" "}
           <Link
