@@ -24,11 +24,11 @@ function Frame({
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none overflow-hidden rounded-xl border border-line bg-background select-none"
+      className="stamp pointer-events-none overflow-hidden rounded-md bg-background select-none"
     >
-      <div className="flex items-center justify-between border-b border-line bg-surface px-4 py-2.5">
-        <span className="font-display text-sm font-semibold">{title}</span>
-        <span className="text-xs text-muted">Example</span>
+      <div className="flex items-center justify-between border-b-2 border-navy-900 bg-surface px-4 py-2.5">
+        <span className="font-display text-xl">{title}</span>
+        <span className="kicker">Example</span>
       </div>
       <div className="p-4 sm:p-5">{children}</div>
     </div>

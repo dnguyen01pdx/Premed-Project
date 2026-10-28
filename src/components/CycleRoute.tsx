@@ -27,9 +27,9 @@ export function CycleRoute({ now }: { now: Date }) {
   return (
     <nav
       aria-label="The application year"
-      className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 sm:p-7"
+      className="rounded-md border-2 border-white/15 bg-navy-900/80 p-6 backdrop-blur-[2px] sm:p-7"
     >
-      <p className="text-sm font-medium text-navy-100">Your application year</p>
+      <p className="kicker !text-navy-100">Your application year</p>
       <ol className="relative mt-5">
         {STOPS.map((s, i) => {
           const current = s.key === here.key;
@@ -59,12 +59,12 @@ export function CycleRoute({ now }: { now: Date }) {
                   }`}
                 >
                   {current && (
-                    <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-coral-pop" />
                   )}
                 </span>
                 <span className="min-w-0">
                   <span
-                    className={`block font-display text-lg leading-snug ${
+                    className={`block font-display text-2xl leading-none ${
                       current ? "font-semibold text-white" : "text-navy-100"
                     }`}
                   >

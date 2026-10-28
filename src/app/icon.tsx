@@ -14,7 +14,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0c2a28",
+          background: "#0e3b46",
           borderRadius: 6,
         }}
       >
@@ -29,8 +29,8 @@ export default function Icon() {
           />
           <path
             d="M16 5 L20.6 17.6 L16 14.8 L11.4 17.6 Z"
-            fill="#fff"
-            stroke="#fff"
+            fill="#ff6f59"
+            stroke="#ff6f59"
             strokeWidth="1.6"
             strokeLinejoin="round"
           />

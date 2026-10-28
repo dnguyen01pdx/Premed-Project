@@ -5,6 +5,8 @@ import { Reveal } from "@/components/Reveal";
 import { getStats, listSchools } from "@/lib/queries";
 import { TOTAL_QUESTIONS } from "@/lib/interview-questions";
 import { CycleRoute } from "@/components/CycleRoute";
+import { MedMappedPosts } from "@/components/MedMappedPosts";
+import { TopoLines } from "@/components/TopoLines";
 import {
   InterviewsPreview,
   PlannerPreview,
@@ -78,10 +80,14 @@ export default async function HomePage() {
       {/* Hero. Kept short enough to fit one screen on arrival — the pitch,
           not a scroll, is the first thing a new visitor should have to do. */}
       <div className="space-y-5">
-        <section className="-mx-5 -mt-12 overflow-hidden bg-navy-900 px-5 py-12 text-white sm:mx-0 sm:-mt-4 sm:rounded-3xl sm:px-12 sm:py-16">
-          <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
+        <section className="relative -mx-5 -mt-12 overflow-hidden bg-navy-900 px-5 py-12 text-white sm:mx-0 sm:-mt-4 sm:rounded-lg sm:border-2 sm:border-navy-900 sm:px-12 sm:py-16 sm:shadow-[8px_8px_0_var(--coral-pop)]">
+          <TopoLines className="pointer-events-none absolute -right-24 -top-20 h-[520px] w-[720px] text-white/[0.1]" />
+          <div className="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
             <div>
-              <h1 className="max-w-3xl text-5xl font-semibold leading-[1.02] sm:text-7xl">
+              <p className="kicker !text-coral-pop">
+                Free · Built by a med student · Part of Med Mapped
+              </p>
+              <h1 className="mt-4 max-w-3xl text-6xl leading-[0.9] sm:text-8xl">
                 Your med school application, in one place.
               </h1>
 
@@ -160,14 +166,16 @@ export default async function HomePage() {
             are a sequence, but the order is carried by the "when" line and
             the reading order; numbered badges added nothing. */}
         <ol className="mt-10 divide-y divide-line border-y border-line">
-          {STAGES.map((s) => (
+          {STAGES.map((s, i) => (
             <li
               key={s.title}
               className="grid gap-8 py-12 md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-14 md:py-16"
             >
               <div>
-                <p className="text-sm text-muted">{s.when}</p>
-                <h3 className="mt-1 text-3xl font-semibold sm:text-4xl">
+                <p className="kicker">
+                  Stop {String(i + 1).padStart(2, "0")} · {s.when}
+                </p>
+                <h3 className="mt-2 text-4xl sm:text-5xl">
                   {s.title}
                 </h3>
                 <p className="mt-4 max-w-md leading-relaxed text-muted">
@@ -175,7 +183,7 @@ export default async function HomePage() {
                 </p>
                 <Link
                   href={s.href}
-                  className="mt-6 inline-block rounded-lg border border-line-strong bg-surface px-4 py-2 text-sm font-semibold hover:border-accent hover:text-accent"
+                  className="lift mt-6 inline-block rounded-md border-2 border-navy-900 bg-surface px-4 py-2 font-[family-name:var(--font-label)] text-[13px] font-medium uppercase tracking-[0.08em] text-navy-900"
                 >
                   {s.cta}
                 </Link>
@@ -185,6 +193,8 @@ export default async function HomePage() {
           ))}
         </ol>
       </section>
+
+      <MedMappedPosts />
 
       {/* The "yours and portable" / feedback-policy / prompt-honesty content
           that used to live here as three separate cards was saying the same

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
+import { MED_MAPPED } from "@/lib/config";
 
 /**
  * The stages, in the order the year happens. Five items, nothing else.
@@ -38,6 +39,12 @@ const PRICING = { href: "/pricing", label: "Pricing" };
  * component needing to know the auth state itself.
  */
 const ACCOUNT = { href: "/account", label: "Sign in" };
+
+/**
+ * The Med Mapped blog. Off-site, so a plain <a>, and it sits with Pricing
+ * on the side rather than in NAV: it's where you read, not where you work.
+ */
+const BLOG = { href: MED_MAPPED.url, label: "Blog" };
 
 /**
  * Sticky header that gains a shadow and a reading-progress bar once you scroll.
@@ -83,10 +90,8 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b bg-surface/95 backdrop-blur-md transition-[box-shadow,border-color] duration-300 ${
-        scrolled
-          ? "border-line shadow-[0_4px_16px_-8px_rgb(12_42_40/0.18)]"
-          : "border-transparent"
+      className={`sticky top-0 z-40 border-b-2 border-navy-900 bg-background/95 backdrop-blur-md transition-[box-shadow] duration-300 ${
+        scrolled ? "shadow-[0_3px_0_var(--navy-100)]" : ""
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
@@ -104,10 +109,10 @@ export function SiteHeader() {
                   <Link
                     href={item.href}
                     aria-current={active ? "page" : undefined}
-                    className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
+                    className={`nav-label block border-b-2 px-2.5 py-1.5 transition-colors lg:px-3 ${
                       active
-                        ? "bg-accent-soft font-semibold text-accent"
-                        : "text-muted hover:bg-sunken hover:text-foreground"
+                        ? "border-coral-pop text-navy-900"
+                        : "border-transparent text-muted hover:border-navy-900 hover:text-navy-900"
                     }`}
                   >
                     {item.label}
@@ -119,13 +124,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <a
+            href={BLOG.href}
+            className="nav-label px-2.5 py-1.5 text-muted hover:text-coral"
+          >
+            {BLOG.label}
+            <span aria-hidden="true"> &#8599;</span>
+          </a>
           <Link
             href={PRICING.href}
             aria-current={pathname === PRICING.href ? "page" : undefined}
-            className={`rounded-full px-3.5 py-2 text-sm transition-colors ${
+            className={`nav-label px-2.5 py-1.5 transition-colors ${
               pathname === PRICING.href
-                ? "bg-accent-soft font-semibold text-accent"
-                : "text-muted hover:bg-sunken hover:text-foreground"
+                ? "text-navy-900 underline decoration-coral-pop decoration-2 underline-offset-[6px]"
+                : "text-muted hover:text-navy-900"
             }`}
           >
             {PRICING.label}
@@ -133,7 +145,7 @@ export function SiteHeader() {
           <Link
             href={ACCOUNT.href}
             aria-current={pathname === ACCOUNT.href ? "page" : undefined}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+            className={`lift px-4 py-2 transition-colors ${
               pathname === ACCOUNT.href
                 ? "bg-accent-hover text-on-accent"
                 : "bg-accent text-on-accent hover:bg-accent-hover"
@@ -148,7 +160,7 @@ export function SiteHeader() {
           onClick={() => setMenuOpen((v) => !v)}
           aria-expanded={menuOpen}
           aria-controls="mobile-nav"
-          className="rounded-full border border-line-strong px-3.5 py-1.5 text-sm font-medium text-foreground hover:bg-sunken md:hidden"
+          className="nav-label rounded-md border-2 border-navy-900 px-3 py-1.5 text-navy-900 hover:bg-navy-900 hover:text-white md:hidden"
         >
           {menuOpen ? "Close" : "Menu"}
         </button>
@@ -173,6 +185,14 @@ export function SiteHeader() {
               </li>
             ))}
             <li className="mt-1 border-t border-line pt-1">
+              <a
+                href={BLOG.href}
+                className="block rounded-lg px-2 py-3 text-base text-muted hover:bg-sunken"
+              >
+                {MED_MAPPED.name} blog <span aria-hidden="true">&#8599;</span>
+              </a>
+            </li>
+            <li>
               <Link
                 href={PRICING.href}
                 onClick={() => setMenuOpen(false)}
@@ -198,7 +218,7 @@ export function SiteHeader() {
           React render on every scroll frame. */}
       <div
         aria-hidden="true"
-        className="h-0.5 origin-left bg-accent"
+        className="h-[3px] origin-left bg-coral-pop"
         style={{ transform: "scaleX(var(--scroll-progress, 0))" }}
       />
     </header>
