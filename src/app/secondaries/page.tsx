@@ -9,6 +9,7 @@ import {
   getStats,
   listSchoolsForTracker,
 } from "@/lib/queries";
+import { ToolHeader } from "@/components/ToolHeader";
 
 // ProSync needs this visitor's real Pro status, so this page is rendered per
 // request rather than cached from whoever loaded it last.
@@ -30,14 +31,11 @@ export default async function SecondariesPage() {
 
   return (
     <div className="space-y-8">
-      <header className="anim-rise">
-        <h1 className="text-4xl font-semibold tracking-tight">Secondaries</h1>
-        <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Add the schools you applied to. Each one gets its essay prompts, so
-          you can track every essay and see which schools ask the same
-          question.
-        </p>
-      </header>
+      <ToolHeader kicker="Stop 03 · June through September" title="Secondaries">
+        Add the schools you applied to. Each one gets its essay prompts, so
+        you can track every essay and see which schools ask the same
+        question.
+      </ToolHeader>
 
       {/* The prompt library is a reference tool, not a second product. It sits
           here, inside the stage that needs it, rather than in the top nav. */}

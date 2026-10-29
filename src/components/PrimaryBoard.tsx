@@ -106,7 +106,7 @@ export function PrimaryBoard() {
             <span className="block text-2xl font-semibold tabular-nums">
               {s.n}
             </span>
-            <span className="mt-0.5 block text-xs text-muted">{s.label}</span>
+            <span className="nav-label mt-1.5 block text-muted">{s.label}</span>
           </div>
         ))}
       </div>
@@ -385,7 +385,7 @@ export function PrimaryBoard() {
 
       {/* Export */}
       <section className="rounded-2xl border border-line bg-sunken p-5">
-        <h2 className="text-sm font-semibold">Your data</h2>
+        <h2 className="kicker">Your data</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
           Saved in this browser, and backed up to your account if you are
           signed in. The AMCAS export is laid out in the order you will type

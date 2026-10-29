@@ -341,8 +341,8 @@ function SaveNudge() {
         <h2 className="font-semibold">Nice work! Want to keep it?</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
           Right now everything you have added lives only in this browser.
-          Sign in with Google to back it up and pick up on any device. It is
-          free, and nothing here gets deleted when you sign in.
+          Sign in with Google to back it up and pick up on any device. Signing
+          in costs nothing, and nothing here gets deleted when you do.
         </p>
       </div>
       <Link

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DashboardOverview } from "@/components/DashboardOverview";
 import { SyncPanel } from "@/components/SyncPanel";
 import { CURRENT_CYCLE } from "@/lib/config";
+import { ToolHeader } from "@/components/ToolHeader";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -12,17 +13,10 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
   return (
     <div className="space-y-8">
-      <header className="anim-rise">
-        <p className="text-sm font-semibold text-muted">
-          {CURRENT_CYCLE} cycle
-        </p>
-        <h1 className="mt-1.5 text-4xl font-semibold tracking-tight">
-          Dashboard
-        </h1>
-        <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          What needs your attention next, most urgent first. One step at a time, you&apos;ve got this!
-        </p>
-      </header>
+      <ToolHeader kicker={`${CURRENT_CYCLE} cycle · Your hub`} title="Dashboard">
+        What needs your attention next, most urgent first. One step at a
+        time, you&apos;ve got this!
+      </ToolHeader>
 
       <DashboardOverview />
 

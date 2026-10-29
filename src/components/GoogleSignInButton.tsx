@@ -10,7 +10,7 @@ export function GoogleSignInButton({ next }: { next?: string | null }) {
   return (
     <a
       href={href}
-      className="flex w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-surface px-5 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:border-line-strong hover:bg-sunken hover:shadow"
+      className="btn-plain flex w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-surface px-5 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:border-line-strong hover:bg-sunken hover:shadow"
     >
       <GoogleMark className="h-5 w-5 shrink-0" />
       Continue with Google

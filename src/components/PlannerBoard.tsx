@@ -582,7 +582,7 @@ function Stat({
       }`}
     >
       <p
-        className={`text-sm font-semibold ${warn ? "text-warn" : "text-muted"}`}
+        className={`nav-label ${warn ? "text-warn" : "text-muted"}`}
       >
         {label}
       </p>

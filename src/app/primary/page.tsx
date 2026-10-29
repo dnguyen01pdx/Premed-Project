@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PrimaryBoard } from "@/components/PrimaryBoard";
 import { SyncPanel } from "@/components/SyncPanel";
+import { ToolHeader } from "@/components/ToolHeader";
 
 export const metadata: Metadata = {
   title: "Primary application",
@@ -11,15 +12,13 @@ export const metadata: Metadata = {
 export default function PrimaryPage() {
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="text-4xl font-semibold tracking-tight">
-          Primary application
-        </h1>
-        <p className="mt-4 max-w-2xl leading-relaxed text-muted">
-          Log your activities as you do them. When you apply, turn them into
-          your Work &amp; Activities entries and personal statement.
-        </p>
-      </header>
+      <ToolHeader
+        kicker="Stop 02 · Sophomore year through May"
+        title="Primary application"
+      >
+        Log your activities as you do them. When you apply, turn them into
+        your Work &amp; Activities entries and personal statement.
+      </ToolHeader>
 
       <PrimaryBoard />
       <SyncPanel />

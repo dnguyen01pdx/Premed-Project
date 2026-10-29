@@ -4,6 +4,7 @@ import { SyncPanel } from "@/components/SyncPanel";
 import {
   TOTAL_QUESTIONS,
 } from "@/lib/interview-questions";
+import { ToolHeader } from "@/components/ToolHeader";
 
 export const metadata: Metadata = {
   title: "Interviews",
@@ -14,13 +15,10 @@ export const metadata: Metadata = {
 export default function InterviewsPage() {
   return (
     <div className="space-y-8">
-      <header className="anim-rise">
-        <h1 className="text-4xl font-semibold tracking-tight">Interviews</h1>
-        <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Track your invites, dates, and thank-you notes, and practice with{" "}
-          {TOTAL_QUESTIONS} common interview questions.
-        </p>
-      </header>
+      <ToolHeader kicker="Stop 04 · September through March" title="Interviews">
+        Track your invites, dates, and thank-you notes, and practice with{" "}
+        {TOTAL_QUESTIONS} common interview questions.
+      </ToolHeader>
 
       <InterviewsClient />
 
