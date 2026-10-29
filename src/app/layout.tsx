@@ -19,10 +19,14 @@ export const metadata: Metadata = {
   },
   description:
     "Try the free version of MD Atlas, a dashboard for the whole medical school application: log your activities, draft Work & Activities entries, track every secondary, and manage interviews.",
+  // The share card itself is src/app/opengraph-image.png (and twitter-image).
+  // Without one, iMessage and friends picked the biggest photo on the page,
+  // which was Dylan's headshot.
   openGraph: {
     siteName: SITE_NAME,
     type: "website",
   },
+  twitter: { card: "summary_large_image" },
 };
 
 const SITE_LD = {

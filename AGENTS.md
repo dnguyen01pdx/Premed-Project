@@ -276,6 +276,10 @@ already in the app when their application year arrives.
   builds production from `main`.
 - The product is **MD Atlas**. `SITE_NAME` in `src/lib/config.ts` is the single
   source; never hardcode the name in a component.
+- Share previews (iMessage, Slack, X): `src/app/opengraph-image.png` and
+  `twitter-image.png` (1200x630 compass + tagline card) apply site-wide. Keep
+  them; without one, link previews grab the largest photo on the page, which
+  was Dylan's headshot. Don't add a page-level `openGraph.images` with his photo.
 - The compass mark lives in `src/components/Logo.tsx` and uses `currentColor`
   so one component works on navy and on white. It is intentionally low-detail:
   check any change at 16px before shipping it.
