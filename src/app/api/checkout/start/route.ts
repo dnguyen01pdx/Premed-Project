@@ -21,7 +21,9 @@ export async function GET(req: NextRequest) {
 
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.redirect(`${SITE_URL}/account?error=signinfirst`);
+    return NextResponse.redirect(
+      `${SITE_URL}/account?error=signinfirst&next=/pricing`,
+    );
   }
 
   const stripe = getStripe();
