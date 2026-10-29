@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "A free dashboard for the whole medical school application: log your activities, draft Work & Activities entries, track every secondary, and manage interviews.",
+    "Try the free version of MD Atlas, a dashboard for the whole medical school application: log your activities, draft Work & Activities entries, track every secondary, and manage interviews.",
   openGraph: {
     siteName: SITE_NAME,
     type: "website",

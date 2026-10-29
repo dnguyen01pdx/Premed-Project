@@ -216,6 +216,7 @@ export function SyncPanel() {
   async function signOut() {
     await fetch("/api/auth/signout", { method: "POST" });
     setStatus({ kind: "signedOut" });
+    window.dispatchEvent(new Event("mda:auth-change"));
   }
 
   async function resolveConflict(keep: "local" | "server") {

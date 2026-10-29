@@ -128,10 +128,10 @@ export default async function AccountPage({
 
             <div className="mt-8 rounded-2xl bg-surface p-6 text-left text-foreground shadow-2xl sm:p-7">
               <h1 className="text-xl font-semibold tracking-tight">
-                Welcome back
+                Sign in to save your work
               </h1>
               <p className="mt-1 text-sm text-muted">
-                Sign in to sync your dashboard
+                Back it up and pick up on any device
               </p>
 
               {error === "invalid" && (
@@ -191,7 +191,7 @@ export default async function AccountPage({
           </p>
 
           <Link
-            href="/secondaries"
+            href="/dashboard"
             className="inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
           >
             Go to my dashboard without signing in
@@ -238,8 +238,13 @@ export default async function AccountPage({
         <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
           <li>Your email address, used to sign you in.</li>
           <li>
-            A copy of your dashboard: schools, essays, statuses, interviews and
-            prep notes, so it can follow you between devices.
+            A copy of your dashboard: schools, essays, statuses, interviews,
+            prep notes, activities and hours, personal statement, letters and
+            your weekly planner, so it can follow you between devices.
+          </li>
+          <li>
+            If you buy Pro: your plan, its end date, and Stripe&apos;s reference
+            to your purchase. Your card details stay with Stripe.
           </li>
         </ul>
         <p className="mt-3 text-sm leading-relaxed text-muted">

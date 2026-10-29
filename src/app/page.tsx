@@ -85,7 +85,7 @@ export default async function HomePage() {
           <div className="relative grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-16">
             <div>
               <p className="kicker !text-coral-pop">
-                Free · Built by a med student · Part of Med Mapped
+                Free version · Built by a med student · Part of Med Mapped
               </p>
               <h1 className="mt-4 max-w-3xl text-6xl leading-[0.9] sm:text-8xl">
                 Your med school application, in one place.
@@ -93,7 +93,7 @@ export default async function HomePage() {
 
               <p className="mt-6 max-w-xl text-lg leading-relaxed text-navy-100">
                 Log your hours as you go, keep up with every secondary, and
-                get ready for interviews. It&apos;s free, and you can start
+                get ready for interviews. The free version covers all of it, and you can start
                 with whichever part you need right now. Welcome aboard!
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3">
@@ -218,7 +218,7 @@ export default async function HomePage() {
           <div className="divide-y divide-line border-y border-line">
             <details className="group py-5">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium marker:content-none [&::-webkit-details-marker]:hidden">
-                Is this really free?
+                What&apos;s free, and what&apos;s Pro?
                 <span
                   aria-hidden="true"
                   className="shrink-0 text-lg leading-none text-muted transition-transform group-open:rotate-45"
@@ -227,9 +227,10 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Yes! The planner, activity log, prompt database, and the
-                secondaries and interviews trackers are all free, with no
-                limit on schools or essays. Pro adds the full Essay Map and
+                The free version has the planner, activity log, prompt
+                database, and the secondaries and interviews trackers, with no
+                limit on schools or essays. Pro ($20 a month or $49 for 3
+                months) adds the full Essay Map and
                 ranked suggestions, and later, feedback on your drafts.{" "}
                 <Link
                   href="/pricing"
@@ -284,9 +285,10 @@ export default async function HomePage() {
                 </span>
               </summary>
               <div className="mt-3 leading-relaxed text-muted">
-                Not for the planner or activity log. Secondaries and
-                interviews need a free Google sign-in, so your school list is
-                backed up and works on any device. Easy!
+                Nope! Every part works without one, and your work saves in
+                this browser. Sign in with Google whenever you want it backed
+                up and on any device. Nothing you added gets lost when you
+                do.
               </div>
             </details>
             <details className="group py-5">

@@ -35,10 +35,12 @@ const PRICING = { href: "/pricing", label: "Pricing" };
 
 /**
  * Links to /account either way. Signed out, that page is the sign-in form;
- * signed in, it's account management — so one link covers both without this
- * component needing to know the auth state itself.
+ * signed in, it's account management. The label follows the real state
+ * (fetched from /api/auth/me) so a signed-in visitor is never told to sign
+ * in. Until that answer arrives it reads "Sign in", which is what most
+ * visitors are.
  */
-const ACCOUNT = { href: "/account", label: "Sign in" };
+const ACCOUNT = { href: "/account", signedOut: "Sign in", signedIn: "Account" };
 
 /**
  * The Med Mapped blog. Off-site, so a plain <a>, and it sits with Pricing
@@ -57,6 +59,28 @@ export function SiteHeader() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const accountLabel = signedIn ? ACCOUNT.signedIn : ACCOUNT.signedOut;
+
+  // Re-checked on every navigation: signing out from /account redirects
+  // client-side, so the header never remounts to notice on its own.
+  // SyncPanel's Sign out fires mda:auth-change without navigating.
+  useEffect(() => {
+    let cancelled = false;
+    const check = () =>
+      fetch("/api/auth/me", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : { signedIn: false }))
+        .then((d: { signedIn?: boolean }) => {
+          if (!cancelled) setSignedIn(!!d.signedIn);
+        })
+        .catch(() => {});
+    check();
+    window.addEventListener("mda:auth-change", check);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("mda:auth-change", check);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     let ticking = false;
@@ -145,13 +169,9 @@ export function SiteHeader() {
           <Link
             href={ACCOUNT.href}
             aria-current={pathname === ACCOUNT.href ? "page" : undefined}
-            className={`lift px-4 py-2 transition-colors ${
-              pathname === ACCOUNT.href
-                ? "bg-accent-hover text-on-accent"
-                : "bg-accent text-on-accent hover:bg-accent-hover"
-            }`}
+            className="lift bg-accent px-4 py-2 text-on-accent transition-colors hover:bg-accent-hover"
           >
-            {ACCOUNT.label}
+            {accountLabel}
           </Link>
         </div>
 
@@ -207,7 +227,7 @@ export function SiteHeader() {
                 onClick={() => setMenuOpen(false)}
                 className="block rounded-lg px-2 py-3 text-base font-semibold text-accent hover:bg-sunken"
               >
-                {ACCOUNT.label}
+                {accountLabel}
               </Link>
             </li>
           </ul>

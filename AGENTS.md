@@ -158,11 +158,11 @@ already in the app when their application year arrives.
   `next` rides through Google sign-in in the `mda_g_next` cookie and is
   checked by `safeNextPath()` in `auth.ts` (same-site paths only). There used
   to be a `SignInGate` that locked those two pages; don't bring it back.
-- The header's "Sign in" link always points at `/account` regardless of auth
-  state — signed out that page is the sign-in form, signed in it's account
-  management. `SiteHeader` deliberately doesn't fetch auth state itself to
-  decide the label; if that starts to read as wrong once actually signed in,
-  revisit it then rather than adding a client-side auth check to every page.
+- The header's account link always points at `/account`. Its label reads
+  "Sign in" or "Account" from `/api/auth/me` (a yes/no only, re-checked on
+  every navigation and on the `mda:auth-change` event SyncPanel fires on
+  sign-out). Dylan saw "Sign in" while signed in and called it a bug, so
+  don't go back to a fixed label.
 
 ## Payments and Pro
 - Pricing (since October 2026): Pro is $20/month (Stripe subscription) OR

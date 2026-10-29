@@ -152,7 +152,9 @@ export default function PrivacyPage() {
           </p>
           <p>
             When you sign in we store your email address and a copy of your
-            dashboard: schools, essays, statuses, interviews, prep notes. We
+            dashboard: schools, essays, statuses, interviews, prep notes,
+            activities and hours, your personal statement, letters, and your
+            weekly planner. We
             use your email to identify your account and to tell you when essay
             feedback launches. We do not sell it, and there is no other mailing
             list.
