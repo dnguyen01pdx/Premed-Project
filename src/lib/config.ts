@@ -46,7 +46,7 @@ export const PUBLIC_URL =
 export const NOINDEX_HOSTS = ["premed-project-vert.vercel.app"];
 
 /**
- * MD Atlas is the free app half of Med Mapped (medmapped.com), Dylan's blog
+ * MD Atlas is the app half of Med Mapped (medmapped.com), Dylan's blog
  * about the road to med school. The header, footer and homepage link there,
  * and the homepage pulls the newest posts from its RSS feed.
  */

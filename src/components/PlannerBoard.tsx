@@ -252,7 +252,7 @@ export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
       {/* ---------------------------------------------------- summary bar -- */}
       <section
         aria-label="Planner at a glance"
-        className="anim-rise grid gap-3 sm:grid-cols-2 lg:grid-cols-4"
+        className="anim-rise grid grid-cols-2 gap-3 lg:grid-cols-4"
       >
         <Stat
           label="Scheduled (avg/wk)"
