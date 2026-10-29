@@ -68,7 +68,7 @@ export default function RootLayout({
                 </span>
                 <p className="mt-3 text-sm leading-relaxed">{SITE_TAGLINE}</p>
                 <p className="mt-4 text-sm leading-relaxed">
-                  {SITE_NAME} is the free app half of{" "}
+                  {SITE_NAME} is the app half of{" "}
                   <a
                     href={MED_MAPPED.url}
                     className="font-medium text-white underline underline-offset-4 hover:no-underline"
@@ -123,7 +123,7 @@ export default function RootLayout({
                     </li>
                     <li>
                       <Link href="/pricing" className="hover:text-white">
-                        What&apos;s free
+                        Pricing
                       </Link>
                     </li>
                     <li>
