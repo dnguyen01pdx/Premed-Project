@@ -289,19 +289,19 @@ export default async function PricingPage({
             essay tools are the only difference.
           </p>
           <div className="mt-8 overflow-x-auto rounded-lg border-2 border-navy-900">
-            <table className="w-full min-w-[520px] text-left text-sm">
+            <table className="w-full text-left text-sm">
               <caption className="sr-only">
                 Features that differ between the free version and Pro
               </caption>
               <thead>
                 <tr className="bg-navy-900 text-white">
-                  <th scope="col" className="nav-label px-5 py-3.5 font-medium">
+                  <th scope="col" className="nav-label px-3 py-3.5 font-medium sm:px-5">
                     Tool
                   </th>
-                  <th scope="col" className="nav-label px-5 py-3.5 font-medium">
+                  <th scope="col" className="nav-label px-3 py-3.5 font-medium sm:px-5">
                     Free version
                   </th>
-                  <th scope="col" className="nav-label px-5 py-3.5 font-medium">
+                  <th scope="col" className="nav-label px-3 py-3.5 font-medium sm:px-5">
                     Pro
                   </th>
                 </tr>
@@ -309,11 +309,11 @@ export default async function PricingPage({
               <tbody className="divide-y divide-line bg-surface">
                 {PRO_ROWS.map((r) => (
                   <tr key={r.feature}>
-                    <th scope="row" className="px-5 py-4 font-medium">
+                    <th scope="row" className="px-3 py-4 font-medium sm:px-5">
                       {r.feature}
                     </th>
-                    <td className="px-5 py-4 text-muted">{r.free}</td>
-                    <td className="px-5 py-4 font-semibold text-navy-900">
+                    <td className="px-3 py-4 text-muted sm:px-5">{r.free}</td>
+                    <td className="px-3 py-4 font-semibold text-navy-900 sm:px-5">
                       {r.paid}
                     </td>
                   </tr>
