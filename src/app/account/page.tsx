@@ -6,6 +6,7 @@ import {
   deleteAccount,
   getCurrentUser,
   signOutCurrentSession,
+  safeNextPath,
   TRIAL_DAYS,
 } from "@/lib/auth";
 import { CONTACT_EMAIL, SITE_NAME } from "@/lib/config";
@@ -100,6 +101,7 @@ export default async function AccountPage({
   const sp = await searchParams;
   const error = Array.isArray(sp.error) ? sp.error[0] : sp.error;
   const upgraded = (Array.isArray(sp.upgraded) ? sp.upgraded[0] : sp.upgraded) === "1";
+  const next = safeNextPath(Array.isArray(sp.next) ? sp.next[0] : sp.next);
   const user = await getCurrentUser();
 
   if (!user) {
@@ -157,7 +159,7 @@ export default async function AccountPage({
               )}
 
               <div className="mt-6">
-                <GoogleSignInButton />
+                <GoogleSignInButton next={next} />
               </div>
               <p className="mt-4 text-xs leading-relaxed text-muted">
                 No password, just your Google account. We use your email for

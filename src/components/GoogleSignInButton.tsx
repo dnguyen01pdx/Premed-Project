@@ -3,10 +3,13 @@
  * whole flow is a redirect to Google and back, so there's nothing here that
  * needs client-side state.
  */
-export function GoogleSignInButton() {
+export function GoogleSignInButton({ next }: { next?: string | null }) {
+  const href = next
+    ? `/api/auth/google/start?next=${encodeURIComponent(next)}`
+    : "/api/auth/google/start";
   return (
     <a
-      href="/api/auth/google/start"
+      href={href}
       className="flex w-full items-center justify-center gap-3 rounded-xl border border-line-strong bg-surface px-5 py-3 text-sm font-semibold text-foreground shadow-sm transition hover:border-line-strong hover:bg-sunken hover:shadow"
     >
       <GoogleMark className="h-5 w-5 shrink-0" />
