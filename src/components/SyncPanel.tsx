@@ -1,10 +1,35 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { commitTracker, getTrackerSnapshot, parseTracker } from "@/lib/tracker";
-import { commitPrep, getPrepSnapshot, parsePrep } from "@/lib/prep";
-import { commitPrimary, getPrimarySnapshot, parsePrimary } from "@/lib/primary";
-import { getPlannerSnapshot, replacePlanner } from "@/lib/planner";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import {
+  commitTracker,
+  getTrackerServerSnapshot,
+  getTrackerSnapshot,
+  parseTracker,
+  subscribeToTracker,
+} from "@/lib/tracker";
+import {
+  commitPrep,
+  getPrepServerSnapshot,
+  getPrepSnapshot,
+  parsePrep,
+  subscribeToPrep,
+} from "@/lib/prep";
+import {
+  commitPrimary,
+  getPrimaryServerSnapshot,
+  getPrimarySnapshot,
+  parsePrimary,
+  subscribeToPrimary,
+} from "@/lib/primary";
+import {
+  getPlannerServerSnapshot,
+  getPlannerSnapshot,
+  replacePlanner,
+  subscribeToPlanner,
+} from "@/lib/planner";
 
 type Status =
   | { kind: "loading" }
@@ -37,11 +62,11 @@ function countSchools(t: unknown): number {
  *    features eat people's work, and an applicant losing their school list in
  *    August is not a recoverable error for them.
  *
- * The "add an email" pitch used to live inline here, on every tracking page.
- * It now lives only on /account, reached through the "Sign in" link in the
- * header — this component just reflects whatever state that produced:
- * nothing when signed out, the synced/saving badge or a conflict prompt when
- * signed in.
+ * Every tool works signed out. Signing in itself happens only on /account;
+ * this component reflects whatever state that produced: the synced/saving
+ * badge or a conflict prompt when signed in, and when signed out, a "save
+ * your work" nudge, but only once this browser actually holds something
+ * worth saving. Its button returns the visitor to this same page.
  */
 export function SyncPanel() {
   const [status, setStatus] = useState<Status>({ kind: "loading" });
@@ -270,7 +295,61 @@ export function SyncPanel() {
     );
   }
 
-  // Signed out: nothing to show here. Signing in happens on /account, via
-  // the "Sign in" link in the header, not as a pitch inline on this page.
-  return null;
+  return <SaveNudge />;
+}
+
+/**
+ * Signed out: try first, sign in to save. Shows nothing until the visitor has
+ * added something, so a first look at a tool is never met with a sign-in ask.
+ */
+function SaveNudge() {
+  const pathname = usePathname();
+  const tracker = useSyncExternalStore(
+    subscribeToTracker,
+    getTrackerSnapshot,
+    getTrackerServerSnapshot,
+  );
+  const prep = useSyncExternalStore(
+    subscribeToPrep,
+    getPrepSnapshot,
+    getPrepServerSnapshot,
+  );
+  const primary = useSyncExternalStore(
+    subscribeToPrimary,
+    getPrimarySnapshot,
+    getPrimaryServerSnapshot,
+  );
+  const planner = useSyncExternalStore(
+    subscribeToPlanner,
+    getPlannerSnapshot,
+    getPlannerServerSnapshot,
+  );
+
+  const hasWork =
+    tracker.schools.length > 0 ||
+    Object.keys(prep.notes).length > 0 ||
+    primary.experiences.length > 0 ||
+    primary.letters.length > 0 ||
+    primary.personalStatement.trim().length > 0 ||
+    planner.events.length > 0;
+  if (!hasWork) return null;
+
+  return (
+    <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-line-strong bg-sunken px-5 py-4">
+      <div className="max-w-xl">
+        <h2 className="font-semibold">Nice work! Want to keep it?</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted">
+          Right now everything you have added lives only in this browser.
+          Sign in with Google to back it up and pick up on any device. It is
+          free, and nothing here gets deleted when you sign in.
+        </p>
+      </div>
+      <Link
+        href={`/account?next=${encodeURIComponent(pathname ?? "/dashboard")}`}
+        className="rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+      >
+        Sign in to save
+      </Link>
+    </section>
+  );
 }

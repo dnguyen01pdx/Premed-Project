@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ProSync } from "@/components/ProSync";
-import { SignInGate } from "@/components/SignInGate";
 import { SyncPanel } from "@/components/SyncPanel";
 import { TrackerBoard } from "@/components/TrackerBoard";
 import { getCurrentUser } from "@/lib/auth";
@@ -11,9 +10,8 @@ import {
   listSchoolsForTracker,
 } from "@/lib/queries";
 
-// Whether someone is signed in can change on every request, so this page can
-// no longer be a static revalidated page — the gate has to be right every
-// time, not cached from whoever loaded it last.
+// ProSync needs this visitor's real Pro status, so this page is rendered per
+// request rather than cached from whoever loaded it last.
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -67,9 +65,7 @@ export default async function SecondariesPage() {
 
       <ProSync isPro={!!user?.isPro || !!user?.onTrial} signedIn={!!user} />
 
-      <SignInGate signedIn={!!user} feature="secondaries">
-        <TrackerBoard schools={schools} promptsBySchool={promptsBySchool} />
-      </SignInGate>
+      <TrackerBoard schools={schools} promptsBySchool={promptsBySchool} />
 
       <SyncPanel />
     </div>

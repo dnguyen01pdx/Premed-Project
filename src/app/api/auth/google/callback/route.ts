@@ -2,8 +2,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/config";
 import {
+  GOOGLE_OAUTH_NEXT_COOKIE,
   GOOGLE_OAUTH_STATE_COOKIE,
   normalizeEmail,
+  safeNextPath,
   setSessionCookie,
   startSessionForEmail,
 } from "@/lib/auth";
@@ -36,6 +38,8 @@ export async function GET(req: Request) {
   const jar = await cookies();
   const expectedState = jar.get(GOOGLE_OAUTH_STATE_COOKIE)?.value;
   jar.delete(GOOGLE_OAUTH_STATE_COOKIE);
+  const next = safeNextPath(jar.get(GOOGLE_OAUTH_NEXT_COOKIE)?.value);
+  jar.delete(GOOGLE_OAUTH_NEXT_COOKIE);
 
   // Someone declined on Google's screen, or Google itself errored out.
   if (errorParam) {
@@ -110,8 +114,11 @@ export async function GET(req: Request) {
     const { sessionToken } = await startSessionForEmail(email);
     await setSessionCookie(sessionToken);
 
-    // Same landing spot the magic-link flow uses.
-    return NextResponse.redirect(`${SITE_URL}/my-schools?signedin=1`);
+    // Back to the page that asked them to sign in, else the same landing
+    // spot the magic-link flow uses.
+    return NextResponse.redirect(
+      next ? `${SITE_URL}${next}` : `${SITE_URL}/my-schools?signedin=1`,
+    );
   } catch (e) {
     console.error("[auth] Google sign-in failed:", e);
     return errorRedirect();

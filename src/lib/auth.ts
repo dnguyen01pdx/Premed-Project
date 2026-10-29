@@ -9,6 +9,18 @@ export const SESSION_COOKIE = "mda_session";
 /** CSRF state cookie for the Google OAuth round trip. Short-lived on
  * purpose — it only needs to survive the redirect to Google and back. */
 export const GOOGLE_OAUTH_STATE_COOKIE = "mda_g_state";
+/** Where to send someone after Google sign-in, set alongside the state cookie. */
+export const GOOGLE_OAUTH_NEXT_COOKIE = "mda_g_next";
+
+/**
+ * Only same-site paths are allowed as a post-sign-in destination, so a crafted
+ * `?next=` link can't bounce a freshly signed-in user to someone else's site.
+ */
+export function safeNextPath(raw: string | null | undefined): string | null {
+  if (!raw || !raw.startsWith("/") || raw.startsWith("//")) return null;
+  if (raw.includes("\\") || raw.startsWith("/api/")) return null;
+  return raw.slice(0, 300);
+}
 
 const TOKEN_TTL_MS = 15 * 60 * 1000; // sign-in links: short on purpose
 const SESSION_TTL_MS = 60 * 24 * 60 * 60 * 1000; // 60 days

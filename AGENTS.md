@@ -152,6 +152,12 @@ already in the app when their application year arrives.
   badge or the conflict prompt when signed in. It pushes edits within ~400ms
   plus a `visibilitychange` → `sendBeacon` flush on tab close/hide, so the
   window in which an edit exists only in this browser stays small.
+- Every tool, Secondaries and Interviews included, works signed out (try
+  first, sign in to save). Signed out, `SyncPanel` shows a "Sign in to save"
+  nudge once any store holds data, linking to `/account?next=<this page>`.
+  `next` rides through Google sign-in in the `mda_g_next` cookie and is
+  checked by `safeNextPath()` in `auth.ts` (same-site paths only). There used
+  to be a `SignInGate` that locked those two pages; don't bring it back.
 - The header's "Sign in" link always points at `/account` regardless of auth
   state — signed out that page is the sign-in form, signed in it's account
   management. `SiteHeader` deliberately doesn't fetch auth state itself to
