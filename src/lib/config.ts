@@ -66,6 +66,6 @@ export const MED_MAPPED = {
  * that page first if the fields change.
  */
 export const PAGE_VIEWS = {
-  url: "",
-  key: "",
+  url: "https://cxatqnuqlppmlovmwthu.supabase.co",
+  key: "sb_publishable_AokVONzSC50geLK1_4NZpw_8DJtCsZq",
 };
