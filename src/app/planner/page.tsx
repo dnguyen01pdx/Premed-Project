@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PlannerBoard } from "@/components/PlannerBoard";
 import { SyncPanel } from "@/components/SyncPanel";
 import { getCurrentUser } from "@/lib/auth";
+import { ToolHeader } from "@/components/ToolHeader";
 
 // Whether someone is signed in can change on every request, so this page can
 // no longer be statically generated — see the same note on /secondaries.
@@ -17,14 +18,11 @@ export default async function PlannerPage() {
   const user = await getCurrentUser();
   return (
     <div className="space-y-8">
-      <header className="anim-rise">
-        <h1 className="text-4xl font-semibold tracking-tight">Planner</h1>
-        <p className="mt-3 max-w-2xl leading-relaxed text-muted">
-          Add what repeats each week, like classes, shifts, and lab, plus
-          one-time dates like your MCAT. Switch between week, month, and year
-          view.
-        </p>
-      </header>
+      <ToolHeader kicker="Stop 01 · Every week, all four years" title="Planner">
+        Add what repeats each week, like classes, shifts, and lab, plus
+        one-time dates like your MCAT. Switch between week, month, and year
+        view.
+      </ToolHeader>
 
       <PlannerBoard signedIn={!!user} />
 

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { PromptCard } from "@/components/PromptCard";
 import { PromptFilters } from "@/components/PromptFilters";
 import { CountUp } from "@/components/CountUp";
+import { ToolHeader } from "@/components/ToolHeader";
 import {
   countPrompts,
   getStats,
@@ -21,7 +22,10 @@ export const metadata: Metadata = {
     "Search every US MD secondary essay prompt by school, prompt type, and word or character limit.",
 };
 
-const RESULT_LIMIT = 200;
+// Show a screenful, then grow on request. Loading every prompt at once made
+// this page ~36,000px tall and slow on phones.
+const PAGE_SIZE = 30;
+const MAX_SHOWN = 1000;
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -52,12 +56,16 @@ function parseFilters(sp: SearchParams): Filters {
 async function Results({
   filters,
   olderHref,
+  shown,
+  moreHref,
 }: {
   filters: Filters;
   olderHref: string;
+  shown: number;
+  moreHref: string;
 }) {
   const [rows, total, withOlder] = await Promise.all([
-    searchPrompts(filters, { limit: RESULT_LIMIT }),
+    searchPrompts(filters, { limit: shown }),
     countPrompts(filters),
     filters.includeOlder
       ? Promise.resolve(0)
@@ -92,7 +100,7 @@ async function Results({
     <>
       <p className="text-sm text-muted">
         {total.toLocaleString()} {total === 1 ? "prompt" : "prompts"}
-        {total > rows.length && ` (showing the first ${rows.length})`}
+        {total > rows.length && `, showing the first ${rows.length}`}
       </p>
       {olderNote}
       <div className="mt-4 space-y-3">
@@ -100,6 +108,17 @@ async function Results({
           <PromptCard key={p.id} prompt={p} />
         ))}
       </div>
+      {total > rows.length && rows.length < MAX_SHOWN && (
+        <div className="mt-8 text-center">
+          <Link
+            href={moreHref}
+            scroll={false}
+            className="inline-block rounded-md border border-line-strong bg-surface px-5 py-2.5"
+          >
+            Show {Math.min(PAGE_SIZE, total - rows.length)} more
+          </Link>
+        </div>
+      )}
     </>
   );
 }
@@ -130,16 +149,23 @@ export default async function PromptsPage({
   olderParams.set("older", "1");
   const olderHref = `/prompts?${olderParams.toString()}`;
 
+  const shown = Math.min(
+    positiveInt(first(sp.show)) ?? PAGE_SIZE,
+    MAX_SHOWN,
+  );
+  const moreParams = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (k === "show") continue;
+    for (const one of Array.isArray(v) ? v : v ? [v] : []) moreParams.append(k, one);
+  }
+  moreParams.set("show", String(shown + PAGE_SIZE));
+  const moreHref = `/prompts?${moreParams.toString()}`;
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-4xl font-semibold tracking-tight">
-          Browse secondary prompts
-        </h1>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-          Search secondary prompts by school, question type, or length.
-        </p>
-      </div>
+      <ToolHeader kicker="Reference · For your secondaries" title="Browse secondary prompts">
+        Search secondary prompts by school, question type, or length.
+      </ToolHeader>
 
       {/* Used to live on the homepage as a marketing stat block. It belongs
           here instead — this is the page where these numbers are actually
@@ -171,7 +197,12 @@ export default async function PromptsPage({
         key={key}
         fallback={<p className="text-sm text-muted">Loading prompts...</p>}
       >
-        <Results filters={filters} olderHref={olderHref} />
+        <Results
+          filters={filters}
+          olderHref={olderHref}
+          shown={shown}
+          moreHref={moreHref}
+        />
       </Suspense>
     </div>
   );

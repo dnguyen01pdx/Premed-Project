@@ -305,7 +305,7 @@ export function TrackerBoard({
                 <span className="block text-2xl font-semibold tabular-nums">
                   {schoolsRemaining}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">
+                <span className="nav-label mt-1.5 block text-muted">
                   {schoolsRemaining === 1 ? "school" : "schools"} left to submit
                 </span>
               </div>
@@ -313,7 +313,7 @@ export function TrackerBoard({
                 <span className="block text-2xl font-semibold tabular-nums">
                   {essayTotals.remaining}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">
+                <span className="nav-label mt-1.5 block text-muted">
                   unfinished prompts
                 </span>
               </div>
@@ -321,7 +321,7 @@ export function TrackerBoard({
                 <span className="block text-2xl font-semibold tabular-nums">
                   {coreEssaysNeeded(essayGroups)}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">
+                <span className="nav-label mt-1.5 block text-muted">
                   core essays needed
                 </span>
               </div>
@@ -329,7 +329,7 @@ export function TrackerBoard({
                 <span className="block text-2xl font-semibold tabular-nums">
                   {coveragePct === null ? "N/A" : `${coveragePct}%`}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">
+                <span className="nav-label mt-1.5 block text-muted">
                   essay coverage
                 </span>
               </div>
@@ -502,7 +502,7 @@ export function TrackerBoard({
 
       {/* Data controls */}
       <section className="rounded-xl border border-line bg-sunken p-5">
-        <h2 className="text-sm font-semibold">Your data</h2>
+        <h2 className="kicker">Your data</h2>
         <p className="mt-1 text-sm text-muted">
           Saved in this browser. If you are signed in, it is also backed up
           to your account. If you are not, clearing your browser data loses

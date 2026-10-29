@@ -272,6 +272,18 @@ already in the app when their application year arrives.
   so one component works on navy and on white. It is intentionally low-detail:
   check any change at 16px before shipping it.
 
+- Tool pages (Oct 29 2026): every tool page opens with `ToolHeader`
+  (kicker "Stop 0N · when", big caps title, coral rule). Tabs
+  (`[role="tab"]`), secondary buttons (`border-line-strong` buttons/links)
+  and stat numbers get the printed look from the "Tool pages" block in
+  `globals.css`, so components keep plain markup. Add `.btn-plain` to opt a
+  bordered button out (the Google sign-in button does).
+- `/prompts` shows 30 at a time with "Show N more" (`?show=`, URL state).
+  Don't go back to rendering every prompt at once.
+- `useHasLocalWork()` (`src/lib/localWork.ts`) is the one definition of "this
+  browser holds work worth saving"; it drives the SyncPanel nudge and the
+  header's "Not backed up" marker.
+
 ## Motion
 - The kit lives at the bottom of `globals.css`: `.anim-rise`, `.anim-pop`,
   `.anim-slide`, `.anim-stagger`, `.anim-ring`, `.lift`, `.link-sweep`.

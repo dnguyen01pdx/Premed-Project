@@ -2,34 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import {
-  commitTracker,
-  getTrackerServerSnapshot,
-  getTrackerSnapshot,
-  parseTracker,
-  subscribeToTracker,
-} from "@/lib/tracker";
-import {
-  commitPrep,
-  getPrepServerSnapshot,
-  getPrepSnapshot,
-  parsePrep,
-  subscribeToPrep,
-} from "@/lib/prep";
-import {
-  commitPrimary,
-  getPrimaryServerSnapshot,
-  getPrimarySnapshot,
-  parsePrimary,
-  subscribeToPrimary,
-} from "@/lib/primary";
-import {
-  getPlannerServerSnapshot,
-  getPlannerSnapshot,
-  replacePlanner,
-  subscribeToPlanner,
-} from "@/lib/planner";
+import { useEffect, useRef, useState } from "react";
+import { commitTracker, getTrackerSnapshot, parseTracker } from "@/lib/tracker";
+import { commitPrep, getPrepSnapshot, parsePrep } from "@/lib/prep";
+import { commitPrimary, getPrimarySnapshot, parsePrimary } from "@/lib/primary";
+import { getPlannerSnapshot, replacePlanner } from "@/lib/planner";
+import { useHasLocalWork } from "@/lib/localWork";
 
 type Status =
   | { kind: "loading" }
@@ -305,34 +283,7 @@ export function SyncPanel() {
  */
 function SaveNudge() {
   const pathname = usePathname();
-  const tracker = useSyncExternalStore(
-    subscribeToTracker,
-    getTrackerSnapshot,
-    getTrackerServerSnapshot,
-  );
-  const prep = useSyncExternalStore(
-    subscribeToPrep,
-    getPrepSnapshot,
-    getPrepServerSnapshot,
-  );
-  const primary = useSyncExternalStore(
-    subscribeToPrimary,
-    getPrimarySnapshot,
-    getPrimaryServerSnapshot,
-  );
-  const planner = useSyncExternalStore(
-    subscribeToPlanner,
-    getPlannerSnapshot,
-    getPlannerServerSnapshot,
-  );
-
-  const hasWork =
-    tracker.schools.length > 0 ||
-    Object.keys(prep.notes).length > 0 ||
-    primary.experiences.length > 0 ||
-    primary.letters.length > 0 ||
-    primary.personalStatement.trim().length > 0 ||
-    planner.events.length > 0;
+  const hasWork = useHasLocalWork();
   if (!hasWork) return null;
 
   return (
@@ -341,8 +292,8 @@ function SaveNudge() {
         <h2 className="font-semibold">Nice work! Want to keep it?</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
           Right now everything you have added lives only in this browser.
-          Sign in with Google to back it up and pick up on any device. It is
-          free, and nothing here gets deleted when you sign in.
+          Sign in with Google to back it up and pick up on any device. Signing
+          in costs nothing, and nothing here gets deleted when you do.
         </p>
       </div>
       <Link

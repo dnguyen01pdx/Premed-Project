@@ -100,7 +100,7 @@ export function InterviewBoard({
             <span className="block text-2xl font-semibold tabular-nums">
               {s.n}
             </span>
-            <span className="mt-0.5 block text-xs text-muted">{s.label}</span>
+            <span className="nav-label mt-1.5 block text-muted">{s.label}</span>
           </div>
         ))}
       </div>

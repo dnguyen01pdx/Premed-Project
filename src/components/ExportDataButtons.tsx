@@ -37,7 +37,7 @@ export function ExportDataButtons() {
   }
 
   return (
-    <section className="rounded-2xl border border-line bg-surface p-6">
+    <section className="rounded-md border-2 border-navy-900 bg-surface p-6">
       <h2 className="font-semibold">Export everything</h2>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Every school, essay, activity, hour, and interview in one file. This
