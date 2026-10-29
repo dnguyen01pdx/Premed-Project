@@ -16,6 +16,7 @@ import { CompassMark } from "@/components/Logo";
 import { PromoCodeForm } from "@/components/PromoCodeForm";
 import { ExportDataButtons } from "@/components/ExportDataButtons";
 import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { ToolHeader } from "@/components/ToolHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,11 @@ async function doDelete(formData: FormData) {
   if (!user) return;
   // Typing the address is the confirmation. A one-click delete of someone's
   // whole cycle is not a button that should be easy to hit by accident.
-  if (String(formData.get("confirm") ?? "").trim().toLowerCase() !== user.email) {
+  if (
+    String(formData.get("confirm") ?? "")
+      .trim()
+      .toLowerCase() !== user.email
+  ) {
     revalidatePath("/account");
     return;
   }
@@ -100,7 +105,8 @@ export default async function AccountPage({
 }) {
   const sp = await searchParams;
   const error = Array.isArray(sp.error) ? sp.error[0] : sp.error;
-  const upgraded = (Array.isArray(sp.upgraded) ? sp.upgraded[0] : sp.upgraded) === "1";
+  const upgraded =
+    (Array.isArray(sp.upgraded) ? sp.upgraded[0] : sp.upgraded) === "1";
   const next = safeNextPath(Array.isArray(sp.next) ? sp.next[0] : sp.next);
   const user = await getCurrentUser();
 
@@ -111,14 +117,14 @@ export default async function AccountPage({
             uses — a dedicated sign-in screen reads as an event, not just
             another settings page, and this is the one place in the product
             where that is the right amount of ceremony. */}
-        <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-14 text-white sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-12 sm:py-16">
+        <section className="-mx-5 -mt-10 overflow-hidden bg-navy-900 px-5 py-14 text-white relative sm:mx-0 sm:mt-0 sm:rounded-lg sm:border-2 sm:border-navy-900 sm:px-12 sm:py-16 sm:shadow-[8px_8px_0_var(--coral-pop)]">
           <div className="mx-auto max-w-sm text-center">
             <Link
               href="/"
               className="inline-flex items-center gap-2.5 text-white"
             >
               <CompassMark className="h-8 w-8" />
-              <span className="text-lg font-semibold tracking-tight">
+              <span className="font-display text-3xl">
                 {SITE_NAME}
               </span>
             </Link>
@@ -126,7 +132,7 @@ export default async function AccountPage({
               Your medical school application, organized.
             </p>
 
-            <div className="mt-8 rounded-2xl bg-surface p-6 text-left text-foreground shadow-2xl sm:p-7">
+            <div className="mt-8 rounded-md border-2 border-navy-900 bg-surface p-6 text-left text-foreground shadow-[6px_6px_0_var(--coral-pop)] sm:p-7">
               <h1 className="text-xl font-semibold tracking-tight">
                 Sign in to save your work
               </h1>
@@ -136,9 +142,8 @@ export default async function AccountPage({
 
               {error === "invalid" && (
                 <p className="mt-4 rounded-xl border border-danger/30 bg-danger-soft p-3.5 text-sm text-danger">
-                  That sign-in link has already been used or has expired.
-                  Links work once and last 15 minutes. Try signing in again
-                  below.
+                  That sign-in link has already been used or has expired. Links
+                  work once and last 15 minutes. Try signing in again below.
                 </p>
               )}
               {error === "missing" && (
@@ -185,9 +190,9 @@ export default async function AccountPage({
 
         <div className="mx-auto max-w-lg space-y-6">
           <p className="leading-relaxed text-muted">
-            You do not need an account. The dashboard works fully without
-            one. Signing in only adds syncing, so your work follows you
-            between devices.
+            You do not need an account. The dashboard works fully without one.
+            Signing in only adds syncing, so your work follows you between
+            devices.
           </p>
 
           <Link
@@ -206,13 +211,14 @@ export default async function AccountPage({
   const stripeReady = isStripeConfigured();
 
   return (
-    <div className="mx-auto max-w-lg space-y-8">
-      <header>
-        <h1 className="text-3xl font-semibold tracking-tight">Your account</h1>
-        <p className="mt-3 leading-relaxed text-muted">
-          Signed in as <strong className="text-foreground">{user.email}</strong>.
-        </p>
-      </header>
+    <div className="space-y-10">
+      <ToolHeader
+        kicker="Signed in · Synced to this account"
+        title="Your account"
+      >
+        Signed in as <strong className="text-foreground">{user.email}</strong>.
+        Your work is backed up here and follows you to any device!
+      </ToolHeader>
 
       {(error === "alreadysubscribed" ||
         error === "noportal" ||
@@ -228,148 +234,163 @@ export default async function AccountPage({
 
       {upgraded && !user.isPro && (
         <p className="rounded-xl border border-line-strong bg-sunken p-3.5 text-sm">
-          Payment received. This can take a few seconds to show up here,
-          reload if it still says Free.
+          Payment received. This can take a few seconds to show up here, reload
+          if it still says Free.
         </p>
       )}
 
-      <section className="rounded-2xl border border-line bg-surface p-6">
-        <h2 className="font-semibold">What {SITE_NAME} stores for you</h2>
-        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
-          <li>Your email address, used to sign you in.</li>
-          <li>
-            A copy of your dashboard: schools, essays, statuses, interviews,
-            prep notes, activities and hours, personal statement, letters and
-            your weekly planner, so it can follow you between devices.
-          </li>
-          <li>
-            If you buy Pro: your plan, its end date, and Stripe&apos;s reference
-            to your purchase. Your card details stay with Stripe.
-          </li>
-        </ul>
-        <p className="mt-3 text-sm leading-relaxed text-muted">
-          That is everything.{" "}
-          <Link
-            href="/privacy"
-            className="text-accent underline underline-offset-2 hover:no-underline"
-          >
-            Read the privacy policy
-          </Link>
-          .
-        </p>
-      </section>
+      <div className="grid items-start gap-8 lg:grid-cols-2">
+        <div className="space-y-6">
+          <p className="kicker">Your plan</p>
+          <section className="stamp-coral rounded-md bg-surface p-6">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-display text-3xl">Pro</h2>
+              {user.isPro && (
+                <span className="rounded-full bg-ok-soft px-3 py-1 text-xs font-semibold text-ok">
+                  Active
+                </span>
+              )}
+            </div>
 
-      <section className="rounded-2xl border border-line bg-surface p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-semibold">Pro</h2>
-          {user.isPro && (
-            <span className="rounded-full bg-ok-soft px-3 py-1 text-xs font-semibold text-ok">
-              Active
-            </span>
+            {user.isPro ? (
+              <>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {planLine(user.proPlan, user.proUntil, user.hasSubscription)}{" "}
+                  It follows your sign-in, not this browser, so it is there
+                  wherever you sign in.
+                </p>
+                {user.hasSubscription && (
+                  <a
+                    href="/api/billing/portal"
+                    className="mt-4 inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
+                  >
+                    Manage or cancel subscription
+                  </a>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {user.proPlan && user.proUntil
+                    ? `Your Pro ended ${fmtDate(user.proUntil)}. `
+                    : ""}
+                  $20 a month, or $49 for three months. See{" "}
+                  <Link
+                    href="/pricing"
+                    className="text-accent underline underline-offset-2 hover:no-underline"
+                  >
+                    what it unlocks
+                  </Link>
+                  .
+                </p>
+                {stripeReady ? (
+                  <Link
+                    href="/pricing"
+                    className="mt-4 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+                  >
+                    Choose a plan
+                  </Link>
+                ) : (
+                  <p className="mt-3 text-sm text-muted">
+                    Purchasing is not open yet.
+                  </p>
+                )}
+                <div className="mt-5 border-t border-line pt-5">
+                  <PromoCodeForm />
+                </div>
+              </>
+            )}
+          </section>
+
+          {!user.isPro && (
+            <section className="rounded-md border-2 border-navy-900 bg-surface p-6">
+              <h2 className="font-display text-3xl">Free trial</h2>
+              {user.onTrial && user.trialEndsAt ? (
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  Your free trial is on. Every Pro feature is unlocked until{" "}
+                  <strong className="text-foreground">
+                    {fmtDateTime(user.trialEndsAt)}
+                  </strong>
+                  . After that it switches off on its own, nothing is charged,
+                  and everything you entered stays yours.
+                </p>
+              ) : user.trialEndsAt ? (
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  Your free trial ended {fmtDate(user.trialEndsAt)}. Everything
+                  you entered is still here and still free; Pro adds the full
+                  analysis on top.
+                </p>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">
+                    Try every Pro feature free for {TRIAL_DAYS} days: the full
+                    Essay Map, the complete ranked list of what to write next,
+                    and every insight. No card needed, and it ends on its own.
+                  </p>
+                  <form action={doStartTrial}>
+                    <button
+                      type="submit"
+                      className="mt-4 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+                    >
+                      Start my free trial
+                    </button>
+                  </form>
+                </>
+              )}
+            </section>
           )}
         </div>
-
-        {user.isPro ? (
-          <>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              {planLine(user.proPlan, user.proUntil, user.hasSubscription)} It
-              follows your sign-in, not this browser, so it is there wherever
-              you sign in.
-            </p>
-            {user.hasSubscription && (
-              <a
-                href="/api/billing/portal"
-                className="mt-4 inline-block rounded-xl border border-line-strong px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
-              >
-                Manage or cancel subscription
-              </a>
-            )}
-          </>
-        ) : (
-          <>
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              {user.proPlan && user.proUntil
-                ? `Your Pro ended ${fmtDate(user.proUntil)}. `
-                : ""}
-              $20 a month, or $49 for three months. See{" "}
+        <div className="space-y-6">
+          <p className="kicker">Your data</p>
+          <section className="rounded-md border-2 border-navy-900 bg-surface p-6">
+            <h2 className="font-semibold">What {SITE_NAME} stores for you</h2>
+            <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted">
+              <li>Your email address, used to sign you in.</li>
+              <li>
+                A copy of your dashboard: schools, essays, statuses, interviews,
+                prep notes, activities and hours, personal statement, letters
+                and your weekly planner, so it can follow you between devices.
+              </li>
+              <li>
+                If you buy Pro: your plan, its end date, and Stripe&apos;s
+                reference to your purchase. Your card details stay with Stripe.
+              </li>
+            </ul>
+            <p className="mt-3 text-sm leading-relaxed text-muted">
+              That is everything.{" "}
               <Link
-                href="/pricing"
+                href="/privacy"
                 className="text-accent underline underline-offset-2 hover:no-underline"
               >
-                what it unlocks
+                Read the privacy policy
               </Link>
               .
             </p>
-            {stripeReady ? (
-              <Link
-                href="/pricing"
-                className="mt-4 inline-block rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
-              >
-                Choose a plan
-              </Link>
-            ) : (
-              <p className="mt-3 text-sm text-muted">
-                Purchasing is not open yet.
-              </p>
-            )}
-            <div className="mt-5 border-t border-line pt-5">
-              <PromoCodeForm />
-            </div>
-          </>
-        )}
-      </section>
+          </section>
 
-      {!user.isPro && (
-        <section className="rounded-2xl border border-line bg-surface p-6">
-          <h2 className="font-semibold">Free trial</h2>
-          {user.onTrial && user.trialEndsAt ? (
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              Your free trial is on. Every Pro feature is unlocked until{" "}
-              <strong className="text-foreground">
-                {fmtDateTime(user.trialEndsAt)}
-              </strong>
-              . After that it switches off on its own, nothing is charged, and
-              everything you entered stays yours.
-            </p>
-          ) : user.trialEndsAt ? (
-            <p className="mt-2 text-sm leading-relaxed text-muted">
-              Your free trial ended {fmtDate(user.trialEndsAt)}. Everything you
-              entered is still here and still free; Pro adds the full analysis
-              on top.
-            </p>
-          ) : (
-            <>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                Try every Pro feature free for {TRIAL_DAYS} days: the full
-                Essay Map, the complete ranked list of what to write next, and
-                every insight. No card needed, and it ends on its own.
-              </p>
-              <form action={doStartTrial}>
-                <button
-                  type="submit"
-                  className="mt-4 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
-                >
-                  Start my free trial
-                </button>
-              </form>
-            </>
-          )}
-        </section>
-      )}
+          <ExportDataButtons />
 
-      <ExportDataButtons />
+          <form action={doSignOut}>
+            <button
+              type="submit"
+              className="rounded-xl border border-line-strong bg-surface px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
+      </div>
 
-      <form action={doSignOut}>
-        <button
-          type="submit"
-          className="rounded-xl border border-line-strong bg-surface px-5 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent"
-        >
-          Sign out
-        </button>
-      </form>
-
-      <section className="rounded-2xl border border-danger/30 bg-danger-soft p-6">
-        <h2 className="font-semibold text-danger">Delete your account</h2>
+      <details className="group rounded-md border-2 border-danger/40 bg-danger-soft p-6">
+        <summary className="cursor-pointer list-none font-semibold text-danger marker:content-none [&::-webkit-details-marker]:hidden">
+          Delete your account
+          <span
+            aria-hidden="true"
+            className="ml-2 inline-block transition-transform group-open:rotate-45"
+          >
+            +
+          </span>
+        </summary>
         <p className="mt-2 text-sm leading-relaxed text-danger">
           This deletes your email and your synced dashboard from our database
           immediately. It cannot be undone. The copy saved in this browser stays
@@ -394,7 +415,7 @@ export default async function AccountPage({
             Delete my account
           </button>
         </form>
-      </section>
+      </details>
 
       <p className="text-sm text-muted">
         Questions?{" "}

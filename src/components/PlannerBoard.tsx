@@ -279,30 +279,41 @@ export function PlannerBoard({ signedIn = false }: { signedIn?: boolean }) {
       </section>
 
       {/* ------------------------------------------------------- controls -- */}
+      {/* Add on the left, exports grouped on the right. On a phone the add
+          button spans the row and the two exports share the row below,
+          instead of three buttons wrapping onto three ragged lines. */}
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => openNew(anchor, 9 * 60)}
-          className="lift rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover"
+          className="lift w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-on-accent hover:bg-accent-hover sm:w-auto"
         >
           + Add to my calendar
         </button>
-        <button
-          type="button"
-          onClick={exportAllIcs}
-          disabled={empty}
-          className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+        <div
+          role="group"
+          aria-label="Export"
+          className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto"
         >
-          Export all to calendar (.ics)
-        </button>
-        <button
-          type="button"
-          onClick={exportSpreadsheet}
-          disabled={empty}
-          className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          Export spreadsheet
-        </button>
+          <button
+            type="button"
+            onClick={exportAllIcs}
+            disabled={empty}
+            title="Export all to calendar (.ics)"
+            className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+          >
+            Export calendar
+          </button>
+          <button
+            type="button"
+            onClick={exportSpreadsheet}
+            disabled={empty}
+            className="rounded-xl border border-line-strong px-4 py-2.5 text-sm font-semibold hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-45"
+            title="Export spreadsheet"
+          >
+            Export sheet
+          </button>
+        </div>
       </div>
       {exportFailed && (
         <p className="text-sm text-danger">

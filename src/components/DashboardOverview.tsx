@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { CycleRoute } from "./CycleRoute";
+import { TopoLines } from "./TopoLines";
 import { useState, useSyncExternalStore } from "react";
 import { downloadFullWorkbook } from "@/lib/exportWorkbook";
 import {
@@ -335,50 +337,81 @@ export function DashboardOverview() {
   /* ------------------------------------------------------------ render -- */
 
   if (!touched) {
+    // First visit: the same ink panel and route as the homepage hero, so the
+    // dashboard greets a newcomer with the road ahead instead of "nothing
+    // here yet". The route marks today's stop; the cards are where to start.
     return (
-      <section className="anim-pop rounded-2xl border border-line bg-surface p-8 text-center sm:p-12">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Nothing here yet. Pick a starting point.
-        </h2>
-        <p className="mx-auto mt-3 max-w-lg leading-relaxed text-muted">
-          None of these depend on each other. Fill in whichever one matches
-          where you actually are, and the rest stays empty until you need it.
-        </p>
-        <div className="mx-auto mt-7 grid max-w-2xl gap-3 sm:grid-cols-2">
+      <div className="space-y-8">
+        <section className="anim-pop relative overflow-hidden rounded-lg border-2 border-navy-900 bg-navy-900 p-7 text-white shadow-[6px_6px_0_var(--coral-pop)] sm:p-10">
+          <TopoLines className="pointer-events-none absolute -right-24 -top-20 h-[520px] w-[720px] text-white/[0.08]" />
+          <div className="relative grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,380px)]">
+            <div>
+              <p className="kicker !text-coral-pop">Welcome aboard!</p>
+              <h2 className="mt-3 text-5xl leading-[0.9] sm:text-6xl">
+                Start wherever you are.
+              </h2>
+              <p className="mt-5 max-w-lg leading-relaxed text-navy-100">
+                Nothing here depends on anything else. Pick the stop that
+                matches where you are right now, and this page fills in with
+                what to do next as you go. The rest waits until you need it.
+              </p>
+            </div>
+            <CycleRoute now={new Date()} />
+          </div>
+        </section>
+
+        <ol className="grid gap-5 sm:grid-cols-2">
           {[
             {
               href: "/planner",
+              n: "01",
               t: "Lay out my week",
-              d: "Classes, shifts, lab hours",
+              d: "Classes, shifts and lab hours, added up by category.",
             },
             {
               href: "/primary",
+              n: "02",
               t: "Log an activity",
-              d: "Hours, dates, who can verify it",
+              d: "Hours, dates, and who can verify it.",
             },
             {
               href: "/secondaries",
+              n: "03",
               t: "Add my schools",
-              d: "Every secondary in one list",
+              d: "Every secondary essay in one list.",
             },
             {
-              href: "/prompts",
-              t: "Just browse prompts",
-              d: "769 across 161 programs",
+              href: "/interviews",
+              n: "04",
+              t: "Prep for interviews",
+              d: "Track invites and practice common questions.",
             },
           ].map((c, i) => (
-            <Link
-              key={c.href}
-              href={c.href}
-              style={{ ["--i" as string]: i }}
-              className="lift rounded-xl border border-line bg-sunken p-4 text-left hover:border-accent/50"
-            >
-              <span className="block font-semibold tracking-tight">{c.t}</span>
-              <span className="mt-0.5 block text-sm text-muted">{c.d}</span>
-            </Link>
+            <li key={c.href} style={{ ["--i" as string]: i }}>
+              <Link
+                href={c.href}
+                className="lift block h-full rounded-md border-2 border-navy-900 bg-surface p-5"
+              >
+                <span className="kicker">Stop {c.n}</span>
+                <span className="mt-1.5 block font-display text-3xl">
+                  {c.t}
+                </span>
+                <span className="mt-1 block text-sm text-muted">{c.d}</span>
+              </Link>
+            </li>
           ))}
-        </div>
-      </section>
+        </ol>
+        <p className="text-sm text-muted">
+          Just looking around?{" "}
+          <Link
+            href="/prompts"
+            className="font-medium text-accent underline underline-offset-4 hover:no-underline"
+          >
+            Browse the secondary prompts
+          </Link>
+          .
+        </p>
+      </div>
     );
   }
 

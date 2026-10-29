@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { MED_MAPPED } from "@/lib/config";
+import { useHasLocalWork } from "@/lib/localWork";
 
 /**
  * The stages, in the order the year happens. Five items, nothing else.
@@ -61,6 +62,10 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const accountLabel = signedIn ? ACCOUNT.signedIn : ACCOUNT.signedOut;
+  // Signed out with work in this browser: say so on every page, not just at
+  // the bottom of the one you were working on.
+  const unsaved = useHasLocalWork() && !signedIn;
+  const saveHref = `/account?next=${encodeURIComponent(pathname || "/dashboard")}`;
 
   // Re-checked on every navigation: signing out from /account redirects
   // client-side, so the header never remounts to notice on its own.
@@ -166,8 +171,20 @@ export function SiteHeader() {
           >
             {PRICING.label}
           </Link>
+          {unsaved && pathname !== ACCOUNT.href && (
+            <Link
+              href={saveHref}
+              className="nav-label hidden items-center gap-1.5 px-2 py-1.5 text-coral hover:underline lg:flex"
+            >
+              <span
+                aria-hidden="true"
+                className="h-2 w-2 rounded-full bg-coral-pop"
+              />
+              Not backed up
+            </Link>
+          )}
           <Link
-            href={ACCOUNT.href}
+            href={unsaved ? saveHref : ACCOUNT.href}
             aria-current={pathname === ACCOUNT.href ? "page" : undefined}
             className="lift bg-accent px-4 py-2 text-on-accent transition-colors hover:bg-accent-hover"
           >
@@ -183,6 +200,12 @@ export function SiteHeader() {
           className="nav-label rounded-md border-2 border-navy-900 px-3 py-1.5 text-navy-900 hover:bg-navy-900 hover:text-white md:hidden"
         >
           {menuOpen ? "Close" : "Menu"}
+          {unsaved && !menuOpen && (
+            <span
+              aria-label="Not backed up"
+              className="ml-1.5 inline-block h-2 w-2 rounded-full bg-coral-pop align-middle"
+            />
+          )}
         </button>
       </div>
 
@@ -223,11 +246,11 @@ export function SiteHeader() {
             </li>
             <li>
               <Link
-                href={ACCOUNT.href}
+                href={unsaved ? saveHref : ACCOUNT.href}
                 onClick={() => setMenuOpen(false)}
                 className="block rounded-lg px-2 py-3 text-base font-semibold text-accent hover:bg-sunken"
               >
-                {accountLabel}
+                {unsaved ? "Sign in to save (not backed up yet)" : accountLabel}
               </Link>
             </li>
           </ul>
