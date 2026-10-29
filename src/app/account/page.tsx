@@ -159,7 +159,7 @@ export default async function AccountPage({
               )}
               {error === "signinfirst" && (
                 <p className="mt-4 rounded-xl border border-line-strong bg-sunken p-3.5 text-sm">
-                  Sign in first and weSign in first, then head back to Pricing to upgrade.apos;ll bring you right back to Pricing to upgrade!
+                  Sign in first and we&apos;ll bring you right back to Pricing to upgrade!
                 </p>
               )}
 
