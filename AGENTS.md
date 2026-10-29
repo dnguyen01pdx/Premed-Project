@@ -234,6 +234,14 @@ already in the app when their application year arrives.
   `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID` (or `STRIPE_PRICE_ID_QUARTER`),
   `STRIPE_PRICE_ID_MONTHLY`. A plan whose price is unset shows "Not open yet"
   instead of a broken button.
+- Live setup (Oct 29 2026), Stripe account "MD Atlas": product "MD Atlas Pro"
+  carries both prices (the $49 one-time and the $20/month recurring, the
+  latter in `STRIPE_PRICE_ID_MONTHLY` on Vercel). The webhook destination
+  "MD Atlas production" points at the `premed-project-vert.vercel.app`
+  alias, not `atlas.medmapped.com`, and listens to all five events above.
+  The Customer Portal default configuration is saved (cancel at end of
+  billing period). Vercel asks for Dylan's 2FA code on a manual redeploy, so
+  pick up an env change by pushing to `main` instead.
 - Adding a migration means committing both the generated `drizzle/000N_*.sql`
   file AND its entry in `drizzle/meta/_journal.json`. `scripts/setup.ts`
   reads the journal to decide what's pending, not a directory scan of `.sql`
