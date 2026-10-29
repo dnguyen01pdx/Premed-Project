@@ -56,3 +56,16 @@ export const MED_MAPPED = {
   feed: "https://medmapped.com/feed.xml",
   tagline: "The road to med school, mapped out by a first-year med student",
 };
+
+/**
+ * Cookie-free page-view counter shared with the Med Mapped blog, logged to
+ * Dylan's Supabase project. The key is Supabase's public publishable key:
+ * row-level security lets it insert rows and nothing else, so it is safe in
+ * the browser (schema in the blog repo's tools/traffic.sql). Leave url empty
+ * to turn counting off. What a row holds is spelled out on /privacy; change
+ * that page first if the fields change.
+ */
+export const PAGE_VIEWS = {
+  url: "https://cxatqnuqlppmlovmwthu.supabase.co",
+  key: "sb_publishable_AokVONzSC50geLK1_4NZpw_8DJtCsZq",
+};

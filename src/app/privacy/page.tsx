@@ -77,6 +77,21 @@ export default function PrivacyPage() {
           </div>
 
           <div>
+            <h3 className="font-semibold">A count of page views</h3>
+            <p className="mt-1.5 leading-relaxed text-muted">
+              When a page loads, your browser sends one small note to our
+              database so we know which pages people use: the page address
+              (like /secondaries, never anything you typed into it), the
+              website that linked you here by domain only (like pinterest.com),
+              any utm_ tags on the link, whether the screen is phone, tablet or
+              desktop sized, and the time. No cookies, no IP address, no
+              browser fingerprint, nothing that ties one visit to another or to
+              you. We only ever look at totals. A content blocker stops the
+              count, and the site works exactly the same.
+            </p>
+          </div>
+
+          <div>
             <h3 className="font-semibold">Nothing else</h3>
             <p className="mt-1.5 leading-relaxed text-muted">
               No advertising trackers. No third-party analytics scripts. The
@@ -94,8 +109,10 @@ export default function PrivacyPage() {
         </h2>
         <p className="mt-3 leading-relaxed text-muted">
           {SITE_NAME} runs on Vercel, which serves the site and keeps standard
-          server logs, and on Neon, which hosts the database. If you sign in,
-          Resend delivers the sign-in email. That is the entire list.
+          server logs, and on Neon, which hosts the database. Supabase stores
+          the page-view counts described above. If you sign in, Google confirms
+          your email address, and if you buy Pro, Stripe handles the payment.
+          That is the entire list.
         </p>
       </section>
 
