@@ -7,6 +7,7 @@ import "@fontsource/dm-mono/400.css";
 import "@fontsource/dm-mono/500.css";
 import "./globals.css";
 import { CompassMark } from "@/components/Logo";
+import { PageViews } from "@/components/PageViews";
 import { SiteHeader } from "@/components/SiteHeader";
 import { MED_MAPPED, PUBLIC_URL, SITE_NAME, SITE_TAGLINE } from "@/lib/config";
 
@@ -49,6 +50,7 @@ export default function RootLayout({
         </a>
 
         <SiteHeader />
+        <PageViews />
 
         <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-12 sm:py-16">
           {children}
