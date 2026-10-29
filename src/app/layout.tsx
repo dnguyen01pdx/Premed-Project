@@ -25,6 +25,27 @@ export const metadata: Metadata = {
   },
 };
 
+const SITE_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      alternateName: `${SITE_NAME} by ${MED_MAPPED.name}`,
+      url: `${PUBLIC_URL}/`,
+      publisher: { "@id": `${PUBLIC_URL}/#org` },
+    },
+    {
+      "@type": "Organization",
+      "@id": `${PUBLIC_URL}/#org`,
+      name: SITE_NAME,
+      url: `${PUBLIC_URL}/`,
+      logo: `${PUBLIC_URL}/logo-512.png`,
+      parentOrganization: { "@type": "Organization", name: MED_MAPPED.name, url: MED_MAPPED.url },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -51,6 +72,12 @@ export default function RootLayout({
 
         <SiteHeader />
         <PageViews />
+        {/* Tells Google the site's name and logo for search results; the
+            favicon itself comes from app/icon.tsx and favicon.ico. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(SITE_LD) }}
+        />
 
         <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-5 py-12 sm:py-16">
           {children}
