@@ -111,6 +111,12 @@ export default async function AdminPromoPage() {
           className="mt-2 inline-block text-sm font-medium text-accent underline underline-offset-2 hover:no-underline"
         >
           Submissions &rarr;
+        </a>{" "}
+        <a
+          href="/admin/users"
+          className="ml-4 mt-2 inline-block text-sm font-medium text-accent underline underline-offset-2 hover:no-underline"
+        >
+          Accounts &rarr;
         </a>
       </header>
 

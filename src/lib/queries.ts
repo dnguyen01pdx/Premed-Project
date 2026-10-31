@@ -1,7 +1,13 @@
 import "server-only";
-import { and, asc, eq, ilike, inArray, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, or, sql, type SQL } from "drizzle-orm";
 import { db } from "@/db";
-import { prompts, promptTypes, schools } from "@/db/schema";
+import {
+  prompts,
+  promptTypes,
+  schools,
+  trackerSnapshots,
+  users,
+} from "@/db/schema";
 import { CURRENT_CYCLE, OLDEST_DEFAULT_CYCLE } from "./config";
 
 /**
@@ -330,4 +336,27 @@ export async function getPromptsBySchool(): Promise<
     (out[schoolSlug] ??= []).push(rest);
   }
   return out;
+}
+
+/**
+ * Every MD Atlas account, newest first, for /admin/users. MD Atlas accounts
+ * live in this app's own Postgres `users` table (Google sign-in), not in the
+ * Supabase project, whose `users` table belongs to the Lecture Guides site.
+ * `hasBackup` says whether the account has ever synced data up.
+ */
+export async function listAccounts() {
+  return db
+    .select({
+      email: users.email,
+      createdAt: users.createdAt,
+      lastSeenAt: users.lastSeenAt,
+      isPro: users.isPro,
+      proPlan: users.proPlan,
+      proUntil: users.proUntil,
+      trialEndsAt: users.trialEndsAt,
+      hasBackup: sql<boolean>`${trackerSnapshots.userId} is not null`,
+    })
+    .from(users)
+    .leftJoin(trackerSnapshots, eq(trackerSnapshots.userId, users.id))
+    .orderBy(desc(users.createdAt));
 }
